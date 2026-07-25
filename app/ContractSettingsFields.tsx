@@ -4,10 +4,6 @@ import {
   BellRing,
   CalendarRange,
   ChevronDown,
-  CirclePlus,
-  PauseCircle,
-  PlayCircle,
-  Trash2,
 } from "lucide-react";
 import {
   notificationEventLabels,
@@ -51,25 +47,6 @@ export function ContractSettingsFields({
           ? value.notifications.leadDays.filter((item) => item !== day)
           : [...value.notifications.leadDays, day].sort((a, b) => a - b),
       },
-    });
-  }
-
-  function addStatusHistory(event: "paused" | "resumed") {
-    const date = new Date();
-    const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    patch({
-      statusHistory: [
-        ...value.statusHistory,
-        {
-          id:
-            typeof crypto !== "undefined" &&
-            typeof crypto.randomUUID === "function"
-              ? crypto.randomUUID()
-              : `history-${Date.now()}-${event}`,
-          event,
-          date: localDate,
-        },
-      ],
     });
   }
 
@@ -424,87 +401,6 @@ export function ContractSettingsFields({
                     />
                   </label>
                 ) : null}
-              </div>
-
-              <div className="setting-group status-history-settings">
-                <div>
-                  <p className="setting-group-title">停止・再開の履歴</p>
-                  <p className="setting-help">
-                    停止期間は月間・年間レポートの集計から除外されます。
-                  </p>
-                </div>
-                {value.statusHistory.length > 0 ? (
-                  <div className="status-history-list">
-                    {value.statusHistory.map((entry) => (
-                      <div className="status-history-row" key={entry.id}>
-                        <select
-                          aria-label="履歴の種類"
-                          value={entry.event}
-                          onChange={(event) =>
-                            patch({
-                              statusHistory: value.statusHistory.map((item) =>
-                                item.id === entry.id
-                                  ? {
-                                      ...item,
-                                      event: event.target.value as
-                                        | "paused"
-                                        | "resumed",
-                                    }
-                                  : item,
-                              ),
-                            })
-                          }
-                        >
-                          <option value="paused">停止</option>
-                          <option value="resumed">再開</option>
-                        </select>
-                        <input
-                          aria-label="履歴の日付"
-                          type="date"
-                          value={entry.date}
-                          onChange={(event) =>
-                            patch({
-                              statusHistory: value.statusHistory.map((item) =>
-                                item.id === entry.id
-                                  ? { ...item, date: event.target.value }
-                                  : item,
-                              ),
-                            })
-                          }
-                        />
-                        <button
-                          type="button"
-                          aria-label={`${entry.date}の履歴を削除`}
-                          onClick={() =>
-                            patch({
-                              statusHistory: value.statusHistory.filter(
-                                (item) => item.id !== entry.id,
-                              ),
-                            })
-                          }
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="empty-history">停止・再開の履歴はありません</p>
-                )}
-                <div className="history-actions">
-                  <button type="button" onClick={() => addStatusHistory("paused")}>
-                    <PauseCircle size={17} />
-                    停止を追加
-                  </button>
-                  <button type="button" onClick={() => addStatusHistory("resumed")}>
-                    <PlayCircle size={17} />
-                    再開を追加
-                  </button>
-                </div>
-                <span className="history-add-hint">
-                  <CirclePlus size={13} />
-                  日付は追加後に変更できます
-                </span>
               </div>
 
               <div className="setting-group notification-settings">

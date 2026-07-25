@@ -1031,65 +1031,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   font-size: 12px;
   font-weight: 700;
 }
-.setting-help {
-  margin: 4px 0 0;
-  color: var(--secondary);
-  font-size: 10px;
-  line-height: 1.5;
-}
-.status-history-list { display: grid; gap: 7px; }
-.status-history-row {
-  display: grid;
-  grid-template-columns: minmax(78px, .72fr) minmax(132px, 1fr) 42px;
-  align-items: center;
-  gap: 7px;
-}
-.status-history-row select,
-.status-history-row input {
-  min-height: 44px;
-}
-.status-history-row button {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 11px;
-  color: var(--red);
-  background: rgba(255,59,48,.09);
-}
-.empty-history {
-  margin: 0;
-  padding: 13px;
-  border-radius: 11px;
-  color: var(--secondary);
-  background: rgba(118,118,128,.06);
-  font-size: 11px;
-  text-align: center;
-}
-.history-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.history-actions button {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 1px solid rgba(0,122,255,.1);
-  border-radius: 11px;
-  color: var(--blue);
-  background: rgba(0,122,255,.07);
-  font-size: 11px;
-  font-weight: 620;
-}
-.history-add-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  color: var(--tertiary);
-  font-size: 9px;
-}
 .interval-row { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); gap: 10px; }
 .notification-heading {
   display: grid;

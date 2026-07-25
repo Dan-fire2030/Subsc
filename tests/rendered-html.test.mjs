@@ -109,7 +109,7 @@ test("builds swipeable monthly and yearly reports with animated service bars", a
   assert.match(calculations, /statusHistory/);
   assert.match(calculations, /buildPaymentReport/);
   assert.match(contractSettings, /StatusHistoryEntry/);
-  assert.match(fields, /停止・再開の履歴/);
+  assert.doesNotMatch(fields, /停止・再開の履歴/);
   assert.match(manager, /停止日を記録/);
   assert.match(styles, /--bar-scale/);
   assert.match(styles, /add-trigger\.is-pressing/);
