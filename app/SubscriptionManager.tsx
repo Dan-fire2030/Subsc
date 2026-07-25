@@ -2,6 +2,7 @@
 
 import {
   ArrowRightLeft,
+  BellRing,
   CalendarDays,
   Check,
   ChevronRight,
@@ -45,8 +46,15 @@ import type {
   SubscriptionStatus,
 } from "../db/subscriptions";
 import type { UsdJpyRate } from "../db/exchange-rate";
+import { normalizeContractSettings } from "../db/contract-settings";
+import { ContractSettingsFields } from "./ContractSettingsFields";
+import {
+  buildContractAlerts,
+  isSubscriptionEnded,
+  resolvedContractEndDate,
+} from "./contract-alerts";
 
-type Filter = "all" | "active" | "paused";
+type Filter = "all" | "active" | "paused" | "archived";
 type Sort = "renewal" | "price-high" | "name";
 
 type EditableSubscription = Omit<Subscription, "id" | "clientId">;
@@ -89,6 +97,7 @@ function normalizedSubscription(item: Subscription): Subscription {
       Number.isFinite(item.exchangeRate) && item.exchangeRate > 0
         ? item.exchangeRate
         : 1,
+    contractSettings: normalizeContractSettings(item.contractSettings),
   };
 }
 
@@ -132,6 +141,9 @@ function SubscriptionForm({
   const [amount, setAmount] = useState(
     String(item?.originalAmount ?? item?.price ?? ""),
   );
+  const [contractSettings, setContractSettings] = useState(() =>
+    normalizeContractSettings(item?.contractSettings),
+  );
 
   async function handleDelete() {
     if (!item || !window.confirm(`${item.name}を削除しますか？`)) return;
@@ -167,6 +179,27 @@ function SubscriptionForm({
     if (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate)) {
       return setError("次の更新日を選択してください。");
     }
+    if (
+      contractSettings.enabled &&
+      contractSettings.endMode === "date" &&
+      !contractSettings.endDate
+    ) {
+      return setError("終了日を選択してください。");
+    }
+    if (
+      contractSettings.enabled &&
+      contractSettings.endMode === "payments" &&
+      contractSettings.totalPayments < 1
+    ) {
+      return setError("合計支払い回数を1回以上で入力してください。");
+    }
+    if (
+      contractSettings.enabled &&
+      contractSettings.endMode === "payments" &&
+      contractSettings.completedPayments > contractSettings.totalPayments
+    ) {
+      return setError("支払い済み回数は合計回数以下で入力してください。");
+    }
     if (websiteUrl) {
       try {
         const url = new URL(websiteUrl);
@@ -194,6 +227,7 @@ function SubscriptionForm({
         color: String(formData.get("color") ?? "#007AFF"),
         websiteUrl,
         notes: String(formData.get("notes") ?? "").trim().slice(0, 300),
+        contractSettings: normalizeContractSettings(contractSettings),
       });
       onClose();
     } catch {
@@ -295,6 +329,10 @@ function SubscriptionForm({
           </select>
         </label>
       </div>
+      <ContractSettingsFields
+        value={contractSettings}
+        onChange={setContractSettings}
+      />
       <div className="field-row">
         <label>
           カテゴリ
@@ -555,10 +593,46 @@ export function SubscriptionManager({
     [persistItems, syncPending, user.email],
   );
 
-  const active = useMemo(
-    () => items.filter((item) => item.status === "active"),
+  const listedItems = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          !(
+            isSubscriptionEnded(item) &&
+            item.contractSettings.endBehavior === "hide"
+          ),
+      ),
     [items],
   );
+  const archived = useMemo(
+    () =>
+      listedItems.filter(
+        (item) =>
+          isSubscriptionEnded(item) &&
+          item.contractSettings.endBehavior === "archive",
+      ),
+    [listedItems],
+  );
+  const active = useMemo(
+    () =>
+      listedItems.filter(
+        (item) => item.status === "active" && !isSubscriptionEnded(item),
+      ),
+    [listedItems],
+  );
+  const paused = useMemo(
+    () =>
+      listedItems.filter(
+        (item) =>
+          item.status === "paused" &&
+          !(
+            isSubscriptionEnded(item) &&
+            item.contractSettings.endBehavior === "archive"
+          ),
+      ),
+    [listedItems],
+  );
+  const alerts = useMemo(() => buildContractAlerts(items), [items]);
   const monthlyTotal = useMemo(
     () =>
       active.reduce(
@@ -582,8 +656,17 @@ export function SubscriptionManager({
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("ja");
-    const filtered = items.filter((item) => {
-      const matchesFilter = filter === "all" || item.status === filter;
+    const filtered = listedItems.filter((item) => {
+      const isArchived =
+        isSubscriptionEnded(item) &&
+        item.contractSettings.endBehavior === "archive";
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "archived" && isArchived) ||
+        (filter === "active" &&
+          item.status === "active" &&
+          !isSubscriptionEnded(item)) ||
+        (filter === "paused" && item.status === "paused" && !isArchived);
       const matchesQuery =
         !normalized ||
         `${item.name} ${item.category} ${item.notes}`
@@ -604,7 +687,7 @@ export function SubscriptionManager({
         new Date(b.renewalDate).getTime()
       );
     });
-  }, [items, query, filter, sort, usdJpyRate.rate]);
+  }, [listedItems, query, filter, sort, usdJpyRate.rate]);
 
   const closeEditor = useCallback(() => setEditor(null), []);
   const closeAccount = useCallback(() => setAccountOpen(false), []);
@@ -722,6 +805,43 @@ export function SubscriptionManager({
         ) : null}
       </section>
 
+      {alerts.length > 0 ? (
+        <section className="alerts-card" aria-labelledby="alerts-title">
+          <div className="alerts-heading">
+            <span><BellRing size={19} /></span>
+            <div>
+              <p className="card-label">まもなく期限</p>
+              <h2 id="alerts-title">{alerts.length}件のお知らせ</h2>
+            </div>
+          </div>
+          <div className="alert-list">
+            {alerts.slice(0, 4).map((alert) => (
+              <button
+                type="button"
+                key={alert.id}
+                onClick={() => {
+                  const item = items.find(
+                    (candidate) => candidate.clientId === alert.clientId,
+                  );
+                  if (item) setEditor(item);
+                }}
+              >
+                <span>
+                  <strong>{alert.serviceName}</strong>
+                  <small>{alert.title} · {dateLabel(alert.date)}</small>
+                </span>
+                <em>
+                  {alert.days === 0 ? "今日" : `あと${alert.days}日`}
+                </em>
+              </button>
+            ))}
+          </div>
+          {alerts.length > 4 ? (
+            <p className="more-alerts">ほか {alerts.length - 4}件</p>
+          ) : null}
+        </section>
+      ) : null}
+
       <section className="subscriptions" aria-labelledby="subscriptions-title">
         <div className="section-heading">
           <div>
@@ -741,9 +861,10 @@ export function SubscriptionManager({
 
         <div className="filter-tabs" aria-label="表示するサブスク">
           {([
-            ["all", "すべて", items.length],
+            ["all", "すべて", listedItems.length],
             ["active", "利用中", active.length],
-            ["paused", "停止中", items.length - active.length],
+            ["paused", "停止中", paused.length],
+            ["archived", "履歴", archived.length],
           ] as const).map(([value, label, count]) => (
             <button
               key={value}
@@ -760,7 +881,7 @@ export function SubscriptionManager({
           {visible.map((item) => (
             <button
               type="button"
-              className={`service-card ${item.status === "paused" ? "is-paused" : ""}`}
+              className={`service-card ${item.status === "paused" ? "is-paused" : ""} ${isSubscriptionEnded(item) ? "is-ended" : ""}`}
               key={item.clientId}
               onClick={() => setEditor(item)}
               aria-label={`${item.name}を編集`}
@@ -775,6 +896,7 @@ export function SubscriptionManager({
                 <span className="service-name-row">
                   <strong>{item.name}</strong>
                   {item.status === "paused" ? <em>停止中</em> : null}
+                  {isSubscriptionEnded(item) ? <em>終了</em> : null}
                 </span>
                 <span>
                   {item.category} · {dateLabel(item.renewalDate)} 更新
@@ -782,6 +904,18 @@ export function SubscriptionManager({
                     ? ` · $${item.originalAmount.toFixed(2)}`
                     : ""}
                 </span>
+                {item.contractSettings.enabled &&
+                (item.contractSettings.startDate ||
+                  resolvedContractEndDate(item.contractSettings)) ? (
+                  <span className="period-meta">
+                    {item.contractSettings.startDate
+                      ? `${dateLabel(item.contractSettings.startDate)}開始`
+                      : ""}
+                    {resolvedContractEndDate(item.contractSettings)
+                      ? `${item.contractSettings.startDate ? " · " : ""}${dateLabel(resolvedContractEndDate(item.contractSettings))}終了`
+                      : ""}
+                  </span>
+                ) : null}
               </span>
               <span className="price">
                 <strong>{yen(monthlyEquivalent(item, usdJpyRate.rate))}</strong>
@@ -793,8 +927,8 @@ export function SubscriptionManager({
           {visible.length === 0 ? (
             <div className="empty-state">
               <CreditCard size={28} />
-              <h2>{items.length === 0 ? "サブスクはまだありません" : "見つかりませんでした"}</h2>
-              <p>{items.length === 0 ? "下のボタンから、最初のサービスを追加しましょう。" : "検索条件や絞り込みを変更してください。"}</p>
+              <h2>{listedItems.length === 0 ? "サブスクはまだありません" : "見つかりませんでした"}</h2>
+              <p>{listedItems.length === 0 ? "下のボタンから、最初のサービスを追加しましょう。" : "検索条件や絞り込みを変更してください。"}</p>
             </div>
           ) : null}
         </div>

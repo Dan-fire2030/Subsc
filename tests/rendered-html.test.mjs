@@ -63,3 +63,29 @@ test("accepts USD prices and keeps the app display in yen", async () => {
   assert.match(exchangeRate, /api\.frankfurter\.dev\/v2\/rate\/USD\/JPY/);
   assert.match(exchangeRate, /usd_jpy_exchange_rate/);
 });
+
+test("stores detailed contract periods and builds in-app deadline alerts", async () => {
+  const [manager, fields, alerts, contractSettings, api, database, migration] =
+    await Promise.all([
+      source("app/SubscriptionManager.tsx"),
+      source("app/ContractSettingsFields.tsx"),
+      source("app/contract-alerts.ts"),
+      source("db/contract-settings.ts"),
+      source("app/api/subscriptions/route.ts"),
+      source("db/subscriptions.ts"),
+      source("drizzle/0006_worried_drax.sql"),
+    ]);
+
+  assert.match(manager, /buildContractAlerts/);
+  assert.match(manager, /まもなく期限/);
+  assert.match(fields, /契約期間を設定/);
+  assert.match(fields, /無料体験終了日/);
+  assert.match(fields, /解約期限/);
+  assert.match(fields, /アプリ内通知/);
+  assert.match(contractSettings, /minimumTermEndDate/);
+  assert.match(contractSettings, /final_payment/);
+  assert.match(alerts, /cancellation_deadline/);
+  assert.match(api, /normalizeContractSettings/);
+  assert.match(database, /contract_settings/);
+  assert.match(migration, /ADD `contract_settings`/);
+});

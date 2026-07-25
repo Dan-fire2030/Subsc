@@ -1,0 +1,1 @@
+ALTER TABLE `subscriptions` ADD `contract_settings` text DEFAULT '{}' NOT NULL;

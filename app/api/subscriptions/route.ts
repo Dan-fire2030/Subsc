@@ -9,6 +9,7 @@ import {
   type SubscriptionStatus,
 } from "../../../db/subscriptions";
 import { getUsdJpyRate } from "../../../db/exchange-rate";
+import { normalizeContractSettings } from "../../../db/contract-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
   const color = String(item.color ?? "#007AFF");
   const websiteUrl = String(item.websiteUrl ?? "").trim();
   const notes = String(item.notes ?? "").trim();
+  const contractSettings = normalizeContractSettings(item.contractSettings);
 
   if (!clientId || clientId.length > 100 || !name) return null;
   if (!["JPY", "USD"].includes(currency)) return null;
@@ -44,6 +46,21 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate)) return null;
   if (!["monthly", "yearly"].includes(billingCycle)) return null;
   if (!["active", "paused"].includes(status)) return null;
+  if (
+    contractSettings.enabled &&
+    contractSettings.endMode === "date" &&
+    !contractSettings.endDate
+  ) {
+    return null;
+  }
+  if (
+    contractSettings.enabled &&
+    contractSettings.endMode === "payments" &&
+    (contractSettings.totalPayments < 1 ||
+      contractSettings.completedPayments > contractSettings.totalPayments)
+  ) {
+    return null;
+  }
   if (websiteUrl) {
     try {
       const url = new URL(websiteUrl);
@@ -69,6 +86,7 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
     color,
     websiteUrl,
     notes: notes.slice(0, 300),
+    contractSettings,
   };
 }
 

@@ -26,6 +26,7 @@ export const subscriptions = sqliteTable(
     color: text("color").notNull().default("#c8ff3d"),
     websiteUrl: text("website_url").notNull().default(""),
     notes: text("notes").notNull().default(""),
+    contractSettings: text("contract_settings").notNull().default("{}"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },

@@ -1,4 +1,9 @@
 import { env } from "cloudflare:workers";
+import {
+  parseContractSettings,
+  serializeContractSettings,
+  type ContractSettings,
+} from "./contract-settings";
 
 export type BillingCycle = "monthly" | "yearly";
 export type SubscriptionStatus = "active" | "paused";
@@ -19,6 +24,7 @@ export type Subscription = {
   color: string;
   websiteUrl: string;
   notes: string;
+  contractSettings: ContractSettings;
 };
 
 export type SubscriptionInput = Omit<Subscription, "id"> & { id?: number };
@@ -37,6 +43,7 @@ async function ensureColumns(db: D1Database) {
     ["currency", "ALTER TABLE subscriptions ADD COLUMN currency TEXT NOT NULL DEFAULT 'JPY'"],
     ["original_amount", "ALTER TABLE subscriptions ADD COLUMN original_amount REAL NOT NULL DEFAULT 0"],
     ["exchange_rate", "ALTER TABLE subscriptions ADD COLUMN exchange_rate REAL NOT NULL DEFAULT 1"],
+    ["contract_settings", "ALTER TABLE subscriptions ADD COLUMN contract_settings TEXT NOT NULL DEFAULT '{}'"],
   ] as const;
   const statements = additions
     .filter(([name]) => !columns.has(name))
@@ -69,6 +76,7 @@ async function ready() {
       color TEXT NOT NULL DEFAULT '#c8ff3d',
       website_url TEXT NOT NULL DEFAULT '',
       notes TEXT NOT NULL DEFAULT '',
+      contract_settings TEXT NOT NULL DEFAULT '{}',
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`),
@@ -126,12 +134,18 @@ export async function listSubscriptions(userEmail: string): Promise<Subscription
       original_amount AS originalAmount, exchange_rate AS exchangeRate,
       name, price, category, renewal_date AS renewalDate,
       billing_cycle AS billingCycle, status, color,
-      website_url AS websiteUrl, notes
+      website_url AS websiteUrl, notes,
+      contract_settings AS contractSettings
     FROM subscriptions
     WHERE user_email = ?
     ORDER BY renewal_date ASC`,
-  ).bind(userEmail).all<Subscription>();
-  return result.results;
+  ).bind(userEmail).all<Omit<Subscription, "contractSettings"> & {
+    contractSettings: string;
+  }>();
+  return result.results.map((item) => ({
+    ...item,
+    contractSettings: parseContractSettings(item.contractSettings),
+  }));
 }
 
 async function findSubscription(
@@ -157,9 +171,22 @@ async function getSubscription(userEmail: string, id: number) {
       original_amount AS originalAmount, exchange_rate AS exchangeRate,
       name, price, category,
       renewal_date AS renewalDate, billing_cycle AS billingCycle,
-      status, color, website_url AS websiteUrl, notes
+      status, color, website_url AS websiteUrl, notes,
+      contract_settings AS contractSettings
     FROM subscriptions WHERE id = ? AND user_email = ?`,
-  ).bind(id, userEmail).first<Subscription>();
+  ).bind(id, userEmail).first<
+    Omit<Subscription, "contractSettings"> & { contractSettings: string }
+  >();
+}
+
+function subscriptionFromRow(
+  item:
+    | (Omit<Subscription, "contractSettings"> & { contractSettings: string })
+    | null,
+) {
+  return item
+    ? { ...item, contractSettings: parseContractSettings(item.contractSettings) }
+    : null;
 }
 
 export async function saveSubscription(
@@ -174,7 +201,8 @@ export async function saveSubscription(
       SET currency = ?, original_amount = ?, exchange_rate = ?,
         name = ?, price = ?, category = ?, renewal_date = ?,
         billing_cycle = ?, status = ?, color = ?, website_url = ?,
-        notes = ?, client_id = ?, updated_at = CURRENT_TIMESTAMP
+        notes = ?, contract_settings = ?, client_id = ?,
+        updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_email = ?`,
     ).bind(
       input.currency,
@@ -189,11 +217,14 @@ export async function saveSubscription(
       input.color,
       input.websiteUrl,
       input.notes,
+      serializeContractSettings(input.contractSettings),
       input.clientId,
       existingId,
       userEmail,
     ).run();
-    const updated = await getSubscription(userEmail, existingId);
+    const updated = subscriptionFromRow(
+      await getSubscription(userEmail, existingId),
+    );
     if (!updated) throw new Error("保存したサブスクを確認できませんでした。");
     return updated;
   }
@@ -201,8 +232,8 @@ export async function saveSubscription(
     `INSERT INTO subscriptions
       (client_id, user_email, currency, original_amount, exchange_rate,
        name, price, category, renewal_date, billing_cycle, status, color,
-       website_url, notes, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+       website_url, notes, contract_settings, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
   ).bind(
     input.clientId,
     userEmail,
@@ -218,8 +249,11 @@ export async function saveSubscription(
     input.color,
     input.websiteUrl,
     input.notes,
+    serializeContractSettings(input.contractSettings),
   ).run();
-  const created = await getSubscription(userEmail, Number(inserted.meta.last_row_id));
+  const created = subscriptionFromRow(
+    await getSubscription(userEmail, Number(inserted.meta.last_row_id)),
+  );
   if (!created) throw new Error("追加したサブスクを確認できませんでした。");
   return created;
 }
