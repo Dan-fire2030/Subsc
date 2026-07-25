@@ -15,6 +15,13 @@
       "when": 1784951705421,
       "tag": "0001_needy_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784952312841,
+      "tag": "0002_lucky_swordsman",
+      "breakpoints": true
     }
   ]
 }
