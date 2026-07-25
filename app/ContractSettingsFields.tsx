@@ -131,7 +131,7 @@ export function ContractSettingsFields({
                   max="999"
                   inputMode="numeric"
                   value={value.totalPayments || ""}
-                  placeholder="12"
+                  placeholder="例：12…"
                   onChange={(event) =>
                     patch({ totalPayments: Number(event.target.value) })
                   }
@@ -145,7 +145,7 @@ export function ContractSettingsFields({
                   max="999"
                   inputMode="numeric"
                   value={value.completedPayments || ""}
-                  placeholder="0"
+                  placeholder="例：0…"
                   onChange={(event) =>
                     patch({ completedPayments: Number(event.target.value) })
                   }
@@ -395,7 +395,7 @@ export function ContractSettingsFields({
                       type="text"
                       maxLength={100}
                       value={value.endReasonNote}
-                      placeholder="理由を入力"
+                      placeholder="理由を入力…"
                       onChange={(event) =>
                         patch({ endReasonNote: event.target.value })
                       }

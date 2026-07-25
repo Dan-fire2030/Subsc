@@ -131,3 +131,24 @@ test("builds period-swiping reports, filter gestures, search jumps, and swipe de
   assert.match(styles, /\.search-suggestions/);
   assert.match(styles, /add-trigger\.is-pressing/);
 });
+
+test("uses an iOS HIG-aligned system interface", async () => {
+  const [manager, styles, layout] = await Promise.all([
+    source("app/SubscriptionManager.tsx"),
+    source("app/globals.css"),
+    source("app/layout.tsx"),
+  ]);
+
+  assert.match(styles, /iOS Human Interface Guidelines alignment/);
+  assert.match(styles, /-apple-system/);
+  assert.match(styles, /--background:\s*#f2f2f7/);
+  assert.match(styles, /\.topbar[\s\S]*position:\s*sticky/);
+  assert.match(styles, /min-height:\s*44px/);
+  assert.match(styles, /\.search-box:focus-within/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /@media \(prefers-color-scheme: dark\)/);
+  assert.match(manager, /className="skip-link"/);
+  assert.doesNotMatch(manager, /autoFocus/);
+  assert.match(layout, /viewportFit:\s*"cover"/);
+  assert.match(layout, /colorScheme:\s*"light dark"/);
+});

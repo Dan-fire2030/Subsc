@@ -28,7 +28,6 @@ import {
   useRef,
   useState,
 } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { deleteAccountDataAction } from "./actions";
 import {
@@ -279,7 +278,7 @@ function SubscriptionForm({
           name="name"
           required
           defaultValue={item?.name ?? ""}
-          placeholder="例：Netflix"
+          placeholder="例：Netflix…"
           autoComplete="off"
         />
       </label>
@@ -432,7 +431,7 @@ function SubscriptionForm({
           type="url"
           inputMode="url"
           defaultValue={item?.websiteUrl ?? ""}
-          placeholder="https://example.com"
+          placeholder="https://example.com…"
         />
       </label>
       <label>
@@ -441,7 +440,7 @@ function SubscriptionForm({
           name="notes"
           maxLength={300}
           defaultValue={item?.notes ?? ""}
-          placeholder="解約方法、プラン名など"
+          placeholder="解約方法、プラン名など…"
         />
       </label>
       {error ? (
@@ -911,10 +910,12 @@ export function SubscriptionManager({
   );
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content">
+      <a className="skip-link" href="#subscriptions-title">
+        サブスク一覧へ移動
+      </a>
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Subsc ホーム">
-          <Image className="brand-icon" src="/subsc-favicon-2026.png" width={32} height={32} alt="" priority />
           <span>Subsc</span>
         </Link>
         <div className="top-actions">
@@ -924,7 +925,7 @@ export function SubscriptionManager({
             aria-expanded={searchOpen}
             onClick={() => setSearchOpen((open) => !open)}
           >
-            {searchOpen ? <X size={20} /> : <Search size={20} />}
+            {searchOpen ? <X size={20} aria-hidden="true" /> : <Search size={20} aria-hidden="true" />}
           </button>
           <button
             className="account-button"
@@ -959,11 +960,12 @@ export function SubscriptionManager({
           <div className="search-box">
             <Search size={18} />
             <input
-              autoFocus
               type="search"
+              name="subscription-search"
+              autoComplete="off"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="サービス名・カテゴリ・メモで検索"
+              placeholder="サービス名・カテゴリ・メモで検索…"
               aria-label="サブスクを検索"
               role="combobox"
               aria-autocomplete="list"
