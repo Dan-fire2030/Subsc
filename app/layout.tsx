@@ -22,11 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     icons: {
       icon: [
-        { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-        { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/subsc-favicon-2026.png", sizes: "32x32", type: "image/png" },
+        { url: "/subsc-icon-192-2026.png", sizes: "192x192", type: "image/png" },
       ],
-      shortcut: "/favicon-32.png",
-      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+      shortcut: "/subsc-favicon-2026.png",
+      apple: [{ url: "/subsc-apple-touch-2026.png", sizes: "180x180", type: "image/png" }],
     },
     openGraph: { title, description, type: "website", images: [{ url: ogImage, width: 1672, height: 941 }] },
     twitter: { card: "summary_large_image", title, description, images: [ogImage] },

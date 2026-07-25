@@ -540,7 +540,7 @@ export function SubscriptionManager({
     <main className="app-shell">
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Subsc ホーム">
-          <Image className="brand-icon" src="/favicon-32.png" width={32} height={32} alt="" priority />
+          <Image className="brand-icon" src="/subsc-favicon-2026.png" width={32} height={32} alt="" priority />
           <span>Subsc</span>
         </Link>
         <div className="top-actions">

@@ -1,12 +1,12 @@
-const CACHE_NAME = "subsc-shell-v1";
+const CACHE_NAME = "subsc-shell-v2";
 const PRIVATE_CACHE_NAME = "subsc-private-v1";
 const OFFLINE_URL = "/offline.html";
 const STATIC_ASSETS = [
   OFFLINE_URL,
-  "/favicon-32.png",
-  "/apple-touch-icon.png",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/subsc-favicon-2026.png",
+  "/subsc-apple-touch-2026.png",
+  "/subsc-icon-192-2026.png",
+  "/subsc-icon-512-2026.png",
 ];
 
 self.addEventListener("install", (event) => {

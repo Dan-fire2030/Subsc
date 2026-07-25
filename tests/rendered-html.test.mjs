@@ -17,8 +17,8 @@ test("ships an installable Subsc PWA with an offline fallback", async () => {
   assert.match(manifest, /name:\s*"Subsc"/);
   assert.match(manifest, /short_name:\s*"Subsc"/);
   assert.match(manifest, /display:\s*"standalone"/);
-  assert.match(manifest, /icon-192\.png/);
-  assert.match(manifest, /icon-512\.png/);
+  assert.match(manifest, /subsc-icon-192-2026\.png/);
+  assert.match(manifest, /subsc-icon-512-2026\.png/);
   assert.match(layout, /ServiceWorkerRegistration/);
   assert.match(serviceWorker, /networkFirstNavigation/);
   assert.match(serviceWorker, /PRIVATE_CACHE_NAME/);
