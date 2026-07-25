@@ -58,6 +58,8 @@ export type ContractSettings = {
   notifications: {
     enabled: boolean;
     leadDays: number[];
+    leadHours: number[];
+    time: string;
     events: Record<NotificationEvent, boolean>;
   };
 };
@@ -99,6 +101,8 @@ export const defaultContractSettings: ContractSettings = {
   notifications: {
     enabled: true,
     leadDays: [1, 3, 7],
+    leadHours: [],
+    time: "09:00",
     events: {
       billing_start: true,
       trial_end: true,
@@ -158,6 +162,20 @@ export function normalizeContractSettings(
         ),
       ].sort((a, b) => a - b)
     : defaultContractSettings.notifications.leadDays;
+  const leadHours = Array.isArray(rawNotifications.leadHours)
+    ? [
+        ...new Set(
+          rawNotifications.leadHours
+            .map((hour) => integerValue(hour, -1, 168))
+            .filter((hour) => hour >= 0),
+        ),
+      ].sort((a, b) => a - b)
+    : [];
+  const notificationTime = /^\d{2}:\d{2}$/.test(
+    String(rawNotifications.time ?? ""),
+  )
+    ? String(rawNotifications.time)
+    : "09:00";
   const statusHistory = Array.isArray(item.statusHistory)
     ? item.statusHistory
         .slice(0, 200)
@@ -262,6 +280,8 @@ export function normalizeContractSettings(
           ? rawNotifications.enabled
           : true,
       leadDays,
+      leadHours,
+      time: notificationTime,
       events,
     },
   };

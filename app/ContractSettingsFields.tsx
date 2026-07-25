@@ -12,6 +12,7 @@ import {
 } from "../db/contract-settings";
 
 const leadDayOptions = [0, 1, 3, 7, 14, 30];
+const leadHourOptions = [1, 3, 6, 12];
 
 export function ContractSettingsFields({
   value,
@@ -469,6 +470,59 @@ export function ContractSettingsFields({
                         ))}
                       </div>
                     </fieldset>
+                    <fieldset className="choice-field">
+                      <legend>時間単位の通知（複数選択可）</legend>
+                      <div className="lead-day-grid lead-hour-grid">
+                        {leadHourOptions.map((hour) => (
+                          <button
+                            key={hour}
+                            type="button"
+                            className={
+                              value.notifications.leadHours.includes(hour)
+                                ? "is-selected"
+                                : ""
+                            }
+                            aria-pressed={value.notifications.leadHours.includes(hour)}
+                            onClick={() => {
+                              const selected =
+                                value.notifications.leadHours.includes(hour);
+                              onChange({
+                                ...value,
+                                notifications: {
+                                  ...value.notifications,
+                                  leadHours: selected
+                                    ? value.notifications.leadHours.filter(
+                                        (item) => item !== hour,
+                                      )
+                                    : [
+                                        ...value.notifications.leadHours,
+                                        hour,
+                                      ].sort((a, b) => a - b),
+                                },
+                              });
+                            }}
+                          >
+                            {hour}時間前
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                    <label>
+                      通知対象の時刻
+                      <input
+                        type="time"
+                        value={value.notifications.time}
+                        onChange={(event) =>
+                          onChange({
+                            ...value,
+                            notifications: {
+                              ...value.notifications,
+                              time: event.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </label>
                   </>
                 ) : null}
               </div>

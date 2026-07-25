@@ -50,6 +50,7 @@ import type { UsdJpyRate } from "../db/exchange-rate";
 import { normalizeContractSettings } from "../db/contract-settings";
 import { ContractSettingsFields } from "./ContractSettingsFields";
 import { ReportHero } from "./ReportHero";
+import { SwipeDeleteRow } from "./SwipeDeleteRow";
 import {
   buildContractAlerts,
   isSubscriptionEnded,
@@ -58,6 +59,7 @@ import {
 
 type Filter = "all" | "active" | "paused" | "archived";
 type Sort = "renewal" | "price-high" | "name";
+const filterOrder: Filter[] = ["all", "active", "paused", "archived"];
 
 type EditableSubscription = Omit<Subscription, "id" | "clientId">;
 type SyncState = "online" | "offline" | "pending" | "syncing";
@@ -488,8 +490,31 @@ export function SubscriptionManager({
   const [editor, setEditor] = useState<Subscription | "new" | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [syncState, setSyncState] = useState<SyncState>("online");
+  const [revealedClientId, setRevealedClientId] = useState<string | null>(null);
+  const [scrollTargetId, setScrollTargetId] = useState<string | null>(null);
+  const [highlightedClientId, setHighlightedClientId] = useState<string | null>(
+    null,
+  );
+  const [alertClock, setAlertClock] = useState(() => Date.now());
   const itemsRef = useRef(items);
   const syncInFlight = useRef<Promise<void> | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const filterGestureRef = useRef({
+    active: false,
+    startX: 0,
+    startY: 0,
+  });
+  const filterDidSwipeRef = useRef(false);
+
+  useEffect(() => {
+    const refreshAlerts = () => setAlertClock(Date.now());
+    const timer = window.setInterval(refreshAlerts, 60_000);
+    document.addEventListener("visibilitychange", refreshAlerts);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refreshAlerts);
+    };
+  }, []);
 
   const persistItems = useCallback(
     async (nextItems: Subscription[]) => {
@@ -699,7 +724,10 @@ export function SubscriptionManager({
       ),
     [listedItems],
   );
-  const alerts = useMemo(() => buildContractAlerts(items), [items]);
+  const alerts = useMemo(
+    () => buildContractAlerts(items, new Date(alertClock)),
+    [alertClock, items],
+  );
   const next = useMemo(
     () =>
       active
@@ -746,6 +774,86 @@ export function SubscriptionManager({
       );
     });
   }, [listedItems, query, filter, sort, usdJpyRate.rate]);
+
+  const searchCandidates = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase("ja");
+    if (!normalized) return [];
+    return listedItems
+      .filter((item) =>
+        `${item.name} ${item.category} ${item.notes}`
+          .toLocaleLowerCase("ja")
+          .includes(normalized),
+      )
+      .slice(0, 6);
+  }, [listedItems, query]);
+
+  useEffect(() => {
+    if (!scrollTargetId) return;
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(
+        `subscription-${scrollTargetId}`,
+      );
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightedClientId(scrollTargetId);
+      setScrollTargetId(null);
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+      highlightTimerRef.current = setTimeout(
+        () => setHighlightedClientId(null),
+        1400,
+      );
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [scrollTargetId, visible]);
+
+  useEffect(
+    () => () => {
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    },
+    [],
+  );
+
+  function goToSubscription(clientId: string) {
+    setFilter("all");
+    setQuery("");
+    setSearchOpen(false);
+    setRevealedClientId(null);
+    setScrollTargetId(clientId);
+  }
+
+  function handleFilterPointerDown(
+    event: React.PointerEvent<HTMLDivElement>,
+  ) {
+    filterGestureRef.current = {
+      active: true,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleFilterPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const gesture = filterGestureRef.current;
+    if (!gesture.active) return;
+    gesture.active = false;
+    const deltaX = event.clientX - gesture.startX;
+    const deltaY = event.clientY - gesture.startY;
+    if (Math.abs(deltaX) < 38 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+    const currentIndex = filterOrder.indexOf(filter);
+    const nextIndex = Math.max(
+      0,
+      Math.min(
+        filterOrder.length - 1,
+        currentIndex + (deltaX < 0 ? 1 : -1),
+      ),
+    );
+    filterDidSwipeRef.current = true;
+    setFilter(filterOrder[nextIndex]);
+    requestAnimationFrame(() => {
+      filterDidSwipeRef.current = false;
+    });
+  }
 
   const closeEditor = useCallback(() => setEditor(null), []);
   const closeAccount = useCallback(() => setAccountOpen(false), []);
@@ -847,16 +955,51 @@ export function SubscriptionManager({
       ) : null}
 
       {searchOpen ? (
-        <div className="search-box">
-          <Search size={18} />
-          <input
-            autoFocus
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="サービス名・カテゴリ・メモで検索"
-            aria-label="サブスクを検索"
-          />
+        <div className="search-area">
+          <div className="search-box">
+            <Search size={18} />
+            <input
+              autoFocus
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="サービス名・カテゴリ・メモで検索"
+              aria-label="サブスクを検索"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="search-suggestions"
+              aria-expanded={query.trim().length > 0}
+            />
+          </div>
+          {query.trim() ? (
+            <div className="search-suggestions" id="search-suggestions" role="listbox">
+              {searchCandidates.length > 0 ? (
+                searchCandidates.map((item) => (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected="false"
+                    key={item.clientId}
+                    onClick={() => goToSubscription(item.clientId)}
+                  >
+                    <span
+                      className="suggestion-logo"
+                      style={{ "--service-color": item.color } as React.CSSProperties}
+                    >
+                      {item.name.slice(0, 1).toUpperCase()}
+                    </span>
+                    <span>
+                      <strong>{item.name}</strong>
+                      <small>{item.category}</small>
+                    </span>
+                    <em>{yen(monthlyEquivalent(item, usdJpyRate.rate))}/月</em>
+                  </button>
+                ))
+              ) : (
+                <p className="search-empty">一致するサブスクはありません</p>
+              )}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -899,10 +1042,14 @@ export function SubscriptionManager({
               >
                 <span>
                   <strong>{alert.serviceName}</strong>
-                  <small>{alert.title} · {dateLabel(alert.date)}</small>
+                  <small>{alert.title} · {dateLabel(alert.date)} {alert.time}</small>
                 </span>
                 <em>
-                  {alert.days === 0 ? "今日" : `あと${alert.days}日`}
+                  {alert.hours > 0 && alert.hours < 24
+                    ? `あと${alert.hours}時間`
+                    : alert.days === 0
+                      ? "今日"
+                      : `あと${alert.days}日`}
                 </em>
               </button>
             ))}
@@ -930,7 +1077,13 @@ export function SubscriptionManager({
           </label>
         </div>
 
-        <div className="filter-tabs" aria-label="表示するサブスク">
+        <div
+          className="filter-tabs"
+          aria-label="表示するサブスク"
+          onPointerDown={handleFilterPointerDown}
+          onPointerUp={handleFilterPointerUp}
+          onPointerCancel={handleFilterPointerUp}
+        >
           {([
             ["all", "すべて", listedItems.length],
             ["active", "利用中", active.length],
@@ -941,7 +1094,9 @@ export function SubscriptionManager({
               key={value}
               className={filter === value ? "is-active" : ""}
               aria-pressed={filter === value}
-              onClick={() => setFilter(value)}
+              onClick={() => {
+                if (!filterDidSwipeRef.current) setFilter(value);
+              }}
             >
               {label}<span>{count}</span>
             </button>
@@ -950,12 +1105,16 @@ export function SubscriptionManager({
 
         <div className="list">
           {visible.map((item) => (
-            <button
-              type="button"
+            <SwipeDeleteRow
+              id={item.clientId}
+              label={item.name}
               className={`service-card ${item.status === "paused" ? "is-paused" : ""} ${isSubscriptionEnded(item) ? "is-ended" : ""}`}
               key={item.clientId}
-              onClick={() => setEditor(item)}
-              aria-label={`${item.name}を編集`}
+              revealed={revealedClientId === item.clientId}
+              highlighted={highlightedClientId === item.clientId}
+              onReveal={setRevealedClientId}
+              onOpen={() => setEditor(item)}
+              onDelete={() => deleteLocalSubscription(item)}
             >
               <span
                 className="service-logo"
@@ -993,7 +1152,7 @@ export function SubscriptionManager({
                 <span>{item.billingCycle === "yearly" ? "/月換算" : "/月"}</span>
               </span>
               <ChevronRight className="card-chevron" size={18} />
-            </button>
+            </SwipeDeleteRow>
           ))}
           {visible.length === 0 ? (
             <div className="empty-state">

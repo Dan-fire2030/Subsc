@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  ReceiptText,
-} from "lucide-react";
+import { ReceiptText } from "lucide-react";
 import {
   useEffect,
   useLayoutEffect,
@@ -185,8 +181,12 @@ export function ReportHero({
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
   const [view, setView] = useState<"month" | "year">("month");
+  const [monthCursor, setMonthCursor] = useState({
+    year: currentYear,
+    month: currentMonth,
+  });
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({
     active: false,
     startX: 0,
@@ -194,44 +194,50 @@ export function ReportHero({
     delta: 0,
   });
 
-  const monthReport = useMemo(
+  const report = useMemo(
     () =>
-      buildPaymentReport(
-        items,
-        { type: "month", year: currentYear, month: currentMonth },
-        usdJpyRate,
-      ),
-    [items, currentYear, currentMonth, usdJpyRate],
-  );
-  const yearReport = useMemo(
-    () =>
-      buildPaymentReport(
-        items,
-        { type: "year", year: selectedYear },
-        usdJpyRate,
-      ),
-    [items, selectedYear, usdJpyRate],
+      view === "month"
+        ? buildPaymentReport(
+            items,
+            {
+              type: "month",
+              year: monthCursor.year,
+              month: monthCursor.month,
+            },
+            usdJpyRate,
+          )
+        : buildPaymentReport(
+            items,
+            { type: "year", year: selectedYear },
+            usdJpyRate,
+          ),
+    [items, monthCursor, selectedYear, usdJpyRate, view],
   );
 
-  function moveTrack(nextView: "month" | "year", animate = true) {
-    const track = trackRef.current;
-    if (!track) return;
-    track.style.transition = animate
-      ? "transform 520ms cubic-bezier(.2,.8,.2,1)"
-      : "none";
-    track.style.transform =
-      nextView === "month"
-        ? "translate3d(0,0,0)"
-        : "translate3d(-50%,0,0)";
+  function shiftPeriod(direction: -1 | 1) {
+    if (view === "month") {
+      setMonthCursor((cursor) => {
+        const next = new Date(cursor.year, cursor.month + direction, 1);
+        return { year: next.getFullYear(), month: next.getMonth() };
+      });
+    } else {
+      setSelectedYear((year) => year + direction);
+    }
   }
 
-  function selectView(nextView: "month" | "year") {
-    setView(nextView);
-    moveTrack(nextView);
+  function animateIncoming(direction: -1 | 1) {
+    requestAnimationFrame(() => {
+      panelRef.current?.animate(
+        [
+          { transform: `translate3d(${direction * 34}px,0,0)`, opacity: 0.42 },
+          { transform: "translate3d(0,0,0)", opacity: 1 },
+        ],
+        { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" },
+      );
+    });
   }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("button")) return;
     dragRef.current = {
       active: true,
       startX: event.clientX,
@@ -239,21 +245,19 @@ export function ReportHero({
       delta: 0,
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-    const track = trackRef.current;
-    if (track) track.style.transition = "none";
+    if (panelRef.current) panelRef.current.style.transition = "none";
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
     if (!drag.active) return;
     const rawDelta = event.clientX - drag.startX;
-    const atEdge =
-      (view === "month" && rawDelta > 0) ||
-      (view === "year" && rawDelta < 0);
-    drag.delta = atEdge ? rawDelta * 0.28 : rawDelta;
-    const base = view === "month" ? "0%" : "-50%";
-    if (trackRef.current) {
-      trackRef.current.style.transform = `translate3d(calc(${base} + ${drag.delta}px),0,0)`;
+    drag.delta = rawDelta * 0.72;
+    if (panelRef.current) {
+      panelRef.current.style.transform = `translate3d(${drag.delta}px,0,0)`;
+      panelRef.current.style.opacity = String(
+        Math.max(0.5, 1 - Math.abs(drag.delta) / 360),
+      );
     }
   }
 
@@ -263,10 +267,31 @@ export function ReportHero({
     drag.active = false;
     const duration = Math.max(1, event.timeStamp - drag.startedAt);
     const velocity = drag.delta / duration;
-    let nextView = view;
-    if (drag.delta < -52 || velocity < -0.38) nextView = "year";
-    if (drag.delta > 52 || velocity > 0.38) nextView = "month";
-    selectView(nextView);
+    const direction =
+      drag.delta < -52 || velocity < -0.38
+        ? 1
+        : drag.delta > 52 || velocity > 0.38
+          ? -1
+          : 0;
+    const panel = panelRef.current;
+    if (panel) {
+      panel.style.transition =
+        "transform 320ms cubic-bezier(.2,.8,.2,1), opacity 240ms ease";
+      panel.style.transform = "translate3d(0,0,0)";
+      panel.style.opacity = "1";
+    }
+    if (direction) {
+      shiftPeriod(direction);
+      animateIncoming(direction);
+    }
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowRight" ? 1 : -1;
+    shiftPeriod(direction);
+    animateIncoming(direction);
   }
 
   return (
@@ -281,55 +306,37 @@ export function ReportHero({
             key={value}
             className={view === value ? "is-active" : ""}
             aria-pressed={view === value}
-            onClick={() => selectView(value)}
+            onClick={() => setView(value)}
           >
             {label}
           </button>
         ))}
       </div>
       <div
-        className="report-viewport"
+        className="report-gesture-area"
+        ref={panelRef}
+        role="group"
+        tabIndex={0}
+        aria-label={`${view === "month" ? "月" : "年"}ごとのレポート。左右スワイプで前後へ移動`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
+        onKeyDown={handleKeyDown}
       >
-        <div className="report-track" ref={trackRef}>
-          <ReportPanel
-            report={monthReport}
-            label={`${currentMonth + 1}月の支払い`}
-            detail={`${monthReport.paymentCount}回`}
-          />
-          <ReportPanel
-            report={yearReport}
-            label={`${selectedYear}年の支払い`}
-            detail={`${yearReport.paymentCount}回`}
-          >
-            <div className="year-stepper" aria-label="表示する年">
-              <button
-                type="button"
-                aria-label={`${selectedYear - 1}年を表示`}
-                onClick={() => setSelectedYear((year) => year - 1)}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <span>{selectedYear}</span>
-              <button
-                type="button"
-                aria-label={`${selectedYear + 1}年を表示`}
-                onClick={() => setSelectedYear((year) => year + 1)}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </ReportPanel>
-        </div>
+        <ReportPanel
+          report={report}
+          label={
+            view === "month"
+              ? `${monthCursor.year}年${monthCursor.month + 1}月の支払い`
+              : `${selectedYear}年の支払い`
+          }
+          detail={`${report.paymentCount}回`}
+        />
       </div>
       <div className="report-swipe-hint">
-        <span className={view === "month" ? "is-active" : ""} />
-        <span className={view === "year" ? "is-active" : ""} />
         <ReceiptText size={13} />
-        左右にスワイプ
+        左右にスワイプして前後の{view === "month" ? "月" : "年"}へ
       </div>
     </section>
   );

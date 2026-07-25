@@ -82,20 +82,26 @@ test("stores detailed contract periods and builds in-app deadline alerts", async
   assert.match(fields, /無料体験終了日/);
   assert.match(fields, /解約期限/);
   assert.match(fields, /アプリ内通知/);
+  assert.match(fields, /通知対象の時刻/);
+  assert.match(fields, /時間前/);
   assert.match(contractSettings, /minimumTermEndDate/);
+  assert.match(contractSettings, /leadHours/);
+  assert.match(contractSettings, /time:\s*"09:00"/);
   assert.match(contractSettings, /final_payment/);
+  assert.match(alerts, /hoursFromNow/);
   assert.match(alerts, /cancellation_deadline/);
   assert.match(api, /normalizeContractSettings/);
   assert.match(database, /contract_settings/);
   assert.match(migration, /ADD `contract_settings`/);
 });
 
-test("builds swipeable monthly and yearly reports with animated service bars", async () => {
-  const [hero, calculations, manager, contractSettings, fields, styles] =
+test("builds period-swiping reports, filter gestures, search jumps, and swipe deletion", async () => {
+  const [hero, calculations, manager, swipeRow, contractSettings, fields, styles] =
     await Promise.all([
       source("app/ReportHero.tsx"),
       source("app/report-calculations.ts"),
       source("app/SubscriptionManager.tsx"),
+      source("app/SwipeDeleteRow.tsx"),
       source("db/contract-settings.ts"),
       source("app/ContractSettingsFields.tsx"),
       source("app/globals.css"),
@@ -103,7 +109,10 @@ test("builds swipeable monthly and yearly reports with animated service bars", a
 
   assert.match(hero, /AnimatedYen/);
   assert.match(hero, /handlePointerMove/);
-  assert.match(hero, /左右にスワイプ/);
+  assert.match(hero, /shiftPeriod/);
+  assert.match(hero, /report-gesture-area/);
+  assert.match(hero, /前後の\{view === "month" \? "月" : "年"\}/);
+  assert.doesNotMatch(hero, /nextView = "year"/);
   assert.match(hero, /ReportBars/);
   assert.match(calculations, /billingStartDate/);
   assert.match(calculations, /statusHistory/);
@@ -111,6 +120,14 @@ test("builds swipeable monthly and yearly reports with animated service bars", a
   assert.match(contractSettings, /StatusHistoryEntry/);
   assert.doesNotMatch(fields, /停止・再開の履歴/);
   assert.match(manager, /停止日を記録/);
+  assert.match(manager, /search-suggestions/);
+  assert.match(manager, /scrollIntoView/);
+  assert.match(manager, /handleFilterPointerDown/);
+  assert.match(manager, /SwipeDeleteRow/);
+  assert.match(swipeRow, /左にスワイプすると削除できます/);
   assert.match(styles, /--bar-scale/);
+  assert.match(styles, /color-mix\(in srgb, var\(--bar-color\)/);
+  assert.match(styles, /\.service-swipe-row/);
+  assert.match(styles, /\.search-suggestions/);
   assert.match(styles, /add-trigger\.is-pressing/);
 });
