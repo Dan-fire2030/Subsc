@@ -23,6 +23,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   deleteAccountDataAction,
@@ -163,12 +164,12 @@ function SubscriptionForm({
         </label>
         <label>
           カラー
-          <select name="color" defaultValue={item?.color ?? "#c8ff3d"}>
-            <option value="#c8ff3d">ライム</option>
-            <option value="#8be9fd">スカイ</option>
-            <option value="#ff8fb1">ピンク</option>
-            <option value="#c4a7e7">パープル</option>
-            <option value="#f6c177">オレンジ</option>
+          <select name="color" defaultValue={item?.color ?? "#007AFF"}>
+            <option value="#007AFF">ブルー</option>
+            <option value="#34C759">グリーン</option>
+            <option value="#FF375F">ピンク</option>
+            <option value="#AF52DE">パープル</option>
+            <option value="#FF9F0A">オレンジ</option>
           </select>
         </label>
       </div>
@@ -299,8 +300,8 @@ export function SubscriptionManager({
     <main className="app-shell">
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Subsc ホーム">
-          <span className="brand-mark"><Check size={18} strokeWidth={3} /></span>
-          <span>subsc</span>
+          <Image className="brand-icon" src="/favicon-32.png" width={32} height={32} alt="" priority />
+          <span>Subsc</span>
         </Link>
         <div className="top-actions">
           <button
@@ -338,13 +339,13 @@ export function SubscriptionManager({
 
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">MONTHLY SPEND</p>
+          <p className="eyebrow">今月のサブスク</p>
           <p className="total">{yen(monthlyTotal)}</p>
           <p className="yearly-total">年間換算 {yen(yearlyTotal)}</p>
         </div>
         <div className="orb" aria-label={`利用中 ${active.length}件`}>
           <span>{active.length}</span>
-          <small>active</small>
+          <small>利用中</small>
         </div>
       </section>
 
@@ -365,7 +366,7 @@ export function SubscriptionManager({
       <section className="subscriptions" aria-labelledby="subscriptions-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">YOUR SUBSCRIPTIONS</p>
+            <p className="eyebrow">登録済みサービス</p>
             <h1 id="subscriptions-title">サブスク一覧</h1>
           </div>
           <label className="sort-control">
@@ -459,7 +460,7 @@ export function SubscriptionManager({
             <div className="sheet-handle" />
             <div className="sheet-title">
               <div>
-                <p className="eyebrow">{editor === "new" ? "NEW SUBSCRIPTION" : "EDIT SUBSCRIPTION"}</p>
+                <p className="eyebrow">{editor === "new" ? "新規登録" : "登録内容"}</p>
                 <h2 id="editor-title">{editor === "new" ? "サブスクを追加" : "登録内容を編集"}</h2>
               </div>
               <button className="sheet-close" type="button" onClick={closeEditor} aria-label="閉じる">
@@ -486,7 +487,7 @@ export function SubscriptionManager({
             <div className="sheet-handle" />
             <div className="sheet-title">
               <div>
-                <p className="eyebrow">YOUR ACCOUNT</p>
+                <p className="eyebrow">プロフィールとデータ</p>
                 <h2 id="account-title">アカウント</h2>
               </div>
               <button className="sheet-close" type="button" onClick={closeAccount} aria-label="閉じる">
