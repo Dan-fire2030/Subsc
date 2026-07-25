@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { SubscriptionManager } from "./SubscriptionManager";
-import { listSubscriptions } from "../db/subscriptions";
+import { chatGPTSignOutPath, requireChatGPTUser } from "./chatgpt-auth";
+import { listSubscriptions, registerUser } from "../db/subscriptions";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Subsc — サブスクを、すっきり管理",
@@ -8,6 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const subscriptions = await listSubscriptions();
-  return <SubscriptionManager subscriptions={subscriptions} />;
+  const user = await requireChatGPTUser("/");
+  await registerUser(user.email, user.displayName);
+  const subscriptions = await listSubscriptions(user.email);
+  return (
+    <SubscriptionManager
+      subscriptions={subscriptions}
+      user={{ displayName: user.displayName, email: user.email }}
+      signOutHref={chatGPTSignOutPath("/")}
+    />
+  );
 }

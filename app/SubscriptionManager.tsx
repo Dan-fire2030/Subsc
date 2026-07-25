@@ -6,10 +6,14 @@ import {
   ChevronRight,
   CirclePlus,
   CreditCard,
+  Download,
   ExternalLink,
+  LogOut,
   Search,
+  ShieldCheck,
   SlidersHorizontal,
   Trash2,
+  UserRound,
   X,
 } from "lucide-react";
 import {
@@ -21,6 +25,7 @@ import {
 } from "react";
 import Link from "next/link";
 import {
+  deleteAccountDataAction,
   deleteSubscriptionAction,
   saveSubscriptionAction,
   type SaveState,
@@ -212,14 +217,19 @@ function SubscriptionForm({
 
 export function SubscriptionManager({
   subscriptions,
+  user,
+  signOutHref,
 }: {
   subscriptions: Subscription[];
+  user: { displayName: string; email: string };
+  signOutHref: string;
 }) {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("renewal");
   const [editor, setEditor] = useState<Subscription | "new" | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
 
   const active = useMemo(
     () => subscriptions.filter((item) => item.status === "active"),
@@ -266,20 +276,24 @@ export function SubscriptionManager({
   }, [subscriptions, query, filter, sort]);
 
   const closeEditor = useCallback(() => setEditor(null), []);
+  const closeAccount = useCallback(() => setAccountOpen(false), []);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor && !accountOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeEditor();
+      if (event.key === "Escape") {
+        closeEditor();
+        closeAccount();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [editor, closeEditor]);
+  }, [editor, accountOpen, closeEditor, closeAccount]);
 
   return (
     <main className="app-shell">
@@ -288,14 +302,24 @@ export function SubscriptionManager({
           <span className="brand-mark"><Check size={18} strokeWidth={3} /></span>
           <span>subsc</span>
         </Link>
-        <button
-          className={`icon-button ${searchOpen ? "is-active" : ""}`}
-          aria-label={searchOpen ? "検索を閉じる" : "サブスクを検索"}
-          aria-expanded={searchOpen}
-          onClick={() => setSearchOpen((open) => !open)}
-        >
-          {searchOpen ? <X size={20} /> : <Search size={20} />}
-        </button>
+        <div className="top-actions">
+          <button
+            className={`icon-button ${searchOpen ? "is-active" : ""}`}
+            aria-label={searchOpen ? "検索を閉じる" : "サブスクを検索"}
+            aria-expanded={searchOpen}
+            onClick={() => setSearchOpen((open) => !open)}
+          >
+            {searchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
+          <button
+            className="account-button"
+            type="button"
+            onClick={() => setAccountOpen(true)}
+            aria-label="アカウント設定を開く"
+          >
+            {user.displayName.slice(0, 1).toUpperCase()}
+          </button>
+        </div>
       </header>
 
       {searchOpen ? (
@@ -447,6 +471,68 @@ export function SubscriptionManager({
               item={editor === "new" ? null : editor}
               onClose={closeEditor}
             />
+          </section>
+        </div>
+      ) : null}
+      {accountOpen ? (
+        <div className="modal-root">
+          <button className="sheet-backdrop" aria-label="アカウント設定を閉じる" onClick={closeAccount} />
+          <section
+            className="sheet-panel account-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-title"
+          >
+            <div className="sheet-handle" />
+            <div className="sheet-title">
+              <div>
+                <p className="eyebrow">YOUR ACCOUNT</p>
+                <h2 id="account-title">アカウント</h2>
+              </div>
+              <button className="sheet-close" type="button" onClick={closeAccount} aria-label="閉じる">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="account-profile">
+              <span className="account-avatar"><UserRound size={24} /></span>
+              <div>
+                <strong>{user.displayName}</strong>
+                <span>{user.email}</span>
+              </div>
+            </div>
+            <div className="privacy-note">
+              <ShieldCheck size={19} />
+              <p><strong>あなた専用のデータ</strong>登録内容はログイン中のアカウントに紐づき、ほかの利用者からは表示・編集できません。</p>
+            </div>
+            <div className="account-actions">
+              <a href="/api/export" download>
+                <Download size={19} />
+                CSVでデータを書き出す
+              </a>
+              <a href={signOutHref}>
+                <LogOut size={19} />
+                ログアウト
+              </a>
+            </div>
+            <div className="danger-zone">
+              <div>
+                <strong>このアプリのデータを削除</strong>
+                <p>登録したサブスクをすべて削除します。この操作は取り消せません。</p>
+              </div>
+              <form
+                action={deleteAccountDataAction}
+                onSubmit={(event) => {
+                  if (!window.confirm("登録データをすべて削除しますか？この操作は取り消せません。")) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <button type="submit">
+                  <Trash2 size={18} />
+                  全データを削除
+                </button>
+              </form>
+            </div>
           </section>
         </div>
       ) : null}

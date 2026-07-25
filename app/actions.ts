@@ -1,23 +1,34 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import {
   deleteSubscription,
+  deleteUserData,
   saveSubscription,
   type BillingCycle,
   type SubscriptionStatus,
 } from "../db/subscriptions";
+import { chatGPTSignOutPath, getChatGPTUser } from "./chatgpt-auth";
 
 export type SaveState = {
   ok: boolean;
   message: string;
 };
 
+async function authenticatedEmail() {
+  const user = await getChatGPTUser();
+  if (!user) throw new Error("認証が必要です。もう一度ログインしてください。");
+  return user.email;
+}
+
 export async function saveSubscriptionAction(
   _previous: SaveState,
   formData: FormData,
 ): Promise<SaveState> {
+  const userEmail = await authenticatedEmail();
   const idValue = String(formData.get("id") ?? "");
+  const id = idValue ? Number(idValue) : undefined;
   const name = String(formData.get("name") ?? "").trim();
   const price = Number(formData.get("price"));
   const category = String(formData.get("category") ?? "その他");
@@ -28,6 +39,9 @@ export async function saveSubscriptionAction(
   const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
+  if (id !== undefined && (!Number.isInteger(id) || id <= 0)) {
+    return { ok: false, message: "編集対象を確認できませんでした。" };
+  }
   if (!name) return { ok: false, message: "サービス名を入力してください。" };
   if (!Number.isFinite(price) || price < 0) {
     return { ok: false, message: "料金は0円以上で入力してください。" };
@@ -50,8 +64,8 @@ export async function saveSubscriptionAction(
     }
   }
 
-  await saveSubscription({
-    id: idValue ? Number(idValue) : undefined,
+  await saveSubscription(userEmail, {
+    id,
     name,
     price: Math.round(price),
     category,
@@ -63,11 +77,18 @@ export async function saveSubscriptionAction(
     notes: notes.slice(0, 300),
   });
   revalidatePath("/");
-  return { ok: true, message: idValue ? "更新しました。" : "追加しました。" };
+  return { ok: true, message: id ? "更新しました。" : "追加しました。" };
 }
 
 export async function deleteSubscriptionAction(id: number) {
+  const userEmail = await authenticatedEmail();
   if (!Number.isInteger(id) || id <= 0) return;
-  await deleteSubscription(id);
+  await deleteSubscription(userEmail, id);
   revalidatePath("/");
+}
+
+export async function deleteAccountDataAction() {
+  const userEmail = await authenticatedEmail();
+  await deleteUserData(userEmail);
+  redirect(chatGPTSignOutPath("/"));
 }
