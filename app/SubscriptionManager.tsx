@@ -5,6 +5,7 @@ import {
   Check,
   ChevronRight,
   CirclePlus,
+  CloudOff,
   CreditCard,
   Download,
   ExternalLink,
@@ -12,31 +13,41 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  RefreshCw,
   Trash2,
   UserRound,
   X,
 } from "lucide-react";
 import {
-  useActionState,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { deleteAccountDataAction } from "./actions";
 import {
-  deleteAccountDataAction,
-  deleteSubscriptionAction,
-  saveSubscriptionAction,
-  type SaveState,
-} from "./actions";
-import type { Subscription } from "../db/subscriptions";
+  clearOfflineData,
+  enqueueOperation,
+  listOperations,
+  loadSnapshot,
+  removeOperation,
+  saveSnapshot,
+  type SyncOperation,
+} from "./offline-store";
+import type {
+  BillingCycle,
+  Subscription,
+  SubscriptionStatus,
+} from "../db/subscriptions";
 
 type Filter = "all" | "active" | "paused";
 type Sort = "renewal" | "price-high" | "name";
 
-const initialSaveState: SaveState = { ok: false, message: "" };
+type EditableSubscription = Omit<Subscription, "id" | "clientId">;
+type SyncState = "online" | "offline" | "pending" | "syncing";
 
 function yen(value: number) {
   return new Intl.NumberFormat("ja-JP", {
@@ -75,30 +86,81 @@ function renewalLabel(value: string) {
 function SubscriptionForm({
   item,
   onClose,
+  onSave,
+  onDelete,
 }: {
   item: Subscription | null;
   onClose: () => void;
+  onSave: (input: EditableSubscription) => Promise<void>;
+  onDelete: (item: Subscription) => Promise<void>;
 }) {
-  const [state, formAction, pending] = useActionState(
-    saveSubscriptionAction,
-    initialSaveState,
-  );
+  const [pending, setPending] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
-  useEffect(() => {
-    if (state.ok) onClose();
-  }, [state.ok, onClose]);
+  const [error, setError] = useState("");
 
   async function handleDelete() {
     if (!item || !window.confirm(`${item.name}を削除しますか？`)) return;
     setDeleting(true);
-    await deleteSubscriptionAction(item.id);
-    onClose();
+    try {
+      await onDelete(item);
+      onClose();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleSubmit(formData: FormData) {
+    setError("");
+    const name = String(formData.get("name") ?? "").trim();
+    const price = Number(formData.get("price"));
+    const renewalDate = String(formData.get("renewalDate") ?? "");
+    const billingCycle = String(
+      formData.get("billingCycle") ?? "monthly",
+    ) as BillingCycle;
+    const status = String(
+      formData.get("status") ?? "active",
+    ) as SubscriptionStatus;
+    const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
+
+    if (!name) return setError("サービス名を入力してください。");
+    if (!Number.isFinite(price) || price < 0) {
+      return setError("料金は0円以上で入力してください。");
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate)) {
+      return setError("次の更新日を選択してください。");
+    }
+    if (websiteUrl) {
+      try {
+        const url = new URL(websiteUrl);
+        if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+      } catch {
+        return setError("公式サイトは https:// から入力してください。");
+      }
+    }
+
+    setPending(true);
+    try {
+      await onSave({
+        name,
+        price: Math.round(price),
+        renewalDate,
+        billingCycle,
+        status,
+        category: String(formData.get("category") ?? "その他"),
+        color: String(formData.get("color") ?? "#007AFF"),
+        websiteUrl,
+        notes: String(formData.get("notes") ?? "").trim().slice(0, 300),
+      });
+      onClose();
+    } catch {
+      setError("端末への保存に失敗しました。もう一度お試しください。");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
-    <form action={formAction} className="add-form">
-      {item ? <input type="hidden" name="id" value={item.id} /> : null}
+    <form action={handleSubmit} className="add-form">
       <label>
         サービス名
         <input
@@ -192,8 +254,8 @@ function SubscriptionForm({
           placeholder="解約方法、プラン名など"
         />
       </label>
-      {state.message && !state.ok ? (
-        <p className="form-error" role="alert">{state.message}</p>
+      {error ? (
+        <p className="form-error" role="alert">{error}</p>
       ) : null}
       <div className="form-actions">
         {item ? (
@@ -225,16 +287,182 @@ export function SubscriptionManager({
   user: { displayName: string; email: string };
   signOutHref: string;
 }) {
+  const [items, setItems] = useState(subscriptions);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("renewal");
   const [editor, setEditor] = useState<Subscription | "new" | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [syncState, setSyncState] = useState<SyncState>("online");
+  const itemsRef = useRef(subscriptions);
+  const syncInFlight = useRef<Promise<void> | null>(null);
+
+  const persistItems = useCallback(
+    async (nextItems: Subscription[]) => {
+      itemsRef.current = nextItems;
+      setItems(nextItems);
+      await saveSnapshot(user.email, nextItems);
+    },
+    [user.email],
+  );
+
+  const syncPending = useCallback(async () => {
+    if (!navigator.onLine) {
+      const pending = await listOperations(user.email);
+      setSyncState(pending.length ? "pending" : "offline");
+      return;
+    }
+    if (syncInFlight.current) return syncInFlight.current;
+
+    const task = (async () => {
+      setSyncState("syncing");
+      try {
+        const operations = await listOperations(user.email);
+        for (const operation of operations) {
+          const response = await fetch("/api/subscriptions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(operation),
+          });
+          if (!response.ok) throw new Error("sync failed");
+          await removeOperation(operation.opId);
+        }
+
+        const response = await fetch("/api/subscriptions", {
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("refresh failed");
+        const data = (await response.json()) as {
+          subscriptions: Subscription[];
+        };
+        await persistItems(data.subscriptions);
+        setSyncState("online");
+      } catch {
+        const remaining = await listOperations(user.email);
+        setSyncState(remaining.length ? "pending" : "offline");
+      }
+    })();
+
+    syncInFlight.current = task;
+    try {
+      await task;
+    } finally {
+      syncInFlight.current = null;
+    }
+  }, [persistItems, user.email]);
+
+  useEffect(() => {
+    let active = true;
+    async function initializeOfflineState() {
+      const [cached, pending] = await Promise.all([
+        loadSnapshot(user.email),
+        listOperations(user.email),
+      ]);
+      if (!active) return;
+      if (cached && (!navigator.onLine || pending.length > 0)) {
+        itemsRef.current = cached;
+        setItems(cached);
+      } else {
+        await saveSnapshot(user.email, subscriptions);
+      }
+      if (!navigator.onLine) {
+        setSyncState(pending.length ? "pending" : "offline");
+        return;
+      }
+      await syncPending();
+    }
+
+    const handleOnline = () => void syncPending();
+    const handleOffline = () => {
+      void listOperations(user.email).then((pending) => {
+        setSyncState(pending.length ? "pending" : "offline");
+      });
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && navigator.onLine) {
+        void syncPending();
+      }
+    };
+
+    void initializeOfflineState();
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      active = false;
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [subscriptions, syncPending, user.email]);
+
+  const saveLocalSubscription = useCallback(
+    async (
+      existing: Subscription | null,
+      input: EditableSubscription,
+    ) => {
+      const clientId =
+        existing?.clientId ??
+        (typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      const nextItem: Subscription = {
+        ...input,
+        id: existing?.id ?? -Date.now(),
+        clientId,
+      };
+      const nextItems = existing
+        ? itemsRef.current.map((item) =>
+            item.clientId === existing.clientId ? nextItem : item,
+          )
+        : [...itemsRef.current, nextItem];
+      await persistItems(nextItems);
+      const operation: SyncOperation = {
+        opId:
+          typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `op-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        userEmail: user.email,
+        type: "upsert",
+        subscription: nextItem,
+        createdAt: Date.now(),
+      };
+      await enqueueOperation(operation);
+      setSyncState(navigator.onLine ? "syncing" : "pending");
+      if (navigator.onLine) void syncPending();
+    },
+    [persistItems, syncPending, user.email],
+  );
+
+  const deleteLocalSubscription = useCallback(
+    async (item: Subscription) => {
+      await persistItems(
+        itemsRef.current.filter(
+          (candidate) => candidate.clientId !== item.clientId,
+        ),
+      );
+      const operation: SyncOperation = {
+        opId:
+          typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `op-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        userEmail: user.email,
+        type: "delete",
+        id: item.id,
+        clientId: item.clientId,
+        createdAt: Date.now(),
+      };
+      await enqueueOperation(operation);
+      setSyncState(navigator.onLine ? "syncing" : "pending");
+      if (navigator.onLine) void syncPending();
+    },
+    [persistItems, syncPending, user.email],
+  );
 
   const active = useMemo(
-    () => subscriptions.filter((item) => item.status === "active"),
-    [subscriptions],
+    () => items.filter((item) => item.status === "active"),
+    [items],
   );
   const monthlyTotal = useMemo(
     () => active.reduce((sum, item) => sum + monthlyEquivalent(item), 0),
@@ -255,7 +483,7 @@ export function SubscriptionManager({
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("ja");
-    const filtered = subscriptions.filter((item) => {
+    const filtered = items.filter((item) => {
       const matchesFilter = filter === "all" || item.status === filter;
       const matchesQuery =
         !normalized ||
@@ -274,7 +502,7 @@ export function SubscriptionManager({
         new Date(b.renewalDate).getTime()
       );
     });
-  }, [subscriptions, query, filter, sort]);
+  }, [items, query, filter, sort]);
 
   const closeEditor = useCallback(() => setEditor(null), []);
   const closeAccount = useCallback(() => setAccountOpen(false), []);
@@ -295,6 +523,18 @@ export function SubscriptionManager({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [editor, accountOpen, closeEditor, closeAccount]);
+
+  const handleSignOut = useCallback(
+    async (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      await clearOfflineData(user.email);
+      navigator.serviceWorker?.controller?.postMessage({
+        type: "CLEAR_PRIVATE_CACHE",
+      });
+      window.location.assign(signOutHref);
+    },
+    [signOutHref, user.email],
+  );
 
   return (
     <main className="app-shell">
@@ -322,6 +562,23 @@ export function SubscriptionManager({
           </button>
         </div>
       </header>
+
+      {syncState !== "online" ? (
+        <div className={`connection-pill is-${syncState}`} role="status" aria-live="polite">
+          {syncState === "syncing" ? (
+            <RefreshCw size={15} aria-hidden="true" />
+          ) : (
+            <CloudOff size={15} aria-hidden="true" />
+          )}
+          <span>
+            {syncState === "syncing"
+              ? "変更を同期中…"
+              : syncState === "pending"
+                ? "オフライン・変更は端末に保存済み"
+                : "オフライン・保存済みの一覧を表示中"}
+          </span>
+        </div>
+      ) : null}
 
       {searchOpen ? (
         <div className="search-box">
@@ -382,9 +639,9 @@ export function SubscriptionManager({
 
         <div className="filter-tabs" aria-label="表示するサブスク">
           {([
-            ["all", "すべて", subscriptions.length],
+            ["all", "すべて", items.length],
             ["active", "利用中", active.length],
-            ["paused", "停止中", subscriptions.length - active.length],
+            ["paused", "停止中", items.length - active.length],
           ] as const).map(([value, label, count]) => (
             <button
               key={value}
@@ -402,7 +659,7 @@ export function SubscriptionManager({
             <button
               type="button"
               className={`service-card ${item.status === "paused" ? "is-paused" : ""}`}
-              key={item.id}
+              key={item.clientId}
               onClick={() => setEditor(item)}
               aria-label={`${item.name}を編集`}
             >
@@ -429,8 +686,8 @@ export function SubscriptionManager({
           {visible.length === 0 ? (
             <div className="empty-state">
               <CreditCard size={28} />
-              <h2>{subscriptions.length === 0 ? "サブスクはまだありません" : "見つかりませんでした"}</h2>
-              <p>{subscriptions.length === 0 ? "下のボタンから、最初のサービスを追加しましょう。" : "検索条件や絞り込みを変更してください。"}</p>
+              <h2>{items.length === 0 ? "サブスクはまだありません" : "見つかりませんでした"}</h2>
+              <p>{items.length === 0 ? "下のボタンから、最初のサービスを追加しましょう。" : "検索条件や絞り込みを変更してください。"}</p>
             </div>
           ) : null}
         </div>
@@ -468,9 +725,13 @@ export function SubscriptionManager({
               </button>
             </div>
             <SubscriptionForm
-              key={editor === "new" ? "new" : editor.id}
+              key={editor === "new" ? "new" : editor.clientId}
               item={editor === "new" ? null : editor}
               onClose={closeEditor}
+              onSave={(input) =>
+                saveLocalSubscription(editor === "new" ? null : editor, input)
+              }
+              onDelete={deleteLocalSubscription}
             />
           </section>
         </div>
@@ -510,7 +771,7 @@ export function SubscriptionManager({
                 <Download size={19} />
                 CSVでデータを書き出す
               </a>
-              <a href={signOutHref}>
+              <a href={signOutHref} onClick={handleSignOut}>
                 <LogOut size={19} />
                 ログアウト
               </a>
@@ -525,7 +786,12 @@ export function SubscriptionManager({
                 onSubmit={(event) => {
                   if (!window.confirm("登録データをすべて削除しますか？この操作は取り消せません。")) {
                     event.preventDefault();
+                    return;
                   }
+                  void clearOfflineData(user.email);
+                  navigator.serviceWorker?.controller?.postMessage({
+                    type: "CLEAR_PRIVATE_CACHE",
+                  });
                 }}
               >
                 <button type="submit">

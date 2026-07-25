@@ -5,6 +5,7 @@ export type SubscriptionStatus = "active" | "paused";
 
 export type Subscription = {
   id: number;
+  clientId: string;
   name: string;
   price: number;
   category: string;
@@ -28,6 +29,7 @@ async function ensureColumns(db: D1Database) {
     ["notes", "ALTER TABLE subscriptions ADD COLUMN notes TEXT NOT NULL DEFAULT ''"],
     ["updated_at", "ALTER TABLE subscriptions ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"],
     ["user_email", "ALTER TABLE subscriptions ADD COLUMN user_email TEXT NOT NULL DEFAULT ''"],
+    ["client_id", "ALTER TABLE subscriptions ADD COLUMN client_id TEXT NOT NULL DEFAULT ''"],
   ] as const;
   const statements = additions
     .filter(([name]) => !columns.has(name))
@@ -46,6 +48,7 @@ async function ready() {
     )`),
     db.prepare(`CREATE TABLE IF NOT EXISTS subscriptions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      client_id TEXT NOT NULL DEFAULT '',
       user_email TEXT NOT NULL DEFAULT '',
       name TEXT NOT NULL,
       price INTEGER NOT NULL,
@@ -65,9 +68,13 @@ async function ready() {
     )`),
   ]);
   await ensureColumns(db);
+  await db.prepare(
+    "UPDATE subscriptions SET client_id = 'server-' || id WHERE client_id = ''",
+  ).run();
   await db.batch([
     db.prepare("CREATE INDEX IF NOT EXISTS subscriptions_user_email_idx ON subscriptions (user_email)"),
     db.prepare("CREATE INDEX IF NOT EXISTS subscriptions_user_renewal_idx ON subscriptions (user_email, renewal_date)"),
+    db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS subscriptions_user_client_idx ON subscriptions (user_email, client_id)"),
   ]);
 }
 
@@ -98,7 +105,7 @@ export async function registerUser(email: string, displayName: string) {
 export async function listSubscriptions(userEmail: string): Promise<Subscription[]> {
   await ready();
   const result = await env.DB.prepare(
-    `SELECT id, name, price, category, renewal_date AS renewalDate,
+    `SELECT id, client_id AS clientId, name, price, category, renewal_date AS renewalDate,
       billing_cycle AS billingCycle, status, color,
       website_url AS websiteUrl, notes
     FROM subscriptions
@@ -108,14 +115,44 @@ export async function listSubscriptions(userEmail: string): Promise<Subscription
   return result.results;
 }
 
-export async function saveSubscription(userEmail: string, input: SubscriptionInput) {
+async function findSubscription(
+  userEmail: string,
+  input: Pick<SubscriptionInput, "id" | "clientId">,
+) {
   await ready();
-  if (input.id) {
+  if (input.id && input.id > 0) {
+    const byId = await env.DB.prepare(
+      "SELECT id FROM subscriptions WHERE id = ? AND user_email = ?",
+    ).bind(input.id, userEmail).first<{ id: number }>();
+    if (byId) return byId.id;
+  }
+  const byClientId = await env.DB.prepare(
+    "SELECT id FROM subscriptions WHERE client_id = ? AND user_email = ?",
+  ).bind(input.clientId, userEmail).first<{ id: number }>();
+  return byClientId?.id;
+}
+
+async function getSubscription(userEmail: string, id: number) {
+  return env.DB.prepare(
+    `SELECT id, client_id AS clientId, name, price, category,
+      renewal_date AS renewalDate, billing_cycle AS billingCycle,
+      status, color, website_url AS websiteUrl, notes
+    FROM subscriptions WHERE id = ? AND user_email = ?`,
+  ).bind(id, userEmail).first<Subscription>();
+}
+
+export async function saveSubscription(
+  userEmail: string,
+  input: SubscriptionInput,
+): Promise<Subscription> {
+  await ready();
+  const existingId = await findSubscription(userEmail, input);
+  if (existingId) {
     await env.DB.prepare(
       `UPDATE subscriptions
       SET name = ?, price = ?, category = ?, renewal_date = ?,
         billing_cycle = ?, status = ?, color = ?, website_url = ?,
-        notes = ?, updated_at = CURRENT_TIMESTAMP
+        notes = ?, client_id = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_email = ?`,
     ).bind(
       input.name,
@@ -127,16 +164,20 @@ export async function saveSubscription(userEmail: string, input: SubscriptionInp
       input.color,
       input.websiteUrl,
       input.notes,
-      input.id,
+      input.clientId,
+      existingId,
       userEmail,
     ).run();
-    return;
+    const updated = await getSubscription(userEmail, existingId);
+    if (!updated) throw new Error("保存したサブスクを確認できませんでした。");
+    return updated;
   }
-  await env.DB.prepare(
+  const inserted = await env.DB.prepare(
     `INSERT INTO subscriptions
-      (user_email, name, price, category, renewal_date, billing_cycle, status, color, website_url, notes, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+      (client_id, user_email, name, price, category, renewal_date, billing_cycle, status, color, website_url, notes, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
   ).bind(
+    input.clientId,
     userEmail,
     input.name,
     input.price,
@@ -148,6 +189,9 @@ export async function saveSubscription(userEmail: string, input: SubscriptionInp
     input.websiteUrl,
     input.notes,
   ).run();
+  const created = await getSubscription(userEmail, Number(inserted.meta.last_row_id));
+  if (!created) throw new Error("追加したサブスクを確認できませんでした。");
+  return created;
 }
 
 export async function deleteSubscription(userEmail: string, id: number) {
@@ -155,6 +199,21 @@ export async function deleteSubscription(userEmail: string, id: number) {
   await env.DB.prepare(
     "DELETE FROM subscriptions WHERE id = ? AND user_email = ?",
   ).bind(id, userEmail).run();
+}
+
+export async function deleteSubscriptionByClient(
+  userEmail: string,
+  input: { id?: number; clientId: string },
+) {
+  await ready();
+  await env.DB.prepare(
+    `DELETE FROM subscriptions
+     WHERE user_email = ? AND (client_id = ? OR id = ?)`,
+  ).bind(
+    userEmail,
+    input.clientId,
+    input.id && input.id > 0 ? input.id : -1,
+  ).run();
 }
 
 export async function deleteUserData(userEmail: string) {

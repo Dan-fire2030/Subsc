@@ -12,6 +12,7 @@ export const subscriptions = sqliteTable(
   "subscriptions",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
+    clientId: text("client_id").notNull().default(""),
     userEmail: text("user_email").notNull().default(""),
     name: text("name").notNull(),
     price: integer("price").notNull(),
