@@ -25,6 +25,12 @@ export type NotificationEvent =
   | "minimum_term_end"
   | "manual_renewal"
   | "final_payment";
+export type StatusHistoryEvent = "paused" | "resumed";
+export type StatusHistoryEntry = {
+  id: string;
+  event: StatusHistoryEvent;
+  date: string;
+};
 
 export type ContractSettings = {
   enabled: boolean;
@@ -48,6 +54,7 @@ export type ContractSettings = {
   endReason: EndReason;
   endReasonNote: string;
   endBehavior: EndBehavior;
+  statusHistory: StatusHistoryEntry[];
   notifications: {
     enabled: boolean;
     leadDays: number[];
@@ -88,6 +95,7 @@ export const defaultContractSettings: ContractSettings = {
   endReason: "none",
   endReasonNote: "",
   endBehavior: "keep",
+  statusHistory: [],
   notifications: {
     enabled: true,
     leadDays: [1, 3, 7],
@@ -150,6 +158,31 @@ export function normalizeContractSettings(
         ),
       ].sort((a, b) => a - b)
     : defaultContractSettings.notifications.leadDays;
+  const statusHistory = Array.isArray(item.statusHistory)
+    ? item.statusHistory
+        .slice(0, 200)
+        .map((entry, index) => {
+          const row =
+            entry && typeof entry === "object"
+              ? (entry as Record<string, unknown>)
+              : {};
+          const event = enumValue(
+            row.event,
+            ["paused", "resumed"] as const,
+            "paused",
+          );
+          const date = dateValue(row.date);
+          return {
+            id:
+              String(row.id ?? "").trim().slice(0, 100) ||
+              `history-${index}-${event}-${date}`,
+            event,
+            date,
+          };
+        })
+        .filter((entry) => entry.date)
+        .toSorted((a, b) => a.date.localeCompare(b.date))
+    : [];
 
   const events = Object.fromEntries(
     Object.keys(notificationEventLabels).map((event) => [
@@ -222,6 +255,7 @@ export function normalizeContractSettings(
       ["keep", "archive", "hide"] as const,
       "keep",
     ),
+    statusHistory,
     notifications: {
       enabled:
         typeof rawNotifications.enabled === "boolean"

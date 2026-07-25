@@ -23,6 +23,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -48,6 +49,7 @@ import type {
 import type { UsdJpyRate } from "../db/exchange-rate";
 import { normalizeContractSettings } from "../db/contract-settings";
 import { ContractSettingsFields } from "./ContractSettingsFields";
+import { ReportHero } from "./ReportHero";
 import {
   buildContractAlerts,
   isSubscriptionEnded,
@@ -119,6 +121,11 @@ function renewalLabel(value: string) {
   return `あと ${days}日`;
 }
 
+function localToday() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 function SubscriptionForm({
   item,
   onClose,
@@ -144,6 +151,34 @@ function SubscriptionForm({
   const [contractSettings, setContractSettings] = useState(() =>
     normalizeContractSettings(item?.contractSettings),
   );
+  const [status, setStatus] = useState<SubscriptionStatus>(
+    item?.status ?? "active",
+  );
+  const pendingHistoryId = useId();
+
+  function handleStatusChange(nextStatus: SubscriptionStatus) {
+    const originalStatus = item?.status ?? "active";
+    setStatus(nextStatus);
+    setContractSettings((current) => {
+      const withoutPending = current.statusHistory.filter(
+        (entry) => entry.id !== pendingHistoryId,
+      );
+      if (nextStatus === originalStatus) {
+        return { ...current, statusHistory: withoutPending };
+      }
+      return {
+        ...current,
+        statusHistory: [
+          ...withoutPending,
+          {
+            id: pendingHistoryId,
+            event: nextStatus === "paused" ? "paused" : "resumed",
+            date: localToday(),
+          },
+        ],
+      };
+    });
+  }
 
   async function handleDelete() {
     if (!item || !window.confirm(`${item.name}を削除しますか？`)) return;
@@ -164,9 +199,6 @@ function SubscriptionForm({
     const billingCycle = String(
       formData.get("billingCycle") ?? "monthly",
     ) as BillingCycle;
-    const status = String(
-      formData.get("status") ?? "active",
-    ) as SubscriptionStatus;
     const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
 
     if (!name) return setError("サービス名を入力してください。");
@@ -323,12 +355,47 @@ function SubscriptionForm({
         </label>
         <label>
           利用状況
-          <select name="status" defaultValue={item?.status ?? "active"}>
+          <select
+            name="status"
+            value={status}
+            onChange={(event) =>
+              handleStatusChange(event.target.value as SubscriptionStatus)
+            }
+          >
             <option value="active">利用中</option>
             <option value="paused">停止中</option>
           </select>
         </label>
       </div>
+      {status !== (item?.status ?? "active") ? (
+        <div className="status-change-date">
+          <div>
+            <strong>
+              {status === "paused" ? "停止日を記録" : "再開日を記録"}
+            </strong>
+            <span>年間レポートの計算に使用します</span>
+          </div>
+          <input
+            aria-label={status === "paused" ? "停止日" : "再開日"}
+            type="date"
+            value={
+              contractSettings.statusHistory.find(
+                (entry) => entry.id === pendingHistoryId,
+              )?.date ?? localToday()
+            }
+            onChange={(event) =>
+              setContractSettings((current) => ({
+                ...current,
+                statusHistory: current.statusHistory.map((entry) =>
+                  entry.id === pendingHistoryId
+                    ? { ...entry, date: event.target.value }
+                    : entry,
+                ),
+              }))
+            }
+          />
+        </div>
+      ) : null}
       <ContractSettingsFields
         value={contractSettings}
         onChange={setContractSettings}
@@ -633,15 +700,6 @@ export function SubscriptionManager({
     [listedItems],
   );
   const alerts = useMemo(() => buildContractAlerts(items), [items]);
-  const monthlyTotal = useMemo(
-    () =>
-      active.reduce(
-        (sum, item) => sum + monthlyEquivalent(item, usdJpyRate.rate),
-        0,
-      ),
-    [active, usdJpyRate.rate],
-  );
-  const yearlyTotal = monthlyTotal * 12;
   const next = useMemo(
     () =>
       active
@@ -721,6 +779,29 @@ export function SubscriptionManager({
     [signOutHref, user.email],
   );
 
+  const handleAddPress = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      const bounds = event.currentTarget.getBoundingClientRect();
+      event.currentTarget.style.setProperty(
+        "--tap-x",
+        `${event.clientX - bounds.left}px`,
+      );
+      event.currentTarget.style.setProperty(
+        "--tap-y",
+        `${event.clientY - bounds.top}px`,
+      );
+      event.currentTarget.classList.add("is-pressing");
+    },
+    [],
+  );
+
+  const handleAddRelease = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      event.currentTarget.classList.remove("is-pressing");
+    },
+    [],
+  );
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -779,17 +860,7 @@ export function SubscriptionManager({
         </div>
       ) : null}
 
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">今月のサブスク</p>
-          <p className="total">{yen(monthlyTotal)}</p>
-          <p className="yearly-total">年間換算 {yen(yearlyTotal)}</p>
-        </div>
-        <div className="orb" aria-label={`利用中 ${active.length}件`}>
-          <span>{active.length}</span>
-          <small>利用中</small>
-        </div>
-      </section>
+      <ReportHero items={items} usdJpyRate={usdJpyRate.rate} />
 
       <section className="next-card">
         <div className="next-icon"><CalendarDays size={22} /></div>
@@ -941,8 +1012,15 @@ export function SubscriptionManager({
         </a>
       ) : null}
 
-      <button className="add-trigger" onClick={() => setEditor("new")}>
-        <CirclePlus size={22} />
+      <button
+        className="add-trigger"
+        onClick={() => setEditor("new")}
+        onPointerDown={handleAddPress}
+        onPointerUp={handleAddRelease}
+        onPointerCancel={handleAddRelease}
+        onPointerLeave={handleAddRelease}
+      >
+        <span className="add-icon-motion"><CirclePlus size={22} /></span>
         サブスクを追加
       </button>
 

@@ -89,3 +89,28 @@ test("stores detailed contract periods and builds in-app deadline alerts", async
   assert.match(database, /contract_settings/);
   assert.match(migration, /ADD `contract_settings`/);
 });
+
+test("builds swipeable monthly and yearly reports with animated service bars", async () => {
+  const [hero, calculations, manager, contractSettings, fields, styles] =
+    await Promise.all([
+      source("app/ReportHero.tsx"),
+      source("app/report-calculations.ts"),
+      source("app/SubscriptionManager.tsx"),
+      source("db/contract-settings.ts"),
+      source("app/ContractSettingsFields.tsx"),
+      source("app/globals.css"),
+    ]);
+
+  assert.match(hero, /AnimatedYen/);
+  assert.match(hero, /handlePointerMove/);
+  assert.match(hero, /左右にスワイプ/);
+  assert.match(hero, /ReportBars/);
+  assert.match(calculations, /billingStartDate/);
+  assert.match(calculations, /statusHistory/);
+  assert.match(calculations, /buildPaymentReport/);
+  assert.match(contractSettings, /StatusHistoryEntry/);
+  assert.match(fields, /停止・再開の履歴/);
+  assert.match(manager, /停止日を記録/);
+  assert.match(styles, /--bar-scale/);
+  assert.match(styles, /add-trigger\.is-pressing/);
+});

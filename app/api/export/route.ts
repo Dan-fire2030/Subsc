@@ -42,6 +42,7 @@ export async function GET() {
     "終了理由",
     "終了理由のメモ",
     "終了後の状態",
+    "停止・再開履歴",
     "アプリ内通知",
     "通知タイミング",
     "通知内容",
@@ -96,6 +97,12 @@ export async function GET() {
       settings.endReason,
       settings.endReasonNote,
       settings.endBehavior,
+      settings.statusHistory
+        .map(
+          (entry) =>
+            `${entry.date}:${entry.event === "paused" ? "停止" : "再開"}`,
+        )
+        .join("・"),
       settings.notifications.enabled ? "有効" : "無効",
       settings.notifications.leadDays
         .map((day) => (day === 0 ? "当日" : `${day}日前`))
