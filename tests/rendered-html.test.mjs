@@ -123,11 +123,13 @@ test("builds period-swiping reports, filter gestures, search jumps, and swipe de
   assert.match(manager, /search-suggestions/);
   assert.match(manager, /scrollIntoView/);
   assert.match(manager, /handleFilterPointerDown/);
+  assert.match(manager, /currentIndex \+ \(deltaX < 0 \? -1 : 1\)/);
   assert.match(manager, /SwipeDeleteRow/);
   assert.match(swipeRow, /左にスワイプすると削除できます/);
   assert.match(styles, /--bar-scale/);
   assert.match(styles, /color-mix\(in srgb, var\(--bar-color\)/);
   assert.match(styles, /\.service-swipe-row/);
+  assert.match(styles, /\.swipe-delete-action \{ background: var\(--red\); \}/);
   assert.match(styles, /\.search-suggestions/);
   assert.match(styles, /add-trigger\.is-pressing/);
 });

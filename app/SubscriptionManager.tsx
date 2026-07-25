@@ -844,7 +844,7 @@ export function SubscriptionManager({
       0,
       Math.min(
         filterOrder.length - 1,
-        currentIndex + (deltaX < 0 ? 1 : -1),
+        currentIndex + (deltaX < 0 ? -1 : 1),
       ),
     );
     filterDidSwipeRef.current = true;

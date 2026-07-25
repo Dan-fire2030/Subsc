@@ -1,4 +1,4 @@
-const CACHE_NAME = "subsc-shell-v8";
+const CACHE_NAME = "subsc-shell-v9";
 const PRIVATE_CACHE_NAME = "subsc-private-v1";
 const OFFLINE_URL = "/offline.html";
 const STATIC_ASSETS = [

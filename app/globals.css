@@ -683,7 +683,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(90deg, #ff453a, #e71d2b);
+  background: rgba(247,251,255,.89);
 }
 .service-swipe-row:last-child { border-bottom: 0; }
 .swipe-delete-action {
@@ -698,7 +698,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   gap: 4px;
   border: 0;
   color: white;
-  background: transparent;
+  background: linear-gradient(90deg, #ff453a, #e71d2b);
   font-size: 11px;
   font-weight: 650;
 }
@@ -1607,8 +1607,9 @@ svg { stroke-width: 2; }
   content-visibility: auto;
   contain-intrinsic-size: 76px;
   border-bottom: 0.5px solid var(--line);
-  background: var(--red);
+  background: rgba(255,255,255,.94);
 }
+.swipe-delete-action { background: var(--red); }
 .service-card {
   min-height: 76px;
   background: rgba(255,255,255,.94);
@@ -1837,6 +1838,7 @@ svg { stroke-width: 2; }
     color: white;
     background: rgba(28,28,30,.96);
   }
+  .service-swipe-row { background: rgba(28,28,30,.96); }
   .service-card:hover, .service-card:active { background: #2c2c2e; }
   .service-name-row em { color: var(--secondary); background: rgba(118,118,128,.24); }
   .sheet-backdrop { background: rgba(0,0,0,.5); }
