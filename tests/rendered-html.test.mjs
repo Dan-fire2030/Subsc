@@ -45,3 +45,21 @@ test("keeps offline edits in a user-scoped queue and syncs through auth", async 
   assert.match(database, /subscriptions_user_client_idx/);
   assert.match(database, /client_id = \?/);
 });
+
+test("accepts USD prices and keeps the app display in yen", async () => {
+  const [manager, api, database, exchangeRate] = await Promise.all([
+    source("app/SubscriptionManager.tsx"),
+    source("app/api/subscriptions/route.ts"),
+    source("db/subscriptions.ts"),
+    source("db/exchange-rate.ts"),
+  ]);
+
+  assert.match(manager, /米ドル/);
+  assert.match(manager, /currentPrice/);
+  assert.match(manager, /exchangeRate=\{usdJpyRate\}/);
+  assert.match(api, /currency === "USD"/);
+  assert.match(api, /originalAmount \* rate/);
+  assert.match(database, /original_amount/);
+  assert.match(exchangeRate, /api\.frankfurter\.dev\/v2\/rate\/USD\/JPY/);
+  assert.match(exchangeRate, /usd_jpy_exchange_rate/);
+});

@@ -4,9 +4,11 @@ import {
   listSubscriptions,
   saveSubscription,
   type BillingCycle,
+  type Currency,
   type SubscriptionInput,
   type SubscriptionStatus,
 } from "../../../db/subscriptions";
+import { getUsdJpyRate } from "../../../db/exchange-rate";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +24,9 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
   const item = value as Record<string, unknown>;
   const id = Number(item.id);
   const clientId = String(item.clientId ?? "").trim();
+  const currency = String(item.currency ?? "JPY") as Currency;
+  const originalAmount = Number(item.originalAmount ?? item.price);
+  const exchangeRate = Number(item.exchangeRate ?? 1);
   const name = String(item.name ?? "").trim();
   const price = Number(item.price);
   const category = String(item.category ?? "その他");
@@ -33,6 +38,8 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
   const notes = String(item.notes ?? "").trim();
 
   if (!clientId || clientId.length > 100 || !name) return null;
+  if (!["JPY", "USD"].includes(currency)) return null;
+  if (!Number.isFinite(originalAmount) || originalAmount < 0) return null;
   if (!Number.isFinite(price) || price < 0) return null;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate)) return null;
   if (!["monthly", "yearly"].includes(billingCycle)) return null;
@@ -49,6 +56,10 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
   return {
     id: Number.isInteger(id) && id > 0 ? id : undefined,
     clientId,
+    currency,
+    originalAmount,
+    exchangeRate:
+      Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 1,
     name,
     price: Math.round(price),
     category,
@@ -64,7 +75,11 @@ function parseSubscription(value: unknown): SubscriptionInput | null {
 export async function GET() {
   const user = await getChatGPTUser();
   if (!user) return json({ error: "Unauthorized" }, 401);
-  return json({ subscriptions: await listSubscriptions(user.email) });
+  const [subscriptions, exchangeRate] = await Promise.all([
+    listSubscriptions(user.email),
+    getUsdJpyRate(),
+  ]);
+  return json({ subscriptions, exchangeRate });
 }
 
 export async function POST(request: Request) {
@@ -81,6 +96,20 @@ export async function POST(request: Request) {
   if (body.type === "upsert") {
     const subscription = parseSubscription(body.subscription);
     if (!subscription) return json({ error: "Invalid subscription" }, 400);
+    if (subscription.currency === "USD") {
+      const latest = await getUsdJpyRate();
+      const rate = latest.available
+        ? latest.rate
+        : subscription.exchangeRate;
+      if (!Number.isFinite(rate) || rate <= 0) {
+        return json({ error: "Exchange rate unavailable" }, 503);
+      }
+      subscription.exchangeRate = rate;
+      subscription.price = Math.round(subscription.originalAmount * rate);
+    } else {
+      subscription.exchangeRate = 1;
+      subscription.price = Math.round(subscription.originalAmount);
+    }
     const saved = await saveSubscription(user.email, subscription);
     return json({ subscription: saved });
   }

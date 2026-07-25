@@ -2,10 +2,14 @@ import { env } from "cloudflare:workers";
 
 export type BillingCycle = "monthly" | "yearly";
 export type SubscriptionStatus = "active" | "paused";
+export type Currency = "JPY" | "USD";
 
 export type Subscription = {
   id: number;
   clientId: string;
+  currency: Currency;
+  originalAmount: number;
+  exchangeRate: number;
   name: string;
   price: number;
   category: string;
@@ -30,6 +34,9 @@ async function ensureColumns(db: D1Database) {
     ["updated_at", "ALTER TABLE subscriptions ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"],
     ["user_email", "ALTER TABLE subscriptions ADD COLUMN user_email TEXT NOT NULL DEFAULT ''"],
     ["client_id", "ALTER TABLE subscriptions ADD COLUMN client_id TEXT NOT NULL DEFAULT ''"],
+    ["currency", "ALTER TABLE subscriptions ADD COLUMN currency TEXT NOT NULL DEFAULT 'JPY'"],
+    ["original_amount", "ALTER TABLE subscriptions ADD COLUMN original_amount REAL NOT NULL DEFAULT 0"],
+    ["exchange_rate", "ALTER TABLE subscriptions ADD COLUMN exchange_rate REAL NOT NULL DEFAULT 1"],
   ] as const;
   const statements = additions
     .filter(([name]) => !columns.has(name))
@@ -50,6 +57,9 @@ async function ready() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       client_id TEXT NOT NULL DEFAULT '',
       user_email TEXT NOT NULL DEFAULT '',
+      currency TEXT NOT NULL DEFAULT 'JPY',
+      original_amount REAL NOT NULL DEFAULT 0,
+      exchange_rate REAL NOT NULL DEFAULT 1,
       name TEXT NOT NULL,
       price INTEGER NOT NULL,
       category TEXT NOT NULL,
@@ -70,6 +80,13 @@ async function ready() {
   await ensureColumns(db);
   await db.prepare(
     "UPDATE subscriptions SET client_id = 'server-' || id WHERE client_id = ''",
+  ).run();
+  await db.prepare(
+    `UPDATE subscriptions
+     SET currency = 'JPY',
+       original_amount = price,
+       exchange_rate = 1
+     WHERE original_amount <= 0`,
   ).run();
   await db.batch([
     db.prepare("CREATE INDEX IF NOT EXISTS subscriptions_user_email_idx ON subscriptions (user_email)"),
@@ -105,7 +122,9 @@ export async function registerUser(email: string, displayName: string) {
 export async function listSubscriptions(userEmail: string): Promise<Subscription[]> {
   await ready();
   const result = await env.DB.prepare(
-    `SELECT id, client_id AS clientId, name, price, category, renewal_date AS renewalDate,
+    `SELECT id, client_id AS clientId, currency,
+      original_amount AS originalAmount, exchange_rate AS exchangeRate,
+      name, price, category, renewal_date AS renewalDate,
       billing_cycle AS billingCycle, status, color,
       website_url AS websiteUrl, notes
     FROM subscriptions
@@ -134,7 +153,9 @@ async function findSubscription(
 
 async function getSubscription(userEmail: string, id: number) {
   return env.DB.prepare(
-    `SELECT id, client_id AS clientId, name, price, category,
+    `SELECT id, client_id AS clientId, currency,
+      original_amount AS originalAmount, exchange_rate AS exchangeRate,
+      name, price, category,
       renewal_date AS renewalDate, billing_cycle AS billingCycle,
       status, color, website_url AS websiteUrl, notes
     FROM subscriptions WHERE id = ? AND user_email = ?`,
@@ -150,11 +171,15 @@ export async function saveSubscription(
   if (existingId) {
     await env.DB.prepare(
       `UPDATE subscriptions
-      SET name = ?, price = ?, category = ?, renewal_date = ?,
+      SET currency = ?, original_amount = ?, exchange_rate = ?,
+        name = ?, price = ?, category = ?, renewal_date = ?,
         billing_cycle = ?, status = ?, color = ?, website_url = ?,
         notes = ?, client_id = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_email = ?`,
     ).bind(
+      input.currency,
+      input.originalAmount,
+      input.exchangeRate,
       input.name,
       input.price,
       input.category,
@@ -174,11 +199,16 @@ export async function saveSubscription(
   }
   const inserted = await env.DB.prepare(
     `INSERT INTO subscriptions
-      (client_id, user_email, name, price, category, renewal_date, billing_cycle, status, color, website_url, notes, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+      (client_id, user_email, currency, original_amount, exchange_rate,
+       name, price, category, renewal_date, billing_cycle, status, color,
+       website_url, notes, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
   ).bind(
     input.clientId,
     userEmail,
+    input.currency,
+    input.originalAmount,
+    input.exchangeRate,
     input.name,
     input.price,
     input.category,

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   email: text("email").primaryKey(),
@@ -14,6 +14,9 @@ export const subscriptions = sqliteTable(
     id: integer("id").primaryKey({ autoIncrement: true }),
     clientId: text("client_id").notNull().default(""),
     userEmail: text("user_email").notNull().default(""),
+    currency: text("currency").notNull().default("JPY"),
+    originalAmount: real("original_amount").notNull().default(0),
+    exchangeRate: real("exchange_rate").notNull().default(1),
     name: text("name").notNull(),
     price: integer("price").notNull(),
     category: text("category").notNull(),

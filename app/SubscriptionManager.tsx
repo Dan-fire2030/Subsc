@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRightLeft,
   CalendarDays,
   Check,
   ChevronRight,
@@ -39,9 +40,11 @@ import {
 } from "./offline-store";
 import type {
   BillingCycle,
+  Currency,
   Subscription,
   SubscriptionStatus,
 } from "../db/subscriptions";
+import type { UsdJpyRate } from "../db/exchange-rate";
 
 type Filter = "all" | "active" | "paused";
 type Sort = "renewal" | "price-high" | "name";
@@ -72,8 +75,32 @@ function daysUntil(value: string) {
   );
 }
 
-function monthlyEquivalent(item: Subscription) {
-  return item.billingCycle === "yearly" ? item.price / 12 : item.price;
+function normalizedSubscription(item: Subscription): Subscription {
+  const currency: Currency = item.currency === "USD" ? "USD" : "JPY";
+  const originalAmount =
+    Number.isFinite(item.originalAmount) && item.originalAmount >= 0
+      ? item.originalAmount
+      : item.price;
+  return {
+    ...item,
+    currency,
+    originalAmount,
+    exchangeRate:
+      Number.isFinite(item.exchangeRate) && item.exchangeRate > 0
+        ? item.exchangeRate
+        : 1,
+  };
+}
+
+function currentPrice(item: Subscription, usdJpyRate: number) {
+  if (item.currency !== "USD") return item.price;
+  const rate = usdJpyRate > 0 ? usdJpyRate : item.exchangeRate;
+  return Math.round(item.originalAmount * rate);
+}
+
+function monthlyEquivalent(item: Subscription, usdJpyRate: number) {
+  const price = currentPrice(item, usdJpyRate);
+  return item.billingCycle === "yearly" ? price / 12 : price;
 }
 
 function renewalLabel(value: string) {
@@ -88,15 +115,23 @@ function SubscriptionForm({
   onClose,
   onSave,
   onDelete,
+  exchangeRate,
 }: {
   item: Subscription | null;
   onClose: () => void;
   onSave: (input: EditableSubscription) => Promise<void>;
   onDelete: (item: Subscription) => Promise<void>;
+  exchangeRate: UsdJpyRate;
 }) {
   const [pending, setPending] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [currency, setCurrency] = useState<Currency>(
+    item?.currency === "USD" ? "USD" : "JPY",
+  );
+  const [amount, setAmount] = useState(
+    String(item?.originalAmount ?? item?.price ?? ""),
+  );
 
   async function handleDelete() {
     if (!item || !window.confirm(`${item.name}を削除しますか？`)) return;
@@ -112,7 +147,7 @@ function SubscriptionForm({
   async function handleSubmit(formData: FormData) {
     setError("");
     const name = String(formData.get("name") ?? "").trim();
-    const price = Number(formData.get("price"));
+    const originalAmount = Number(formData.get("originalAmount"));
     const renewalDate = String(formData.get("renewalDate") ?? "");
     const billingCycle = String(
       formData.get("billingCycle") ?? "monthly",
@@ -123,8 +158,11 @@ function SubscriptionForm({
     const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
 
     if (!name) return setError("サービス名を入力してください。");
-    if (!Number.isFinite(price) || price < 0) {
+    if (!Number.isFinite(originalAmount) || originalAmount < 0) {
       return setError("料金は0円以上で入力してください。");
+    }
+    if (currency === "USD" && !exchangeRate.available) {
+      return setError("ドル円レートを取得できません。オンラインで再度お試しください。");
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(renewalDate)) {
       return setError("次の更新日を選択してください。");
@@ -142,7 +180,13 @@ function SubscriptionForm({
     try {
       await onSave({
         name,
-        price: Math.round(price),
+        currency,
+        originalAmount,
+        exchangeRate: currency === "USD" ? exchangeRate.rate : 1,
+        price:
+          currency === "USD"
+            ? Math.round(originalAmount * exchangeRate.rate)
+            : Math.round(originalAmount),
         renewalDate,
         billingCycle,
         status,
@@ -171,19 +215,41 @@ function SubscriptionForm({
           autoComplete="off"
         />
       </label>
+      <fieldset className="currency-field">
+        <legend>通貨</legend>
+        <div className="currency-toggle">
+          {([
+            ["JPY", "日本円", "¥"],
+            ["USD", "米ドル", "$"],
+          ] as const).map(([value, label, symbol]) => (
+            <button
+              key={value}
+              type="button"
+              className={currency === value ? "is-active" : ""}
+              aria-pressed={currency === value}
+              onClick={() => setCurrency(value)}
+            >
+              <span>{symbol}</span>
+              {label}
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="currency" value={currency} />
+      </fieldset>
       <div className="field-row">
         <label>
-          料金
-          <span className="input-prefix">¥</span>
+          料金（{currency === "USD" ? "ドル" : "円"}）
+          <span className="input-prefix">{currency === "USD" ? "$" : "¥"}</span>
           <input
-            name="price"
+            name="originalAmount"
             required
             min="0"
-            step="1"
+            step={currency === "USD" ? "0.01" : "1"}
             type="number"
-            inputMode="numeric"
-            defaultValue={item?.price ?? ""}
-            placeholder="1,490"
+            inputMode="decimal"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            placeholder={currency === "USD" ? "19.99" : "1,490"}
           />
         </label>
         <label>
@@ -194,6 +260,23 @@ function SubscriptionForm({
           </select>
         </label>
       </div>
+      {currency === "USD" ? (
+        <div className="rate-preview" aria-live="polite">
+          <ArrowRightLeft size={18} aria-hidden="true" />
+          <div>
+            <strong>
+              {Number(amount) >= 0 && exchangeRate.available
+                ? `$${Number(amount || 0).toFixed(2)} ≈ ${yen(Number(amount || 0) * exchangeRate.rate)}`
+                : "ドル円レートを取得中"}
+            </strong>
+            <span>
+              {exchangeRate.available
+                ? `1 USD = ${yen(exchangeRate.rate)} · ${exchangeRate.date || "直近"}の参照レート`
+                : "オンラインになると最新レートを取得します"}
+            </span>
+          </div>
+        </div>
+      ) : null}
       <div className="field-row">
         <label>
           次の更新日
@@ -280,14 +363,19 @@ function SubscriptionForm({
 
 export function SubscriptionManager({
   subscriptions,
+  exchangeRate,
   user,
   signOutHref,
 }: {
   subscriptions: Subscription[];
+  exchangeRate: UsdJpyRate;
   user: { displayName: string; email: string };
   signOutHref: string;
 }) {
-  const [items, setItems] = useState(subscriptions);
+  const [items, setItems] = useState(() =>
+    subscriptions.map(normalizedSubscription),
+  );
+  const [usdJpyRate, setUsdJpyRate] = useState(exchangeRate);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
@@ -295,14 +383,15 @@ export function SubscriptionManager({
   const [editor, setEditor] = useState<Subscription | "new" | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [syncState, setSyncState] = useState<SyncState>("online");
-  const itemsRef = useRef(subscriptions);
+  const itemsRef = useRef(items);
   const syncInFlight = useRef<Promise<void> | null>(null);
 
   const persistItems = useCallback(
     async (nextItems: Subscription[]) => {
-      itemsRef.current = nextItems;
-      setItems(nextItems);
-      await saveSnapshot(user.email, nextItems);
+      const normalized = nextItems.map(normalizedSubscription);
+      itemsRef.current = normalized;
+      setItems(normalized);
+      await saveSnapshot(user.email, normalized);
     },
     [user.email],
   );
@@ -335,8 +424,10 @@ export function SubscriptionManager({
         if (!response.ok) throw new Error("refresh failed");
         const data = (await response.json()) as {
           subscriptions: Subscription[];
+          exchangeRate: UsdJpyRate;
         };
         await persistItems(data.subscriptions);
+        setUsdJpyRate(data.exchangeRate);
         setSyncState("online");
       } catch {
         const remaining = await listOperations(user.email);
@@ -361,10 +452,14 @@ export function SubscriptionManager({
       ]);
       if (!active) return;
       if (cached && (!navigator.onLine || pending.length > 0)) {
-        itemsRef.current = cached;
-        setItems(cached);
+        const normalized = cached.map(normalizedSubscription);
+        itemsRef.current = normalized;
+        setItems(normalized);
       } else {
-        await saveSnapshot(user.email, subscriptions);
+        await saveSnapshot(
+          user.email,
+          subscriptions.map(normalizedSubscription),
+        );
       }
       if (!navigator.onLine) {
         setSyncState(pending.length ? "pending" : "offline");
@@ -465,8 +560,12 @@ export function SubscriptionManager({
     [items],
   );
   const monthlyTotal = useMemo(
-    () => active.reduce((sum, item) => sum + monthlyEquivalent(item), 0),
-    [active],
+    () =>
+      active.reduce(
+        (sum, item) => sum + monthlyEquivalent(item, usdJpyRate.rate),
+        0,
+      ),
+    [active, usdJpyRate.rate],
   );
   const yearlyTotal = monthlyTotal * 12;
   const next = useMemo(
@@ -494,7 +593,10 @@ export function SubscriptionManager({
     });
     return filtered.toSorted((a, b) => {
       if (sort === "price-high") {
-        return monthlyEquivalent(b) - monthlyEquivalent(a);
+        return (
+          monthlyEquivalent(b, usdJpyRate.rate) -
+          monthlyEquivalent(a, usdJpyRate.rate)
+        );
       }
       if (sort === "name") return a.name.localeCompare(b.name, "ja");
       return (
@@ -502,7 +604,7 @@ export function SubscriptionManager({
         new Date(b.renewalDate).getTime()
       );
     });
-  }, [items, query, filter, sort]);
+  }, [items, query, filter, sort, usdJpyRate.rate]);
 
   const closeEditor = useCallback(() => setEditor(null), []);
   const closeAccount = useCallback(() => setAccountOpen(false), []);
@@ -674,10 +776,15 @@ export function SubscriptionManager({
                   <strong>{item.name}</strong>
                   {item.status === "paused" ? <em>停止中</em> : null}
                 </span>
-                <span>{item.category} · {dateLabel(item.renewalDate)} 更新</span>
+                <span>
+                  {item.category} · {dateLabel(item.renewalDate)} 更新
+                  {item.currency === "USD"
+                    ? ` · $${item.originalAmount.toFixed(2)}`
+                    : ""}
+                </span>
               </span>
               <span className="price">
-                <strong>{yen(monthlyEquivalent(item))}</strong>
+                <strong>{yen(monthlyEquivalent(item, usdJpyRate.rate))}</strong>
                 <span>{item.billingCycle === "yearly" ? "/月換算" : "/月"}</span>
               </span>
               <ChevronRight className="card-chevron" size={18} />
@@ -732,6 +839,7 @@ export function SubscriptionManager({
                 saveLocalSubscription(editor === "new" ? null : editor, input)
               }
               onDelete={deleteLocalSubscription}
+              exchangeRate={usdJpyRate}
             />
           </section>
         </div>
