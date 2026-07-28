@@ -164,4 +164,79 @@ final class ReportCalculatorTests: XCTestCase {
 
         XCTAssertNil(subscription.nextRenewalDate(onOrAfter: march, calendar: calendar))
     }
+
+    func testAnyDayOfTheReferenceMonthCountsAsTheCurrentMonth() {
+        let calendar = Calendar(identifier: .gregorian)
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 7, day: 28))!
+        let firstOfMonth = calendar.date(from: DateComponents(year: 2026, month: 7, day: 1))!
+
+        XCTAssertTrue(
+            ReportCalculator.isCurrentPeriod(
+                firstOfMonth,
+                period: .month,
+                reference: reference,
+                calendar: calendar
+            )
+        )
+    }
+
+    func testAnotherMonthIsNotTheCurrentMonth() {
+        let calendar = Calendar(identifier: .gregorian)
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 7, day: 28))!
+        let june = calendar.date(from: DateComponents(year: 2026, month: 6, day: 28))!
+
+        XCTAssertFalse(
+            ReportCalculator.isCurrentPeriod(
+                june,
+                period: .month,
+                reference: reference,
+                calendar: calendar
+            )
+        )
+    }
+
+    func testTheSameMonthInAnotherYearIsNotTheCurrentMonth() {
+        let calendar = Calendar(identifier: .gregorian)
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 7, day: 28))!
+        let lastYear = calendar.date(from: DateComponents(year: 2025, month: 7, day: 28))!
+
+        XCTAssertFalse(
+            ReportCalculator.isCurrentPeriod(
+                lastYear,
+                period: .month,
+                reference: reference,
+                calendar: calendar
+            )
+        )
+    }
+
+    func testAnyMonthOfTheReferenceYearCountsAsTheCurrentYear() {
+        let calendar = Calendar(identifier: .gregorian)
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 7, day: 28))!
+        let january = calendar.date(from: DateComponents(year: 2026, month: 1, day: 4))!
+
+        XCTAssertTrue(
+            ReportCalculator.isCurrentPeriod(
+                january,
+                period: .year,
+                reference: reference,
+                calendar: calendar
+            )
+        )
+    }
+
+    func testAnotherYearIsNotTheCurrentYear() {
+        let calendar = Calendar(identifier: .gregorian)
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 7, day: 28))!
+        let lastYear = calendar.date(from: DateComponents(year: 2025, month: 12, day: 31))!
+
+        XCTAssertFalse(
+            ReportCalculator.isCurrentPeriod(
+                lastYear,
+                period: .year,
+                reference: reference,
+                calendar: calendar
+            )
+        )
+    }
 }

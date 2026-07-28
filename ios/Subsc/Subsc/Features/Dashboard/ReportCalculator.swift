@@ -66,6 +66,20 @@ enum ReportCalculator {
         ) ?? cursor
     }
 
+    /// 表示中の期間が今日を含む期間かどうかを返します。
+    static func isCurrentPeriod(
+        _ cursor: Date,
+        period: ReportPeriod,
+        reference: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        calendar.isDate(
+            cursor,
+            equalTo: reference,
+            toGranularity: period == .month ? .month : .year
+        )
+    }
+
     private static func annualAmount(
         _ subscription: Subscription,
         cursor: Date,

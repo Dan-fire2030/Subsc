@@ -50,10 +50,15 @@ struct ReportCard: View {
                 pageHeight: pageHeight,
                 periodUnit: periodUnit,
                 reduceMotion: reduceMotion,
-                accessibilityValue: accessibilityValue(for: currentReport)
-            ) { step in
-                cursor = shiftedCursor(by: step)
-            }
+                isViewingCurrentPeriod: isViewingCurrentPeriod,
+                accessibilityValue: accessibilityValue(for: currentReport),
+                onShift: { step in
+                    cursor = shiftedCursor(by: step)
+                },
+                onReturnToCurrentPeriod: {
+                    cursor = .now
+                }
+            )
             .id(period)
         }
         .padding(14)
@@ -65,6 +70,10 @@ struct ReportCard: View {
 
     private var periodUnit: String {
         period == .month ? "月" : "年"
+    }
+
+    private var isViewingCurrentPeriod: Bool {
+        ReportCalculator.isCurrentPeriod(cursor, period: period)
     }
 
     private func accessibilityValue(for report: PaymentReport) -> String {
@@ -144,8 +153,10 @@ private struct ReportPager: View {
     let pageHeight: CGFloat
     let periodUnit: String
     let reduceMotion: Bool
+    let isViewingCurrentPeriod: Bool
     let accessibilityValue: String
     let onShift: (Int) -> Void
+    let onReturnToCurrentPeriod: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("hasUsedReportPaging") private var hasUsedReportPaging = false
@@ -187,27 +198,7 @@ private struct ReportPager: View {
 
                 Spacer()
 
-                if dynamicTypeSize.isAccessibilitySize {
-                    Image(systemName: "hand.draw")
-                        .foregroundStyle(.white.opacity(0.9))
-                        .accessibilityHidden(true)
-                } else if hasUsedReportPaging {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(.white.opacity(0.42))
-                        Circle()
-                            .fill(.white)
-                        Circle()
-                            .fill(.white.opacity(0.42))
-                    }
-                    .frame(width: 42, height: 8)
-                    .accessibilityHidden(true)
-                } else {
-                    Label("左右にスワイプ", systemImage: "hand.draw")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .accessibilityHidden(true)
-                }
+                pagerCenter
 
                 Spacer()
 
@@ -239,7 +230,49 @@ private struct ReportPager: View {
         .accessibilityAction(named: "次の\(periodUnit)") {
             shiftPage(by: 1)
         }
+        .accessibilityAction(named: "今\(periodUnit)へ戻る") {
+            returnToCurrentPeriod()
+        }
         .sensoryFeedback(.selection, trigger: feedbackTrigger)
+    }
+
+    /// 現在の期間から離れているときは復帰ボタンを、初回だけスワイプ案内を出します。
+    @ViewBuilder
+    private var pagerCenter: some View {
+        if !isViewingCurrentPeriod {
+            returnToCurrentPeriodButton
+        } else if !hasUsedReportPaging {
+            if dynamicTypeSize.isAccessibilitySize {
+                Image(systemName: "hand.draw")
+                    .foregroundStyle(.white.opacity(0.9))
+                    .accessibilityHidden(true)
+            } else {
+                Label("左右にスワイプ", systemImage: "hand.draw")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    private var returnToCurrentPeriodButton: some View {
+        Button {
+            returnToCurrentPeriod()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "arrow.uturn.backward")
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Text("今\(periodUnit)")
+                }
+            }
+            .font(.caption.weight(.semibold))
+            .frame(minWidth: 44, minHeight: 44)
+            .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
+            .contentShape(.rect)
+        }
+        .foregroundStyle(.white)
+        .modifier(ReportControlButtonModifier())
+        .accessibilityLabel("今\(periodUnit)へ戻る")
     }
 
     private func pageButton(
@@ -286,6 +319,12 @@ private struct ReportPager: View {
         hasUsedReportPaging = true
         feedbackTrigger += 1
     }
+
+    private func returnToCurrentPeriod() {
+        onReturnToCurrentPeriod()
+        hasUsedReportPaging = true
+        feedbackTrigger += 1
+    }
 }
 
 private struct ReportControlButtonModifier: ViewModifier {
@@ -297,6 +336,25 @@ private struct ReportControlButtonModifier: ViewModifier {
         } else {
             content
                 .buttonStyle(.plain)
+                .background(.black.opacity(0.16), in: Capsule(style: .continuous))
+                .overlay {
+                    Capsule(style: .continuous)
+                        .stroke(.white.opacity(0.32), lineWidth: 0.7)
+                }
+        }
+    }
+}
+
+/// 小さめのカプセル背景です。ボタンスタイルではなくラベルへ直接当てるので、
+/// 見た目を小さく保ったまま外側で44ptのタップ領域を確保できます。
+private struct CompactGlassCapsuleModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .capsule)
+        } else {
+            content
                 .background(.black.opacity(0.16), in: Capsule(style: .continuous))
                 .overlay {
                     Capsule(style: .continuous)
@@ -452,6 +510,10 @@ private struct GlassBarChart: View {
         dynamicTypeSize.isAccessibilitySize ? 1 : 2
     }
 
+    private var hiddenEntryCount: Int {
+        max(0, entries.count - visibleEntryCount)
+    }
+
     var body: some View {
         VStack(spacing: 6) {
             ForEach(entries.prefix(visibleEntryCount)) { entry in
@@ -461,23 +523,25 @@ private struct GlassBarChart: View {
                 )
             }
 
-            if entries.count > visibleEntryCount {
+            if hiddenEntryCount > 0 {
                 Button {
                     showsAllEntries = true
                 } label: {
-                    HStack(spacing: 6) {
-                        Text("ほか\(entries.count - visibleEntryCount)件")
-                        Text("すべて見る")
-                            .fontWeight(.semibold)
+                    HStack(spacing: 4) {
+                        Text("ほか\(hiddenEntryCount)件")
                         Image(systemName: "chevron.up")
-                            .font(.caption2.weight(.bold))
+                            .font(.system(size: 9, weight: .bold))
                     }
-                    .font(.caption)
+                    .font(.caption2.weight(.semibold))
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .contentShape(Rectangle())
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 5)
+                    .modifier(CompactGlassCapsuleModifier())
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(.rect)
                 }
-                .modifier(ReportControlButtonModifier())
+                .buttonStyle(.plain)
+                .accessibilityLabel("ほか\(hiddenEntryCount)件をすべて見る")
                 .accessibilityHint("サービス別料金の詳細を開きます")
             } else {
                 Spacer(minLength: 0)
