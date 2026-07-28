@@ -1,0 +1,9 @@
+.deriveddata/
+.build/
+.device-build/
+.test-build/
+.verify-build/
+.verify-test-build/
+.audit-*/
+.verify-*/
+xcuserdata/

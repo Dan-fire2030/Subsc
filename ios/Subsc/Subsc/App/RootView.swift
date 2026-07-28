@@ -1,0 +1,141 @@
+import SwiftData
+import SwiftUI
+
+struct RootView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+    @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
+    @State private var selectedTab = 0
+
+    private var notificationFingerprint: String {
+        subscriptions.map {
+            [
+                $0.clientID,
+                $0.updatedAt.timeIntervalSince1970.description,
+                $0.stateRaw,
+                $0.notificationsEnabled.description
+            ].joined(separator: ":")
+        }
+        .joined(separator: "|")
+    }
+
+    private var notificationSyncID: String {
+        "\(scenePhase == .active):\(notificationFingerprint)"
+    }
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            DashboardView()
+                .tabItem {
+                    Label("ホーム", systemImage: "rectangle.grid.1x2.fill")
+                }
+                .tag(0)
+
+            SettingsView()
+                .tabItem {
+                    Label("設定", systemImage: "gearshape.fill")
+                }
+                .tag(1)
+        }
+        .tint(Color(red: 0.08, green: 0.45, blue: 0.98))
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
+        .task(id: notificationSyncID) {
+            guard scenePhase == .active else { return }
+            await reconcileSubscriptions()
+        }
+    }
+
+    private func reconcileSubscriptions() async {
+        let didAdvanceRenewal = subscriptions.reduce(false) { changed, subscription in
+            subscription.advanceRenewalDateIfNeeded() || changed
+        }
+        if didAdvanceRenewal {
+            try? modelContext.save()
+            return
+        }
+        _ = await NotificationService.reconcile(subscriptions: subscriptions)
+    }
+}
+
+struct AppLiquidGlassBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        ZStack {
+            Color(uiColor: .systemGroupedBackground)
+
+            LinearGradient(
+                colors: [
+                    Color.blue.opacity(colorScheme == .dark ? 0.13 : 0.055),
+                    Color.purple.opacity(colorScheme == .dark ? 0.08 : 0.025),
+                    Color.cyan.opacity(colorScheme == .dark ? 0.1 : 0.04)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            Circle()
+                .fill(Color.cyan.opacity(colorScheme == .dark ? 0.1 : 0.065))
+                .frame(width: 260, height: 260)
+                .blur(radius: 68)
+                .offset(x: 150, y: -280)
+
+            Circle()
+                .fill(Color.purple.opacity(colorScheme == .dark ? 0.075 : 0.04))
+                .frame(width: 290, height: 290)
+                .blur(radius: 76)
+                .offset(x: -170, y: 220)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct GlassListRowBackground: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color(uiColor: .secondarySystemGroupedBackground))
+    }
+}
+
+private struct GlassSurfaceModifier: ViewModifier {
+    let cornerRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.62), .white.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.75
+                    )
+            }
+            .shadow(color: .black.opacity(0.045), radius: 7, y: 3)
+    }
+}
+
+extension View {
+    func glassSurface(cornerRadius: CGFloat = 18) -> some View {
+        modifier(GlassSurfaceModifier(cornerRadius: cornerRadius))
+    }
+
+    func glassListRow() -> some View {
+        listRowBackground(GlassListRowBackground())
+            .listRowSeparatorTint(Color(uiColor: .separator).opacity(0.42))
+    }
+
+    func liquidGlassScreen() -> some View {
+        scrollContentBackground(.hidden)
+            .background(AppLiquidGlassBackground())
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+    }
+}
