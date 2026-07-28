@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		AA0000010000000000000001 /* SubscApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000000000001 /* SubscApp.swift */; };
 		AA0000020000000000000002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000020000000000000002 /* RootView.swift */; };
+		AA0000170000000000000017 /* StorageMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000220000000000000022 /* StorageMode.swift */; };
+		AA0000180000000000000018 /* StorageModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000230000000000000023 /* StorageModeTests.swift */; };
 		AA0000030000000000000003 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000030000000000000003 /* Subscription.swift */; };
 		AA0000040000000000000004 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000040000000000000004 /* NotificationService.swift */; };
 		AA0000050000000000000005 /* ReportCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000050000000000000005 /* ReportCalculator.swift */; };
@@ -45,6 +47,8 @@
 /* Begin PBXFileReference section */
 		BB0000010000000000000001 /* SubscApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscApp.swift; sourceTree = "<group>"; };
 		BB0000020000000000000002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		BB0000220000000000000022 /* StorageMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageMode.swift; sourceTree = "<group>"; };
+		BB0000230000000000000023 /* StorageModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageModeTests.swift; sourceTree = "<group>"; };
 		BB0000030000000000000003 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		BB0000040000000000000004 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BB0000050000000000000005 /* ReportCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculator.swift; sourceTree = "<group>"; };
@@ -121,6 +125,7 @@
 			children = (
 				BB0000010000000000000001 /* SubscApp.swift */,
 				BB0000020000000000000002 /* RootView.swift */,
+				BB0000220000000000000022 /* StorageMode.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -175,6 +180,7 @@
 			children = (
 				BB0000100000000000000010 /* ReportCalculatorTests.swift */,
 				BB0000190000000000000019 /* NotificationPlannerTests.swift */,
+				BB0000230000000000000023 /* StorageModeTests.swift */,
 				BB0000210000000000000021 /* ExchangeRateServiceTests.swift */,
 			);
 			path = SubscTests;
@@ -349,6 +355,7 @@
 			files = (
 				AA0000010000000000000001 /* SubscApp.swift in Sources */,
 				AA0000020000000000000002 /* RootView.swift in Sources */,
+				AA0000170000000000000017 /* StorageMode.swift in Sources */,
 				AA0000030000000000000003 /* Subscription.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
@@ -366,6 +373,7 @@
 			files = (
 				AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */,
 				AA0000140000000000000014 /* NotificationPlannerTests.swift in Sources */,
+				AA0000180000000000000018 /* StorageModeTests.swift in Sources */,
 				AA0000160000000000000016 /* ExchangeRateServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

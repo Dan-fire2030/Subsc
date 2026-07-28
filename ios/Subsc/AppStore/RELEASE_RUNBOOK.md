@@ -62,7 +62,7 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 ### アプリ
 
-- [x] 単体テスト9件合格
+- [x] 単体テスト19件合格
 - [x] Release Archive成功
 - [x] CloudKit Productionスキーマ反映
 - [x] TestFlightビルド2アップロード
