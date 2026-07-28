@@ -57,22 +57,7 @@ struct ReportCard: View {
             .id(period)
         }
         .padding(14)
-        .background {
-            LiquidGlassCardBackground()
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [.white.opacity(0.72), .white.opacity(0.12)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.9
-                )
-        }
-        .shadow(color: .blue.opacity(0.22), radius: 22, y: 10)
+        .modifier(ReportCardSurfaceModifier())
         .onChange(of: period) {
             cursor = .now
         }
@@ -108,6 +93,42 @@ struct ReportCard: View {
         return date.formatted(.dateTime.year())
     }
 
+}
+
+private struct ReportCardSurfaceModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .background {
+                    LiquidGlassCardBackground()
+                        .opacity(0.82)
+                }
+                .glassEffect(
+                    .regular.tint(.blue.opacity(0.18)),
+                    in: .rect(cornerRadius: 24)
+                )
+                .shadow(color: .blue.opacity(0.2), radius: 20, y: 9)
+        } else {
+            content
+                .background {
+                    LiquidGlassCardBackground()
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.72), .white.opacity(0.12)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.9
+                        )
+                }
+                .shadow(color: .blue.opacity(0.22), radius: 22, y: 10)
+        }
+    }
 }
 
 private struct ReportPageData: Identifiable, Equatable {
@@ -245,13 +266,8 @@ private struct ReportPager: View {
                 .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
                 .contentShape(.rect)
         }
-        .buttonStyle(.plain)
         .foregroundStyle(.white)
-        .background(.black.opacity(0.16), in: Capsule(style: .continuous))
-        .overlay {
-            Capsule(style: .continuous)
-                .stroke(.white.opacity(0.32), lineWidth: 0.7)
-        }
+        .modifier(ReportControlButtonModifier())
         .accessibilityLabel(title)
     }
 
@@ -269,6 +285,24 @@ private struct ReportPager: View {
         onShift(value)
         hasUsedReportPaging = true
         feedbackTrigger += 1
+    }
+}
+
+private struct ReportControlButtonModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .buttonStyle(.glass)
+        } else {
+            content
+                .buttonStyle(.plain)
+                .background(.black.opacity(0.16), in: Capsule(style: .continuous))
+                .overlay {
+                    Capsule(style: .continuous)
+                        .stroke(.white.opacity(0.32), lineWidth: 0.7)
+                }
+        }
     }
 }
 
@@ -443,12 +477,7 @@ private struct GlassBarChart: View {
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .background(.black.opacity(0.16), in: Capsule(style: .continuous))
-                .overlay {
-                    Capsule(style: .continuous)
-                        .stroke(.white.opacity(0.3), lineWidth: 0.7)
-                }
+                .modifier(ReportControlButtonModifier())
                 .accessibilityHint("サービス別料金の詳細を開きます")
             } else {
                 Spacer(minLength: 0)
@@ -459,7 +488,7 @@ private struct GlassBarChart: View {
             ReportBreakdownSheet(entries: entries)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-                .presentationBackground(.ultraThinMaterial)
+                .adaptiveSheetBackground()
         }
     }
 }
@@ -604,8 +633,7 @@ private struct ReportBreakdownSheet: View {
             .navigationTitle("サービス別料金")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .adaptiveNavigationBar()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完了") { dismiss() }

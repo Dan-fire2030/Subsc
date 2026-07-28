@@ -39,8 +39,7 @@ struct RootView: View {
                 .tag(1)
         }
         .tint(Color(red: 0.08, green: 0.45, blue: 0.98))
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
+        .modifier(AdaptiveTabBarModifier())
         .task(id: notificationSyncID) {
             guard scenePhase == .active else { return }
             await reconcileSubscriptions()
@@ -121,24 +120,103 @@ struct GlassListRowBackground: View {
 private struct GlassSurfaceModifier: ViewModifier {
     let cornerRadius: CGFloat
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
-            .background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [.white.opacity(0.62), .white.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.75
-                    )
-            }
-            .shadow(color: .black.opacity(0.045), radius: 7, y: 3)
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(
+                    .regular,
+                    in: .rect(cornerRadius: cornerRadius)
+                )
+        } else {
+            content
+                .background(
+                    .ultraThinMaterial,
+                    in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.62), .white.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.75
+                        )
+                }
+                .shadow(color: .black.opacity(0.045), radius: 7, y: 3)
+        }
+    }
+}
+
+private struct AdaptiveTabBarModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
+                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+        }
+    }
+}
+
+private struct LiquidGlassScreenModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .scrollContentBackground(.hidden)
+                .background(AppLiquidGlassBackground())
+                .scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            content
+                .scrollContentBackground(.hidden)
+                .background(AppLiquidGlassBackground())
+                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        }
+    }
+}
+
+private struct ProminentGlassButtonModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .buttonStyle(.glassProminent)
+        } else {
+            content
+                .buttonStyle(.borderedProminent)
+        }
+    }
+}
+
+private struct AdaptiveSheetBackgroundModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+        } else {
+            content
+                .presentationBackground(.ultraThinMaterial)
+        }
+    }
+}
+
+private struct AdaptiveNavigationBarModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+        } else {
+            content
+                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        }
     }
 }
 
@@ -147,15 +225,24 @@ extension View {
         modifier(GlassSurfaceModifier(cornerRadius: cornerRadius))
     }
 
+    func prominentGlassButton() -> some View {
+        modifier(ProminentGlassButtonModifier())
+    }
+
+    func adaptiveSheetBackground() -> some View {
+        modifier(AdaptiveSheetBackgroundModifier())
+    }
+
+    func adaptiveNavigationBar() -> some View {
+        modifier(AdaptiveNavigationBarModifier())
+    }
+
     func glassListRow() -> some View {
         listRowBackground(GlassListRowBackground())
             .listRowSeparatorTint(Color(uiColor: .separator).opacity(0.42))
     }
 
     func liquidGlassScreen() -> some View {
-        scrollContentBackground(.hidden)
-            .background(AppLiquidGlassBackground())
-            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+        modifier(LiquidGlassScreenModifier())
     }
 }

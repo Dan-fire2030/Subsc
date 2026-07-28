@@ -407,7 +407,7 @@ private struct DashboardEmptyState: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
-            .buttonStyle(.borderedProminent)
+            .prominentGlassButton()
             .controlSize(.large)
             .accessibilityIdentifier("empty-state-add-subscription-button")
         }
