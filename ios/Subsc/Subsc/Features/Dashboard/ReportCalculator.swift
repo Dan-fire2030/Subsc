@@ -13,8 +13,8 @@ struct PaymentReport: Equatable {
 }
 
 enum ReportPeriod: String, CaseIterable, Identifiable {
-    case month = "今月"
-    case year = "年間"
+    case month = "月額換算"
+    case year = "年間換算"
 
     var id: String { rawValue }
 }

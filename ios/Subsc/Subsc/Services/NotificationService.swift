@@ -12,7 +12,8 @@ enum NotificationService {
         let failed: Int
     }
 
-    private struct Candidate {
+    struct PlannedNotification: Equatable {
+        let clientID: String
         let identifier: String
         let date: Date
         let title: String
@@ -29,13 +30,23 @@ enum NotificationService {
     }
 
     static func reschedule(for subscription: Subscription) async {
-        await cancel(clientID: subscription.clientID)
+        let center = UNUserNotificationCenter.current()
+        let pending = await center.pendingNotificationRequests()
+        guard !Task.isCancelled else { return }
 
-        guard subscription.notificationsEnabled, subscription.state == .active else {
-            return
-        }
-        let candidates = notificationCandidates(for: subscription, now: .now)
-        _ = await add(candidates: Array(candidates.prefix(maximumPendingRequests)))
+        let desired = plannedNotifications(
+            subscriptions: [subscription],
+            now: .now
+        )
+        let result = await add(notifications: desired)
+        guard !Task.isCancelled, result.failed == 0 else { return }
+
+        let desiredIdentifiers = Set(desired.map(\.identifier))
+        let prefix = "\(identifierPrefix)\(subscription.clientID)-"
+        let obsoleteIdentifiers = pending
+            .map(\.identifier)
+            .filter { $0.hasPrefix(prefix) && !desiredIdentifiers.contains($0) }
+        center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
     }
 
     static func reconcile(
@@ -50,17 +61,18 @@ enum NotificationService {
         guard !Task.isCancelled else {
             return SyncResult(scheduled: 0, failed: 0)
         }
-        let identifiers = pending
+        let desired = plannedNotifications(subscriptions: subscriptions, now: now)
+        let result = await add(notifications: desired)
+        guard !Task.isCancelled, result.failed == 0 else { return result }
+
+        let desiredIdentifiers = Set(desired.map(\.identifier))
+        let obsoleteIdentifiers = pending
             .map(\.identifier)
-            .filter { $0.hasPrefix(identifierPrefix) }
-        center.removePendingNotificationRequests(withIdentifiers: identifiers)
-
-        let candidates = subscriptions
-            .filter { $0.notificationsEnabled && $0.state == .active }
-            .flatMap { notificationCandidates(for: $0, now: now) }
-            .sorted { $0.date < $1.date }
-
-        return await add(candidates: Array(candidates.prefix(maximumPendingRequests)))
+            .filter {
+                $0.hasPrefix(identifierPrefix) && !desiredIdentifiers.contains($0)
+            }
+        center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
+        return result
     }
 
     static func cancel(clientID: String) async {
@@ -73,18 +85,54 @@ enum NotificationService {
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
+    static func plannedNotifications(
+        subscriptions: [Subscription],
+        now: Date,
+        limit: Int = maximumPendingRequests,
+        calendar: Calendar = .current
+    ) -> [PlannedNotification] {
+        guard limit > 0 else { return [] }
+
+        var queues = subscriptions
+            .filter { $0.notificationsEnabled && $0.state == .active }
+            .map {
+                notificationCandidates(for: $0, now: now, calendar: calendar)
+                    .sorted { $0.date < $1.date }
+            }
+            .filter { !$0.isEmpty }
+            .sorted {
+                guard let lhs = $0.first, let rhs = $1.first else { return false }
+                if lhs.date == rhs.date {
+                    return lhs.clientID < rhs.clientID
+                }
+                return lhs.date < rhs.date
+            }
+
+        var result: [PlannedNotification] = []
+        while result.count < limit {
+            var addedInRound = false
+            for index in queues.indices where result.count < limit {
+                guard !queues[index].isEmpty else { continue }
+                result.append(queues[index].removeFirst())
+                addedInRound = true
+            }
+            if !addedInRound { break }
+        }
+        return result
+    }
+
     private static func notificationCandidates(
         for subscription: Subscription,
-        now: Date
-    ) -> [Candidate] {
-        let calendar = Calendar.current
+        now: Date,
+        calendar: Calendar
+    ) -> [PlannedNotification] {
         let renewalDates = subscription.upcomingRenewalDates(
             onOrAfter: now,
             limit: renewalCyclesPerSubscription,
             calendar: calendar
         )
 
-        return renewalDates.flatMap { renewalDate -> [Candidate] in
+        return renewalDates.flatMap { renewalDate -> [PlannedNotification] in
             var targetComponents = calendar.dateComponents(
                 [.year, .month, .day],
                 from: renewalDate
@@ -108,7 +156,8 @@ enum NotificationService {
 
             return offsets.compactMap { suffix, date in
                 guard date > now else { return nil }
-                return Candidate(
+                return PlannedNotification(
+                    clientID: subscription.clientID,
                     identifier: "\(identifierPrefix)\(subscription.clientID)-\(cycleKey)-\(suffix)",
                     date: date,
                     title: "\(subscription.name)の更新予定",
@@ -118,26 +167,26 @@ enum NotificationService {
         }
     }
 
-    private static func add(candidates: [Candidate]) async -> SyncResult {
+    private static func add(notifications: [PlannedNotification]) async -> SyncResult {
         let center = UNUserNotificationCenter.current()
         var scheduled = 0
         var failed = 0
 
-        for candidate in candidates {
+        for notification in notifications {
             guard !Task.isCancelled else { break }
             let content = UNMutableNotificationContent()
-            content.title = candidate.title
-            content.body = candidate.body
+            content.title = notification.title
+            content.body = notification.body
             content.sound = .default
             let trigger = UNCalendarNotificationTrigger(
                 dateMatching: Calendar.current.dateComponents(
                     [.year, .month, .day, .hour, .minute],
-                    from: candidate.date
+                    from: notification.date
                 ),
                 repeats: false
             )
             let request = UNNotificationRequest(
-                identifier: candidate.identifier,
+                identifier: notification.identifier,
                 content: content,
                 trigger: trigger
             )

@@ -128,10 +128,6 @@ final class Subscription {
         billingCycle == .yearly ? yenAmount / 12 : yenAmount
     }
 
-    var annualYen: Double {
-        billingCycle == .yearly ? yenAmount : yenAmount * 12
-    }
-
     var color: Color { Color(hex: colorHex) }
 
     func nextRenewalDate(

@@ -3,15 +3,34 @@ import SwiftUI
 struct ReportCard: View {
     let subscriptions: [Subscription]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .body) private var pageHeight = 316
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var period: ReportPeriod = .month
     @State private var cursor = Date.now
-    @State private var dragOffset: CGFloat = 0
-    @State private var dragProgress: CGFloat = 0
-    @State private var isSettling = false
+
+    private var pages: [ReportPageData] {
+        (-1...1).map { step in
+            let pageCursor = shiftedCursor(by: step)
+            return ReportPageData(
+                step: step,
+                report: report(at: pageCursor),
+                periodLabel: periodLabel(for: pageCursor)
+            )
+        }
+    }
+
+    private var pageHeight: CGFloat {
+        if dynamicTypeSize >= .accessibility3 {
+            return 660
+        }
+        return dynamicTypeSize.isAccessibilitySize ? 520 : 264
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        let reportPages = pages
+        let currentReport = reportPages.first { $0.step == 0 }?.report ??
+            PaymentReport(total: 0, entries: [])
+
+        VStack(alignment: .leading, spacing: 12) {
             Picker("集計期間", selection: $period) {
                 ForEach(ReportPeriod.allCases) { period in
                     Text(period.rawValue).tag(period)
@@ -19,51 +38,25 @@ struct ReportCard: View {
             }
             .pickerStyle(.segmented)
             .padding(3)
-            .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+            .background(.black.opacity(0.12), in: Capsule(style: .continuous))
             .overlay {
                 Capsule(style: .continuous)
                     .stroke(.white.opacity(0.3), lineWidth: 0.7)
             }
             .accessibilityLabel("レポート期間")
 
-            GeometryReader { proxy in
-                let width = proxy.size.width
-
-                HStack(spacing: 0) {
-                    ForEach(-1...1, id: \.self) { step in
-                        let pageCursor = shiftedCursor(by: step)
-                        ReportPage(
-                            report: report(at: pageCursor),
-                            periodLabel: periodLabel(for: pageCursor),
-                            reduceMotion: reduceMotion
-                        )
-                        .frame(width: width)
-                    }
-                }
-                .offset(x: -width + dragOffset)
-                .contentShape(Rectangle())
-                .simultaneousGesture(pageDragGesture(pageWidth: width))
+            ReportPager(
+                pages: reportPages,
+                pageHeight: pageHeight,
+                periodUnit: periodUnit,
+                reduceMotion: reduceMotion,
+                accessibilityValue: accessibilityValue(for: currentReport)
+            ) { step in
+                cursor = shiftedCursor(by: step)
             }
-            .frame(height: pageHeight)
-            .clipped()
-
-            HStack(spacing: 12) {
-                Image(systemName: "chevron.left")
-                Text("前の\(periodUnit)")
-                Spacer()
-                LiquidPageIndicator(
-                    progress: dragProgress,
-                    reduceMotion: reduceMotion
-                )
-                Spacer()
-                Text("次の\(periodUnit)")
-                Image(systemName: "chevron.right")
-            }
-            .font(.caption2)
-            .foregroundStyle(.white.opacity(0.78))
-            .frame(maxWidth: .infinity)
+            .id(period)
         }
-        .padding(16)
+        .padding(14)
         .background {
             LiquidGlassCardBackground()
         }
@@ -81,25 +74,19 @@ struct ReportCard: View {
         }
         .shadow(color: .blue.opacity(0.22), radius: 22, y: 10)
         .onChange(of: period) {
-            dragOffset = 0
-            dragProgress = 0
-            isSettling = false
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityAdjustableAction { direction in
-            switch direction {
-            case .increment:
-                settlePage(by: 1, pageWidth: 1)
-            case .decrement:
-                settlePage(by: -1, pageWidth: 1)
-            @unknown default:
-                break
-            }
+            cursor = .now
         }
     }
 
     private var periodUnit: String {
         period == .month ? "月" : "年"
+    }
+
+    private func accessibilityValue(for report: PaymentReport) -> String {
+        let total = report.total.formatted(
+            .currency(code: "JPY").precision(.fractionLength(0))
+        )
+        return "\(periodLabel(for: cursor))、利用コスト\(total)、\(report.entries.count)件"
     }
 
     private func report(at date: Date) -> PaymentReport {
@@ -121,67 +108,167 @@ struct ReportCard: View {
         return date.formatted(.dateTime.year())
     }
 
-    private func pageDragGesture(pageWidth: CGFloat) -> some Gesture {
-        DragGesture(minimumDistance: 8)
-            .onChanged { value in
-                guard !isSettling,
-                      abs(value.translation.width) > abs(value.translation.height) else {
-                    return
-                }
-                dragOffset = max(-pageWidth, min(pageWidth, value.translation.width))
-                dragProgress = max(-1, min(1, -value.translation.width / pageWidth))
-            }
-            .onEnded { value in
-                guard !isSettling,
-                      abs(value.translation.width) > abs(value.translation.height) else {
-                    snapBack()
-                    return
-                }
+}
 
-                let projected = value.predictedEndTranslation.width
-                let threshold = pageWidth * 0.18
-                if value.translation.width < -threshold || projected < -pageWidth * 0.42 {
-                    settlePage(by: 1, pageWidth: pageWidth)
-                } else if value.translation.width > threshold || projected > pageWidth * 0.42 {
-                    settlePage(by: -1, pageWidth: pageWidth)
+private struct ReportPageData: Identifiable, Equatable {
+    let step: Int
+    let report: PaymentReport
+    let periodLabel: String
+
+    var id: Int { step }
+}
+
+private struct ReportPager: View {
+    let pages: [ReportPageData]
+    let pageHeight: CGFloat
+    let periodUnit: String
+    let reduceMotion: Bool
+    let accessibilityValue: String
+    let onShift: (Int) -> Void
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @AppStorage("hasUsedReportPaging") private var hasUsedReportPaging = false
+    @State private var selectedStep: Int? = 0
+    @State private var feedbackTrigger = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    ForEach(pages) { page in
+                        ReportPage(
+                            report: page.report,
+                            periodLabel: page.periodLabel,
+                            reduceMotion: reduceMotion
+                        )
+                        .containerRelativeFrame(.horizontal)
+                        .id(page.step)
+                        .accessibilityHidden(page.step != 0)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollPosition(id: $selectedStep)
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
+            .frame(height: pageHeight)
+            .clipped()
+            .onChange(of: selectedStep) {
+                completeSwipeIfNeeded()
+            }
+
+            HStack(spacing: 12) {
+                pageButton(
+                    title: "前の\(periodUnit)",
+                    systemImage: "chevron.left",
+                    shift: -1
+                )
+
+                Spacer()
+
+                if dynamicTypeSize.isAccessibilitySize {
+                    Image(systemName: "hand.draw")
+                        .foregroundStyle(.white.opacity(0.9))
+                        .accessibilityHidden(true)
+                } else if hasUsedReportPaging {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(.white.opacity(0.42))
+                        Circle()
+                            .fill(.white)
+                        Circle()
+                            .fill(.white.opacity(0.42))
+                    }
+                    .frame(width: 42, height: 8)
+                    .accessibilityHidden(true)
                 } else {
-                    snapBack()
+                    Label("左右にスワイプ", systemImage: "hand.draw")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .accessibilityHidden(true)
+                }
+
+                Spacer()
+
+                pageButton(
+                    title: "次の\(periodUnit)",
+                    systemImage: "chevron.right",
+                    shift: 1
+                )
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("利用コストレポート")
+        .accessibilityValue(accessibilityValue)
+        .accessibilityHint("上下にスワイプして前後の\(periodUnit)へ移動できます")
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment:
+                shiftPage(by: 1)
+            case .decrement:
+                shiftPage(by: -1)
+            @unknown default:
+                break
+            }
+        }
+        .accessibilityAction(named: "前の\(periodUnit)") {
+            shiftPage(by: -1)
+        }
+        .accessibilityAction(named: "次の\(periodUnit)") {
+            shiftPage(by: 1)
+        }
+        .sensoryFeedback(.selection, trigger: feedbackTrigger)
+    }
+
+    private func pageButton(
+        title: String,
+        systemImage: String,
+        shift: Int
+    ) -> some View {
+        Button {
+            shiftPage(by: shift)
+        } label: {
+            HStack(spacing: 5) {
+                if shift < 0 {
+                    Image(systemName: systemImage)
+                }
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Text(title)
+                }
+                if shift > 0 {
+                    Image(systemName: systemImage)
                 }
             }
+                .font(.caption.weight(.semibold))
+                .frame(minWidth: 44, minHeight: 44)
+                .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white)
+        .background(.black.opacity(0.16), in: Capsule(style: .continuous))
+        .overlay {
+            Capsule(style: .continuous)
+                .stroke(.white.opacity(0.32), lineWidth: 0.7)
+        }
+        .accessibilityLabel(title)
     }
 
-    private func snapBack() {
-        withAnimation(reduceMotion ? nil : .interactiveSpring(response: 0.34, dampingFraction: 0.86)) {
-            dragOffset = 0
-            dragProgress = 0
+    private func completeSwipeIfNeeded() {
+        guard let selectedStep, selectedStep != 0 else { return }
+        shiftPage(by: selectedStep)
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            self.selectedStep = 0
         }
     }
 
-    private func settlePage(by value: Int, pageWidth: CGFloat) {
-        guard !isSettling else { return }
-        isSettling = true
-
-        if reduceMotion {
-            cursor = shiftedCursor(by: value)
-            dragOffset = 0
-            dragProgress = 0
-            isSettling = false
-            return
-        }
-
-        withAnimation(.interactiveSpring(response: 0.34, dampingFraction: 0.88)) {
-            dragOffset = value > 0 ? -pageWidth : pageWidth
-            dragProgress = CGFloat(value)
-        } completion: {
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                cursor = shiftedCursor(by: value)
-                dragOffset = 0
-                dragProgress = 0
-                isSettling = false
-            }
-        }
+    private func shiftPage(by value: Int) {
+        onShift(value)
+        hasUsedReportPaging = true
+        feedbackTrigger += 1
     }
 }
 
@@ -210,56 +297,12 @@ private struct LiquidGlassCardBackground: View {
                 .blur(radius: 46)
                 .offset(x: -140, y: 150)
 
-            Rectangle()
-                .fill(.ultraThinMaterial)
+            LinearGradient(
+                colors: [.black.opacity(0.02), .black.opacity(0.16)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
         }
-    }
-}
-
-private struct LiquidPageIndicator: View {
-    let progress: CGFloat
-    let reduceMotion: Bool
-
-    private var clampedProgress: CGFloat {
-        max(-1, min(1, progress))
-    }
-
-    private var stretch: CGFloat {
-        guard !reduceMotion else { return 0 }
-        return sin(abs(clampedProgress) * .pi) * 9
-    }
-
-    var body: some View {
-        ZStack {
-            HStack(spacing: 12) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Circle()
-                        .fill(.white.opacity(0.28))
-                        .frame(width: 5, height: 5)
-                }
-            }
-
-            Capsule(style: .continuous)
-                .fill(.white.opacity(0.96))
-                .frame(width: 9 + stretch, height: 9)
-                .shadow(color: .white.opacity(0.72), radius: 6)
-                .offset(x: clampedProgress * 17)
-        }
-        .frame(width: 67, height: 28)
-        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
-        .overlay {
-            Capsule(style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [.white.opacity(0.72), .white.opacity(0.16)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.8
-                )
-        }
-        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
-        .accessibilityHidden(true)
     }
 }
 
@@ -267,14 +310,18 @@ private struct ReportPage: View {
     let report: PaymentReport
     let periodLabel: String
     let reduceMotion: Bool
-    @ScaledMetric(relativeTo: .body) private var chartHeight = 178
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var chartHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? 340 : 130
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 10) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.78))
+                    .foregroundStyle(.white.opacity(0.9))
 
                 Text(report.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
@@ -286,12 +333,15 @@ private struct ReportPage: View {
 
                 Text("\(report.entries.count)件のサービス")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(.white.opacity(0.84))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 11)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 14 : 12)
+            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 11 : 8)
+            .background(
+                .black.opacity(0.16),
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(
@@ -306,11 +356,25 @@ private struct ReportPage: View {
 
             Group {
                 if report.entries.isEmpty {
-                    ContentUnavailableView(
-                        "この期間の支払いはありません",
-                        systemImage: "chart.bar"
-                    )
+                    VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 12 : 8) {
+                        Image(systemName: "chart.bar")
+                            .font(dynamicTypeSize.isAccessibilitySize ? .title : .title2)
+                        Text(
+                            dynamicTypeSize.isAccessibilitySize
+                                ? "登録はありません"
+                                : "この期間の利用データはありません"
+                        )
+                        .font(
+                            dynamicTypeSize.isAccessibilitySize
+                                ? .body.weight(.semibold)
+                                : .callout.weight(.semibold)
+                        )
+                        .multilineTextAlignment(.center)
+                    }
                     .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("この期間の利用コストはありません")
                 } else {
                     GlassBarChart(
                         entries: report.entries,
@@ -319,8 +383,11 @@ private struct ReportPage: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: chartHeight, maxHeight: chartHeight)
-            .padding(10)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(dynamicTypeSize.isAccessibilitySize ? 10 : 8)
+            .background(
+                .black.opacity(0.14),
+                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(
@@ -348,7 +415,7 @@ private struct GlassBarChart: View {
     }
 
     private var visibleEntryCount: Int {
-        dynamicTypeSize.isAccessibilitySize ? 1 : 3
+        dynamicTypeSize.isAccessibilitySize ? 1 : 2
     }
 
     var body: some View {
@@ -377,7 +444,7 @@ private struct GlassBarChart: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+                .background(.black.opacity(0.16), in: Capsule(style: .continuous))
                 .overlay {
                     Capsule(style: .continuous)
                         .stroke(.white.opacity(0.3), lineWidth: 0.7)
@@ -400,6 +467,7 @@ private struct GlassBarChart: View {
 private struct GlassBarRow: View {
     let entry: ReportEntry
     let maximumAmount: Double
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var fraction: Double {
         max(0.06, min(1, entry.amount / maximumAmount))
@@ -407,13 +475,19 @@ private struct GlassBarRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 8) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                : AnyLayout(HStackLayout(spacing: 8))
+
+            layout {
                 Text(entry.name)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white)
-                    .lineLimit(1)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
 
-                Spacer(minLength: 6)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer(minLength: 6)
+                }
 
                 Text(
                     entry.amount,
@@ -461,7 +535,7 @@ private struct GlassBarRow: View {
             }
             .frame(height: 12)
         }
-        .frame(height: 36)
+        .frame(minHeight: 36)
         .accessibilityElement(children: .combine)
     }
 }

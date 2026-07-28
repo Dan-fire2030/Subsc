@@ -7,6 +7,13 @@ struct UsdJpyQuote: Codable, Sendable {
     let isStale: Bool
 }
 
+@MainActor
+protocol ExchangeRateSession {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: ExchangeRateSession {}
+
 enum ExchangeRateError: LocalizedError {
     case unavailable
 
@@ -21,11 +28,16 @@ enum ExchangeRateService {
     private static let cacheKey = "subsc.usd-jpy-quote"
     private static let cacheLifetime: TimeInterval = 4 * 60 * 60
 
-    static func usdJpy(forceRefresh: Bool = false) async throws -> UsdJpyQuote {
-        let cached = cachedQuote()
+    static func usdJpy(
+        forceRefresh: Bool = false,
+        session: any ExchangeRateSession = URLSession.shared,
+        defaults: UserDefaults = .standard,
+        now: Date = .now
+    ) async throws -> UsdJpyQuote {
+        let cached = cachedQuote(defaults: defaults)
         if !forceRefresh,
            let cached,
-           Date().timeIntervalSince(cached.fetchedAt) < cacheLifetime {
+           now.timeIntervalSince(cached.fetchedAt) < cacheLifetime {
             return cached
         }
 
@@ -34,7 +46,7 @@ enum ExchangeRateService {
             request.setValue("application/json", forHTTPHeaderField: "Accept")
             request.timeoutInterval = 12
 
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,
                   200..<300 ~= httpResponse.statusCode else {
                 throw ExchangeRateError.unavailable
@@ -48,10 +60,10 @@ enum ExchangeRateService {
             let quote = UsdJpyQuote(
                 rate: payload.rate,
                 rateDate: payload.date,
-                fetchedAt: .now,
+                fetchedAt: now,
                 isStale: false
             )
-            store(quote)
+            store(quote, defaults: defaults)
             return quote
         } catch {
             if let cached {
@@ -66,8 +78,8 @@ enum ExchangeRateService {
         }
     }
 
-    private static func cachedQuote() -> UsdJpyQuote? {
-        guard let data = UserDefaults.standard.data(forKey: cacheKey),
+    private static func cachedQuote(defaults: UserDefaults) -> UsdJpyQuote? {
+        guard let data = defaults.data(forKey: cacheKey),
               let quote = try? JSONDecoder().decode(UsdJpyQuote.self, from: data),
               quote.rate.isFinite,
               quote.rate > 0 else {
@@ -76,9 +88,9 @@ enum ExchangeRateService {
         return quote
     }
 
-    private static func store(_ quote: UsdJpyQuote) {
+    static func store(_ quote: UsdJpyQuote, defaults: UserDefaults) {
         guard let data = try? JSONEncoder().encode(quote) else { return }
-        UserDefaults.standard.set(data, forKey: cacheKey)
+        defaults.set(data, forKey: cacheKey)
     }
 }
 

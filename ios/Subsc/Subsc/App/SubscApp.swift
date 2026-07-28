@@ -11,9 +11,14 @@ struct SubscApp: App {
     private let startupError: String?
 
     init() {
-        let configuration = ModelConfiguration(
-            cloudKitDatabase: .private(CloudSyncConfiguration.containerIdentifier)
-        )
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("-ui-testing")
+        let configuration = if isUITesting {
+            ModelConfiguration(isStoredInMemoryOnly: true)
+        } else {
+            ModelConfiguration(
+                cloudKitDatabase: .private(CloudSyncConfiguration.containerIdentifier)
+            )
+        }
 
         do {
             modelContainer = try ModelContainer(

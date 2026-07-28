@@ -29,11 +29,38 @@ struct SubscriptionFormView: View {
     @State private var leadDays: Set<Int>
     @State private var leadHours: Set<Int>
     @State private var validationMessage: String?
+    @State private var isSaving = false
+    @AccessibilityFocusState private var isValidationFocused: Bool
+
+    private let initialDraft: Draft
 
     private let categories = ["エンタメ", "仕事・学習", "音楽", "生活", "健康", "その他"]
     private let colors = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
     private let dayOptions = [0, 1, 3, 7, 14, 30]
     private let hourOptions = [1, 3, 6, 12]
+
+    private struct Draft: Equatable {
+        let name: String
+        let category: String
+        let amount: Double
+        let currency: SubscriptionCurrency
+        let exchangeRate: Double
+        let billingCycle: BillingCycle
+        let state: SubscriptionState
+        let renewalDate: Date
+        let hasStartDate: Bool
+        let startDate: Date
+        let hasEndDate: Bool
+        let endDate: Date
+        let websiteURL: String
+        let notes: String
+        let colorHex: String
+        let notificationsEnabled: Bool
+        let notificationHour: Int
+        let notificationMinute: Int
+        let leadDays: [Int]
+        let leadHours: [Int]
+    }
 
     init(subscription: Subscription?) {
         self.subscription = subscription
@@ -44,31 +71,71 @@ struct SubscriptionFormView: View {
             second: 0,
             of: .now
         ) ?? .now
+        let initialName = subscription?.name ?? ""
+        let initialCategory = subscription?.category ?? "エンタメ"
+        let initialAmount = subscription?.originalAmount ?? 0
+        let initialCurrency = subscription?.currency ?? .jpy
+        let initialExchangeRate = initialCurrency == .usd ? subscription?.exchangeRate ?? 0 : 0
+        let initialBillingCycle = subscription?.billingCycle ?? .monthly
+        let initialState = subscription?.state ?? .active
+        let initialRenewalDate = subscription?.renewalDate ?? .now
+        let initialHasStartDate = subscription?.startDate != nil
+        let initialStartDate = subscription?.startDate ?? .now
+        let initialHasEndDate = subscription?.endDate != nil
+        let initialEndDate = subscription?.endDate ??
+            calendar.date(byAdding: .year, value: 1, to: .now) ?? .now
+        let initialWebsiteURL = subscription?.websiteURL ?? ""
+        let initialNotes = subscription?.notes ?? ""
+        let initialColorHex = subscription?.colorHex ?? "#007AFF"
+        let initialNotificationsEnabled = subscription?.notificationsEnabled ?? true
+        let initialLeadDays = Set(subscription?.leadDays ?? [1])
+        let initialLeadHours = Set(subscription?.leadHours ?? [])
+        let time = calendar.dateComponents([.hour, .minute], from: defaultNotificationTime)
 
-        _name = State(initialValue: subscription?.name ?? "")
-        _category = State(initialValue: subscription?.category ?? "エンタメ")
-        _amount = State(initialValue: subscription?.originalAmount ?? 0)
-        _currency = State(initialValue: subscription?.currency ?? .jpy)
-        _exchangeRate = State(initialValue: subscription?.currency == .usd ? subscription?.exchangeRate ?? 0 : 0)
+        initialDraft = Draft(
+            name: initialName,
+            category: initialCategory,
+            amount: initialAmount,
+            currency: initialCurrency,
+            exchangeRate: initialExchangeRate,
+            billingCycle: initialBillingCycle,
+            state: initialState,
+            renewalDate: initialRenewalDate,
+            hasStartDate: initialHasStartDate,
+            startDate: initialStartDate,
+            hasEndDate: initialHasEndDate,
+            endDate: initialEndDate,
+            websiteURL: initialWebsiteURL,
+            notes: initialNotes,
+            colorHex: initialColorHex,
+            notificationsEnabled: initialNotificationsEnabled,
+            notificationHour: time.hour ?? 9,
+            notificationMinute: time.minute ?? 0,
+            leadDays: initialLeadDays.sorted(),
+            leadHours: initialLeadHours.sorted()
+        )
+
+        _name = State(initialValue: initialName)
+        _category = State(initialValue: initialCategory)
+        _amount = State(initialValue: initialAmount)
+        _currency = State(initialValue: initialCurrency)
+        _exchangeRate = State(initialValue: initialExchangeRate)
         _exchangeRateDate = State(initialValue: "")
         _exchangeRateStatus = State(initialValue: .idle)
-        _billingCycle = State(initialValue: subscription?.billingCycle ?? .monthly)
-        _state = State(initialValue: subscription?.state ?? .active)
-        _renewalDate = State(initialValue: subscription?.renewalDate ?? .now)
-        _hasStartDate = State(initialValue: subscription?.startDate != nil)
-        _startDate = State(initialValue: subscription?.startDate ?? .now)
-        _hasEndDate = State(initialValue: subscription?.endDate != nil)
-        _endDate = State(
-            initialValue: subscription?.endDate ??
-                calendar.date(byAdding: .year, value: 1, to: .now) ?? .now
-        )
-        _websiteURL = State(initialValue: subscription?.websiteURL ?? "")
-        _notes = State(initialValue: subscription?.notes ?? "")
-        _colorHex = State(initialValue: subscription?.colorHex ?? "#007AFF")
-        _notificationsEnabled = State(initialValue: subscription?.notificationsEnabled ?? true)
+        _billingCycle = State(initialValue: initialBillingCycle)
+        _state = State(initialValue: initialState)
+        _renewalDate = State(initialValue: initialRenewalDate)
+        _hasStartDate = State(initialValue: initialHasStartDate)
+        _startDate = State(initialValue: initialStartDate)
+        _hasEndDate = State(initialValue: initialHasEndDate)
+        _endDate = State(initialValue: initialEndDate)
+        _websiteURL = State(initialValue: initialWebsiteURL)
+        _notes = State(initialValue: initialNotes)
+        _colorHex = State(initialValue: initialColorHex)
+        _notificationsEnabled = State(initialValue: initialNotificationsEnabled)
         _notificationTime = State(initialValue: defaultNotificationTime)
-        _leadDays = State(initialValue: Set(subscription?.leadDays ?? [1]))
-        _leadHours = State(initialValue: Set(subscription?.leadHours ?? []))
+        _leadDays = State(initialValue: initialLeadDays)
+        _leadHours = State(initialValue: initialLeadHours)
     }
 
     var body: some View {
@@ -77,6 +144,7 @@ struct SubscriptionFormView: View {
                 Section("サービス") {
                     TextField("サービス名", text: $name)
                         .textInputAutocapitalization(.words)
+                        .accessibilityIdentifier("subscription-name-field")
                     Picker("カテゴリ", selection: $category) {
                         ForEach(categories, id: \.self) { Text($0) }
                     }
@@ -116,6 +184,7 @@ struct SubscriptionFormView: View {
                             )
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("subscription-amount-field")
                         }
                     }
 
@@ -249,6 +318,8 @@ struct SubscriptionFormView: View {
                     Section {
                         Label(validationMessage, systemImage: "exclamationmark.triangle.fill")
                             .foregroundStyle(.red)
+                            .accessibilityFocused($isValidationFocused)
+                            .accessibilityIdentifier("subscription-validation-message")
                     }
                     .glassListRow()
                 }
@@ -261,8 +332,12 @@ struct SubscriptionFormView: View {
                     Button("キャンセル") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") { save() }
+                    Button("保存") {
+                        Task { await save() }
+                    }
                         .fontWeight(.semibold)
+                        .disabled(isSaving)
+                        .accessibilityIdentifier("subscription-save-button")
                 }
             }
             .interactiveDismissDisabled(hasUnsavedChanges)
@@ -274,25 +349,65 @@ struct SubscriptionFormView: View {
     }
 
     private var hasUnsavedChanges: Bool {
-        !name.isEmpty || amount > 0
+        currentDraft != initialDraft
     }
 
-    private func save() {
+    private var currentDraft: Draft {
+        let time = Calendar.current.dateComponents([.hour, .minute], from: notificationTime)
+        return Draft(
+            name: name,
+            category: category,
+            amount: amount,
+            currency: currency,
+            exchangeRate: exchangeRate,
+            billingCycle: billingCycle,
+            state: state,
+            renewalDate: renewalDate,
+            hasStartDate: hasStartDate,
+            startDate: startDate,
+            hasEndDate: hasEndDate,
+            endDate: endDate,
+            websiteURL: websiteURL,
+            notes: notes,
+            colorHex: colorHex,
+            notificationsEnabled: notificationsEnabled,
+            notificationHour: time.hour ?? 9,
+            notificationMinute: time.minute ?? 0,
+            leadDays: leadDays.sorted(),
+            leadHours: leadHours.sorted()
+        )
+    }
+
+    private func save() async {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
-            validationMessage = "サービス名を入力してください。"
+            showValidation("サービス名を入力してください。")
             return
         }
         guard amount >= 0 else {
-            validationMessage = "料金は0以上で入力してください。"
+            showValidation("料金は0以上で入力してください。")
             return
         }
         guard currency != .usd || exchangeRate > 0 else {
-            validationMessage = "ドル円レートを取得してから保存してください。"
+            showValidation("ドル円レートを取得してから保存してください。")
             return
         }
         if hasStartDate, hasEndDate, endDate < startDate {
-            validationMessage = "終了日は開始日以降にしてください。"
+            showValidation("終了日は開始日以降にしてください。")
+            return
+        }
+        let trimmedWebsiteURL = websiteURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedWebsiteURL.isEmpty,
+           !isValidWebsiteURL(trimmedWebsiteURL) {
+            showValidation("公式サイトはhttpまたはhttpsのURLで入力してください。")
+            return
+        }
+
+        isSaving = true
+        defer { isSaving = false }
+        if notificationsEnabled,
+           !(await NotificationService.requestAuthorization()) {
+            showValidation("通知が許可されていません。設定アプリで許可するか、通知をオフにしてください。")
             return
         }
 
@@ -316,7 +431,7 @@ struct SubscriptionFormView: View {
         target.renewalDate = renewalDate
         target.startDate = hasStartDate ? startDate : nil
         target.endDate = hasEndDate ? endDate : nil
-        target.websiteURL = websiteURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        target.websiteURL = trimmedWebsiteURL
         target.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         target.colorHex = colorHex
         target.notificationsEnabled = notificationsEnabled
@@ -329,15 +444,28 @@ struct SubscriptionFormView: View {
         do {
             try modelContext.save()
             Task {
-                if notificationsEnabled {
-                    _ = await NotificationService.requestAuthorization()
-                }
                 await NotificationService.reschedule(for: target)
             }
             dismiss()
         } catch {
-            validationMessage = "保存できませんでした。もう一度お試しください。"
+            modelContext.rollback()
+            showValidation("保存できませんでした。もう一度お試しください。")
         }
+    }
+
+    private func showValidation(_ message: String) {
+        validationMessage = message
+        isValidationFocused = true
+    }
+
+    private func isValidWebsiteURL(_ value: String) -> Bool {
+        guard let components = URLComponents(string: value),
+              let scheme = components.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              components.host != nil else {
+            return false
+        }
+        return true
     }
 
     private func loadExchangeRate(forceRefresh: Bool = false) async {

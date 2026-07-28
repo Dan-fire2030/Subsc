@@ -20,10 +20,20 @@
 		AA0000110000000000000011 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB0000130000000000000013 /* Assets.xcassets */; };
 		AA0000120000000000000012 /* ExchangeRateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000140000000000000014 /* ExchangeRateService.swift */; };
 		AA0000130000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BB0000170000000000000017 /* PrivacyInfo.xcprivacy */; };
+		AA0000140000000000000014 /* NotificationPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000190000000000000019 /* NotificationPlannerTests.swift */; };
+		AA0000150000000000000015 /* SubscUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000200000000000000020 /* SubscUITests.swift */; };
+		AA0000160000000000000016 /* ExchangeRateServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000210000000000000021 /* ExchangeRateServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		CC0000010000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD0000010000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE0000010000000000000001;
+			remoteInfo = Subsc;
+		};
+		CC0000020000000000000002 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD0000010000000000000001 /* Project object */;
 			proxyType = 1;
@@ -50,6 +60,10 @@
 		BB0000150000000000000015 /* Subsc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Subsc.entitlements; sourceTree = "<group>"; };
 		BB0000160000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB0000170000000000000017 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		BB0000180000000000000018 /* SubscUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubscUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000190000000000000019 /* NotificationPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPlannerTests.swift; sourceTree = "<group>"; };
+		BB0000200000000000000020 /* SubscUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscUITests.swift; sourceTree = "<group>"; };
+		BB0000210000000000000021 /* ExchangeRateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +81,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF0000030000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -75,6 +96,7 @@
 			children = (
 				DD0000030000000000000003 /* Subsc */,
 				DD0000100000000000000010 /* SubscTests */,
+				DD0000130000000000000013 /* SubscUITests */,
 				DD0000110000000000000011 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -152,6 +174,8 @@
 			isa = PBXGroup;
 			children = (
 				BB0000100000000000000010 /* ReportCalculatorTests.swift */,
+				BB0000190000000000000019 /* NotificationPlannerTests.swift */,
+				BB0000210000000000000021 /* ExchangeRateServiceTests.swift */,
 			);
 			path = SubscTests;
 			sourceTree = "<group>";
@@ -161,6 +185,7 @@
 			children = (
 				BB0000110000000000000011 /* Subsc.app */,
 				BB0000120000000000000012 /* SubscTests.xctest */,
+				BB0000180000000000000018 /* SubscUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -171,6 +196,14 @@
 				BB0000090000000000000009 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		DD0000130000000000000013 /* SubscUITests */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000200000000000000020 /* SubscUITests.swift */,
+			);
+			path = SubscUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +244,24 @@
 			productReference = BB0000120000000000000012 /* SubscTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		EE0000030000000000000003 /* SubscUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 110000040000000000000004 /* Build configuration list for PBXNativeTarget "SubscUITests" */;
+			buildPhases = (
+				120000030000000000000003 /* Sources */,
+				FF0000030000000000000003 /* Frameworks */,
+				130000030000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				140000020000000000000002 /* PBXTargetDependency */,
+			);
+			name = SubscUITests;
+			productName = SubscUITests;
+			productReference = BB0000180000000000000018 /* SubscUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -239,6 +290,10 @@
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = EE0000010000000000000001;
 					};
+					EE0000030000000000000003 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = EE0000010000000000000001;
+					};
 				};
 			};
 			buildConfigurationList = 110000030000000000000003 /* Build configuration list for PBXProject "Subsc" */;
@@ -256,6 +311,7 @@
 			targets = (
 				EE0000010000000000000001 /* Subsc */,
 				EE0000020000000000000002 /* SubscTests */,
+				EE0000030000000000000003 /* SubscUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -271,6 +327,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		130000020000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		130000030000000000000003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -302,6 +365,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */,
+				AA0000140000000000000014 /* NotificationPlannerTests.swift in Sources */,
+				AA0000160000000000000016 /* ExchangeRateServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		120000030000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000150000000000000015 /* SubscUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,6 +386,11 @@
 			target = EE0000010000000000000001 /* Subsc */;
 			targetProxy = CC0000010000000000000001 /* PBXContainerItemProxy */;
 		};
+		140000020000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE0000010000000000000001 /* Subsc */;
+			targetProxy = CC0000020000000000000002 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -323,7 +401,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = Subsc/Subsc.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2ZR6Z7NP8H;
 				ENABLE_PREVIEWS = YES;
@@ -358,7 +436,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = Subsc/Subsc.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2ZR6Z7NP8H;
 				ENABLE_PREVIEWS = YES;
@@ -507,6 +585,38 @@
 			};
 			name = Release;
 		};
+		150000070000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2ZR6Z7NP8H;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonaria.subsc.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Subsc;
+			};
+			name = Debug;
+		};
+		150000080000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2ZR6Z7NP8H;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonaria.subsc.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Subsc;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -533,6 +643,15 @@
 			buildConfigurations = (
 				150000050000000000000005 /* Debug */,
 				150000060000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		110000040000000000000004 /* Build configuration list for PBXNativeTarget "SubscUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				150000070000000000000007 /* Debug */,
+				150000080000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

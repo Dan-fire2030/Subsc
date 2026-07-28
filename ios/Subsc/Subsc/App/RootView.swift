@@ -6,6 +6,7 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
     @State private var selectedTab = 0
+    @State private var operationError: String?
 
     private var notificationFingerprint: String {
         subscriptions.map {
@@ -44,6 +45,17 @@ struct RootView: View {
             guard scenePhase == .active else { return }
             await reconcileSubscriptions()
         }
+        .alert(
+            "データを同期できませんでした",
+            isPresented: Binding(
+                get: { operationError != nil },
+                set: { if !$0 { operationError = nil } }
+            )
+        ) {
+            Button("閉じる", role: .cancel) {}
+        } message: {
+            Text(operationError ?? "")
+        }
     }
 
     private func reconcileSubscriptions() async {
@@ -51,10 +63,18 @@ struct RootView: View {
             subscription.advanceRenewalDateIfNeeded() || changed
         }
         if didAdvanceRenewal {
-            try? modelContext.save()
-            return
+            do {
+                try modelContext.save()
+            } catch {
+                modelContext.rollback()
+                operationError = "更新日の保存に失敗しました。通信状態とiCloudの状態を確認してください。"
+            }
         }
-        _ = await NotificationService.reconcile(subscriptions: subscriptions)
+
+        let result = await NotificationService.reconcile(subscriptions: subscriptions)
+        if result.failed > 0 {
+            operationError = "\(result.failed)件の通知を設定できませんでした。通知設定を確認してください。"
+        }
     }
 }
 
