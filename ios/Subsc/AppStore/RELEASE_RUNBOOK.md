@@ -20,7 +20,7 @@
 | SKU | `subsc-ios-20260727` |
 | プライマリ言語 | 日本語 |
 | 現在のバージョン | 1.0.0 |
-| 現在のビルド | 2 |
+| 現在のビルド | 3 |
 
 ## 管理画面
 
@@ -54,7 +54,9 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 2026-07-27にバージョン1.0.0、ビルド1をApp Store Connectへアップロード済みです。Apple側のアップロード受領に成功し、ユーザーによる実機TestFlight確認まで進行しています。
 
-2026-07-28にUI/UX改善とテスト追加を含むバージョン1.0.0、ビルド2をアップロードしました。Apple側の受領に成功し、App Store Connectで処理中です。
+2026-07-28にUI/UX改善とテスト追加を含むバージョン1.0.0、ビルド2をアップロードしました。Apple側の受領に成功しました。
+
+2026-07-28にiOS 26のLiquid Glass対応とテスト実行時のCloudKit回避を含むバージョン1.0.0、ビルド3をアップロードしました。Apple側の受領に成功し、App Store Connectで処理中です。iOS 26端末では画面全体がLiquid Glassで描画され、iOS 17から25の端末は従来の表示を維持します。
 
 同じバージョンを再アップロードする場合は、先に`CURRENT_PROJECT_VERSION`を増やして新しいArchiveを作成します。
 
@@ -65,8 +67,9 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - [x] 単体テスト19件合格
 - [x] Release Archive成功
 - [x] CloudKit Productionスキーマ反映
-- [x] TestFlightビルド2アップロード
-- [x] 実機TestFlightインストール
+- [x] TestFlightビルド3アップロード
+- [ ] ビルド3を実機TestFlightへインストール
+- [ ] iOS 26実機でLiquid Glassの表示崩れがないか確認
 - [ ] 実機でサブスクの追加・編集・削除を確認
 - [ ] 実機でUSD入力と円換算を確認
 - [ ] 実機で通知許可・1日前通知・時刻指定を確認
