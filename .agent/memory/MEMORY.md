@@ -28,6 +28,7 @@ Subsc（サブスク管理アプリ）。1リポジトリに2実装が同居し�
 - 理由2：テストが実行者本人のiCloudプライベートDBへ書き込むのを防ぐ
 - したがって、保存方式の判定ロジックを変更する際はテストが署名を要求し始めないか必ず確認する
 
-### ブランチ運用
-- TestFlight向け作業は `codex/testflight-build-N` 系のブランチで進めてきた
-- remoteは2つ：`github`（GitHub: Dan-fire2030/Subsc）と `origin`（chatgpt-team.site のミラー）。pushする際はどちらへ送るかを明示して確認する
+### mainが長期間放置されていた（2026-07-29に解消）
+TestFlightビルド2〜4の作業は `codex/testflight-build-2` で進められ、mainへマージされていなかった。
+2026-07-29 に `docs/project-guidelines` 経由でまとめてmainへfast-forwardマージし、`f37ff58` で解消済み。
+ブランチ運用ルール自体は AGENTS.md の「Git運用ルール」を参照。

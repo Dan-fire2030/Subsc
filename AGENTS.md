@@ -14,6 +14,14 @@
 - 指示に対象の明示がない場合、まず iOSネイティブ版（`ios/Subsc`）の作業と解釈する。Web版が対象と思われる場合は確認を取る
 - iOS版の識別情報・リリース手順・完了状況は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md` を参照する（秘密鍵・パスワード・APIキーは記録しない）
 
+## Git運用ルール
+- **修正内容ごとに適宜ブランチを切って作業し、完了したら main にマージする**。main で直接作業しない
+- ブランチ名は `<type>/<内容>` 形式にする（例：`docs/project-guidelines`、`fix/notification-schedule`）。`<type>` はコミットメッセージと同じ語彙を使う：`feat` / `fix` / `refactor` / `docs` / `test` / `chore` / `perf` / `ci`
+- コミットメッセージは `<type>: <説明>` 形式で、説明は日本語で書く
+- **main へマージする前に、マージ範囲がその作業の内容と一致しているかを必ず確認する**（`git log --oneline main..<branch>` と `git diff --stat main..<branch>`）。他ブランチの未マージ作業を意図せず巻き込む場合は、ユーザーに範囲を確認してからマージする
+- マージは可能な限り fast-forward で行う
+- push先のリモートは **`github`**（GitHub: Dan-fire2030/Subsc）を既定とする。`origin`（chatgpt-team.site のミラー）へは明示的な指示があった場合のみ push する
+
 ## Local Skills
 - セッション開始時にプロジェクトのローカルスキルを `.agent/skills/` 配下で確認する
 
