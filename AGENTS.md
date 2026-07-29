@@ -22,6 +22,64 @@
 - マージは可能な限り fast-forward で行う
 - push先のリモートは **`github`**（GitHub: Dan-fire2030/Subsc）を既定とする。`origin`（chatgpt-team.site のミラー）へは明示的な指示があった場合のみ push する
 
+## iOSのビルドとテスト
+- 作業ディレクトリは `ios/Subsc`。Xcodeプロジェクトは `Subsc.xcodeproj`、Schemeは `Subsc`
+- 検証環境：Xcode 26.6 / iPhoneシミュレーター。既定の確認先は `iPhone 17 Pro`
+- ビルド確認：
+  ```bash
+  cd ios/Subsc && xcodebuild build -project Subsc.xcodeproj -scheme Subsc \
+    -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+  ```
+- ユニットテスト（`SubscTests`）：
+  ```bash
+  cd ios/Subsc && xcodebuild test -project Subsc.xcodeproj -scheme Subsc \
+    -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:SubscTests
+  ```
+- **Swiftコードを変更したら、コミット前にビルドとユニットテストを通す**。通らない状態でコミットしない
+- **UIテスト（`SubscUITests`）はこのMacのCLIからは実行できない**（テストランナーが起動しない既知の制約）。UIテストを追加・変更した場合は、CLIで通せないことを明示して報告し、Xcodeから実行するようユーザーに依頼する
+- テストはXCTest（`import XCTest` / `@testable import Subsc`）を使う。新規テストも既存に合わせXCTestで書く
+- 時刻・カレンダー依存のテストは `Calendar(identifier: .gregorian)` と固定日付を使い、実行日に依存させない
+- iOS 26では画面全体がLiquid Glassで描画され、iOS 17〜25は従来表示にフォールバックする。UI変更時は両系統の見た目を意識する（実機確認はユーザーに依頼する）
+
+## Swift / SwiftUI コーディング規約
+既存コードの流儀に合わせる。逸脱する場合は理由を述べる。
+
+- **表示文字列・エラーメッセージ・doc コメントは日本語**で書く。doc コメントは `///` を使い、「なぜそうしているか」を残す
+- ファイル構成は機能単位：`App/`（起動・ルート・保存方式）、`Features/<機能名>/`、`Models/`、`Services/`
+  - 1ファイル400行程度を目安にし、超えるならビューを分割する。現状 `Features/Dashboard/ReportCard.swift` が776行と最大で、分割候補
+  - ファイル内限定のビューは `private struct` にする
+- `@Model` クラスは `final class` にする
+- **テスト可能性のため、外部依存は既定値付き引数で注入する**（例：`calendar: Calendar = .current`、`processInfo: ProcessInfo = .processInfo`）。グローバル状態を直接参照しない
+- 定数は型に閉じた `enum` + `static let` でまとめる（例：`enum CloudSyncConfiguration { static let containerIdentifier = ... }`）。マジックナンバー・裸の文字列リテラルを散らさない
+- 列挙型は `String` の rawValue を持たせ、表示名は `var title: String` として型側に置く。ビュー側で文字列を組み立てない
+- エラーは握り潰さない。復旧可能なら代替手段へフォールバックし、利用者に何が起きたか日本語で伝える（`SubscApp.init` のインメモリ復旧と `StartupFailureView` が手本）
+
+### SwiftData + CloudKit の制約（必ず守る）
+CloudKitのプライベートDBへミラーリングするため、`@Model` の設計に制約がある。破ると同期が壊れる。
+
+- **すべての保存プロパティに既定値を持たせるか Optional にする**。CloudKitミラーリングは非Optionalかつ既定値なしのプロパティを許さない
+- **`@Attribute(.unique)` などの一意制約を使わない**
+- **配列や辞書を直に保存しない**。`leadDaysCSV` / `leadHoursCSV` のようにCSV文字列で保存し、`[Int]` は computed property で出し入れする
+- enumは直接保存せず `~Raw: String` として保存し、computed property（getter/setter）で型付きの値を扱う
+- **Productionへ反映済みの Record Type / Field は削除前提で設計しない**。項目を追加したら、Development署名のアプリで代表データを保存し、CloudKit Consoleで差分を確認してからProductionへ反映する
+- テスト実行時はCloudKitへミラーリングしない（`App/StorageMode.swift`）。署名なしのテストホストでCloudKitコンテナを要求するとCore Dataが起動途中で停止し、かつ実行者本人のiCloudへ書き込んでしまうため。**保存方式の判定ロジックを変更する際は、テストが署名を要求し始めないか必ず確認する**
+
+## TestFlight / リリース運用
+- **`ios/Subsc/AppStore/RELEASE_RUNBOOK.md` が識別情報・ビルド番号・完了状況の唯一の情報源**。これらをAGENTS.mdやMEMORY.mdに複製しない
+- **パスワード、APIキー、証明書の秘密鍵をリポジトリに記録しない**。アップロードはXcodeへログイン済みのApple Accountと `-allowProvisioningUpdates` を使い、アプリ専用パスワードをファイルへ保存しない
+- 同じバージョンを再アップロードする場合は、先に `CURRENT_PROJECT_VERSION`（ビルド番号）を増やして新しいArchiveを作る
+- **アップロード後は RELEASE_RUNBOOK を更新する**：新しいビルド番号、そのビルドに含めた変更、Apple側の受領結果、「最終更新」日付。更新は独立したコミット（`chore: record TestFlight build N upload`）にする
+- リリース前チェックリストの項目を勝手に `[x]` にしない。実機確認が必要な項目はユーザーが確認した報告を受けてから更新する
+- App Store Connectの入力、公開URLの用意、実機確認はユーザーの作業。エージェントは代行せず、必要な作業を具体的に提示する
+- 審査向けの前提（独自ログインなし、データは端末と本人のiCloud Private DBのみ、為替APIへサブスク名や料金を送信しない、アプリ内課金なし）を壊す変更は、実装前にユーザーへ影響を説明する
+
+## 触ってはいけないもの
+- **`.openai/` 配下**（`hosting.json` のバインディング宣言など）はホスティング基盤の設定。指示なく変更しない
+- **生成物・キャッシュは編集もコミットもしない**：`node_modules/`、`dist/`、`build/`、`.vinext/`、`.wrangler/`、`outputs/`、`work/`、`tsconfig.tsbuildinfo`、`ios/Subsc/Subsc.xcodeproj/xcuserdata/`
+- **Web/PWA版（`app/`, `worker/`, `db/`, `drizzle/`）に新機能を追加しない**。触る必要が出たら修正か削除かを確認してから着手する
+- `drizzle/` の既存マイグレーションファイルを書き換えない（適用済みのため）。スキーマ変更が必要なら `npm run db:generate` で新規生成する
+- ルートの `README.md` はSubscの説明として整備済み。vinext-starterのテンプレート文へ戻さない
+
 ## Local Skills
 - セッション開始時にプロジェクトのローカルスキルを `.agent/skills/` 配下で確認する
 
