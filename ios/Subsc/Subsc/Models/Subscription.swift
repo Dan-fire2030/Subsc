@@ -128,7 +128,7 @@ final class Subscription {
         billingCycle == .yearly ? yenAmount / 12 : yenAmount
     }
 
-    var color: Color { Color(hex: colorHex) }
+    var color: Color { ColorHex.color(from: colorHex) }
 
     func nextRenewalDate(
         onOrAfter referenceDate: Date,
@@ -211,17 +211,5 @@ final class Subscription {
             .split(separator: ",")
             .compactMap { Int($0) }
             .sorted()
-    }
-}
-
-extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        let red = Double((value >> 16) & 0xff) / 255
-        let green = Double((value >> 8) & 0xff) / 255
-        let blue = Double(value & 0xff) / 255
-        self.init(red: red, green: green, blue: blue)
     }
 }

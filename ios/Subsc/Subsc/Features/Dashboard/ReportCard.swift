@@ -604,8 +604,8 @@ private struct GlassBarRow: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: entry.colorHex).opacity(0.96),
-                                    Color(hex: entry.colorHex).opacity(0.62),
+                                    ColorHex.color(from: entry.colorHex).opacity(0.96),
+                                    ColorHex.color(from: entry.colorHex).opacity(0.62),
                                     .white.opacity(0.72)
                                 ],
                                 startPoint: .leading,
@@ -620,7 +620,7 @@ private struct GlassBarRow: View {
                                 .padding(.horizontal, 3)
                         }
                         .shadow(
-                            color: Color(hex: entry.colorHex).opacity(0.42),
+                            color: ColorHex.color(from: entry.colorHex).opacity(0.42),
                             radius: 6,
                             y: 2
                         )
@@ -724,8 +724,8 @@ private struct BreakdownRow: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: entry.colorHex),
-                            Color(hex: entry.colorHex).opacity(0.55),
+                            ColorHex.color(from: entry.colorHex),
+                            ColorHex.color(from: entry.colorHex).opacity(0.55),
                             .white.opacity(0.7)
                         ],
                         startPoint: .topLeading,

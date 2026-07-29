@@ -37,6 +37,24 @@
 - **「購入を復元」ボタンは審査必須**（App Store Review Guideline 3.1.1）。設定画面に置く
 - Xcode の StoreKit Configuration File を使えば、App Store Connect への登録を待たずにローカルで課金フローを検証できる
 
+### Xcodeプロジェクトへのファイル追加手順（2026-07-30 確立）
+`Subsc.xcodeproj` は `PBXFileSystemSynchronizedRootGroup` を使っていないため、新規 `.swift` は `project.pbxproj` を手で編集しないとビルド対象に入らない。IDは規則的で、`AA` + 連番がPBXBuildFile、`BB` + 連番がPBXFileReference、`DD` + 連番がPBXGroup。1ファイルにつき4箇所を追加する。
+
+1. `PBXBuildFile` セクションに `AA...` の行（`fileRef` に対応する `BB...` を指定）
+2. `PBXFileReference` セクションに `BB...` の行
+3. 所属する `DD...` グループの `children` に `BB...`
+4. 対象ターゲットの `Sources` ビルドフェーズに `AA...`
+
+編集後は必ず `xcodebuild test` まで通して検証する。壊れていればプロジェクトが開けなくなるため、編集前にバックアップを取る。
+
+### ColorPickerの色を16進数で保存する際の注意
+`ColorPicker` はDisplay P3の色を返すことがあり、`UIColor.getRed` の成分が 0...1 の範囲外になりうる。クランプせずに `Int(value * 255)` すると破綻する。`Models/ColorHex.swift` の `channel(_:)` でクランプしてから丸めている。
+
+また `Picker` の `selection` が選択肢に含まれていないと表示が空欄になる。プリセット外の色を選んだ場合に備え、`colorOptions` は現在の色を必ず含める。
+
+### 一覧のカテゴリバッジで色を文字色に使わない理由
+カラーを利用者が自由に選べるようになったため、淡い色を文字色にすると読めなくなる。バッジは文字色を `.secondary` に固定し、色は小さなドットでのみ示している。ドットは `@ScaledMetric(relativeTo: .caption2)` で文字サイズに追従させる（固定6ptだと最大文字サイズで相対的に見えなくなる）。
+
 ## 決定事項と理由
 
 ### 2026-07-30：広告（AdMob）は採用しない

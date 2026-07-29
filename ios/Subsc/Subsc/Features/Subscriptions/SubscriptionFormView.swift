@@ -4,6 +4,7 @@ import SwiftUI
 struct SubscriptionFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Query private var registeredSubscriptions: [Subscription]
 
     private let subscription: Subscription?
 
@@ -29,13 +30,15 @@ struct SubscriptionFormView: View {
     @State private var leadDays: Set<Int>
     @State private var leadHours: Set<Int>
     @State private var validationMessage: String?
+    @State private var isAddingCategory = false
+    @State private var newCategoryName = ""
+    @State private var categoryError: String?
     @State private var isSaving = false
     @AccessibilityFocusState private var isValidationFocused: Bool
 
     private let initialDraft: Draft
 
-    private let categories = ["エンタメ", "仕事・学習", "音楽", "生活", "健康", "その他"]
-    private let colors = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
+    private let colorPresets = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
     private let dayOptions = [0, 1, 3, 7, 14, 30]
     private let hourOptions = [1, 3, 6, 12]
 
@@ -86,7 +89,7 @@ struct SubscriptionFormView: View {
             calendar.date(byAdding: .year, value: 1, to: .now) ?? .now
         let initialWebsiteURL = subscription?.websiteURL ?? ""
         let initialNotes = subscription?.notes ?? ""
-        let initialColorHex = subscription?.colorHex ?? "#007AFF"
+        let initialColorHex = ColorHex.canonical(subscription?.colorHex ?? "#007AFF")
         let initialNotificationsEnabled = subscription?.notificationsEnabled ?? true
         let initialLeadDays = Set(subscription?.leadDays ?? [1])
         let initialLeadHours = Set(subscription?.leadHours ?? [])
@@ -146,20 +149,46 @@ struct SubscriptionFormView: View {
                         .textInputAutocapitalization(.words)
                         .accessibilityIdentifier("subscription-name-field")
                     Picker("カテゴリ", selection: $category) {
-                        ForEach(categories, id: \.self) { Text($0) }
+                        ForEach(categoryOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
                     }
+
+                    Button {
+                        newCategoryName = ""
+                        categoryError = nil
+                        isAddingCategory = true
+                    } label: {
+                        Label("新しいカテゴリを追加", systemImage: "plus.circle")
+                            .frame(minHeight: 44)
+                    }
+                    .accessibilityIdentifier("add-category-button")
+
+                    if let categoryError {
+                        Text(categoryError)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .accessibilityIdentifier("category-validation-message")
+                    }
+
                     Picker("カラー", selection: $colorHex) {
-                        ForEach(colors, id: \.self) { hex in
+                        ForEach(colorOptions, id: \.self) { hex in
                             Label {
                                 Text(colorName(hex))
                             } icon: {
                                 Circle()
-                                    .fill(Color(hex: hex))
+                                    .fill(ColorHex.color(from: hex))
                                     .frame(width: 14, height: 14)
                             }
                             .tag(hex)
                         }
                     }
+
+                    ColorPicker(
+                        "カラーを自由に選ぶ",
+                        selection: customColor,
+                        supportsOpacity: false
+                    )
                 }
                 .glassListRow()
 
@@ -341,6 +370,14 @@ struct SubscriptionFormView: View {
                 }
             }
             .interactiveDismissDisabled(hasUnsavedChanges)
+            .alert("新しいカテゴリ", isPresented: $isAddingCategory) {
+                TextField("カテゴリ名", text: $newCategoryName)
+                    .textInputAutocapitalization(.words)
+                Button("追加") { addCategory() }
+                Button("キャンセル", role: .cancel) { newCategoryName = "" }
+            } message: {
+                Text("\(CategoryCatalog.maxNameLength)文字以内で入力してください。")
+            }
             .task(id: currency) {
                 guard currency == .usd else { return }
                 await loadExchangeRate()
@@ -350,6 +387,40 @@ struct SubscriptionFormView: View {
 
     private var hasUnsavedChanges: Bool {
         currentDraft != initialDraft
+    }
+
+    /// プリセットと、登録済みサブスクが使っているカテゴリを合わせた選択肢です。
+    private var categoryOptions: [String] {
+        CategoryCatalog.options(
+            usedCategories: registeredSubscriptions.map(\.category),
+            selected: category
+        )
+    }
+
+    /// プリセット5色に、プリセット外の現在色を加えた選択肢です。
+    /// 選択中の値が選択肢に無いとPickerが空欄になるため、必ず含めます。
+    private var colorOptions: [String] {
+        let current = ColorHex.canonical(colorHex)
+        return colorPresets.contains(current) ? colorPresets : colorPresets + [current]
+    }
+
+    /// `ColorPicker` は `Color` を扱うため、保存形式の16進数と相互変換します。
+    private var customColor: Binding<Color> {
+        Binding(
+            get: { ColorHex.color(from: colorHex) },
+            set: { colorHex = ColorHex.string(from: $0) }
+        )
+    }
+
+    private func addCategory() {
+        switch CategoryCatalog.validate(newCategoryName, existing: categoryOptions) {
+        case .accepted(let name):
+            category = name
+            categoryError = nil
+        case .failure(let message):
+            categoryError = message
+        }
+        newCategoryName = ""
     }
 
     private var currentDraft: Draft {
@@ -489,12 +560,13 @@ struct SubscriptionFormView: View {
     }
 
     private func colorName(_ hex: String) -> String {
-        switch hex {
+        switch ColorHex.canonical(hex) {
         case "#007AFF": "ブルー"
         case "#34C759": "グリーン"
         case "#FF375F": "ピンク"
         case "#AF52DE": "パープル"
-        default: "オレンジ"
+        case "#FF9F0A": "オレンジ"
+        default: "カスタム"
         }
     }
 }

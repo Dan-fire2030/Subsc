@@ -1,0 +1,55 @@
+import SwiftUI
+import XCTest
+@testable import Subsc
+
+final class ColorHexTests: XCTestCase {
+    private let presets = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
+
+    func testPresetColorsSurviveARoundTrip() {
+        for hex in presets {
+            let restored = ColorHex.string(from: ColorHex.color(from: hex))
+            XCTAssertEqual(restored, hex, "\(hex)の往復変換が一致しません")
+        }
+    }
+
+    func testHexWithoutHashIsAccepted() {
+        XCTAssertEqual(ColorHex.canonical("007AFF"), "#007AFF")
+    }
+
+    func testLowercaseHexIsNormalizedToUppercase() {
+        XCTAssertEqual(ColorHex.canonical("#007aff"), "#007AFF")
+    }
+
+    func testSurroundingWhitespaceIsIgnored() {
+        XCTAssertEqual(ColorHex.canonical("  #007AFF \n"), "#007AFF")
+    }
+
+    func testInvalidCharactersFallBackToBlack() {
+        XCTAssertEqual(ColorHex.canonical("#ZZZZZZ"), ColorHex.fallback)
+        XCTAssertEqual(ColorHex.string(from: ColorHex.color(from: "#ZZZZZZ")), ColorHex.fallback)
+    }
+
+    func testWrongLengthFallsBackToBlack() {
+        XCTAssertEqual(ColorHex.canonical("#FFF"), ColorHex.fallback)
+        XCTAssertEqual(ColorHex.canonical("#0011223344"), ColorHex.fallback)
+        XCTAssertEqual(ColorHex.canonical(""), ColorHex.fallback)
+    }
+
+    func testComponentsBelowRangeAreClampedToZero() {
+        XCTAssertEqual(ColorHex.string(red: -0.4, green: 0, blue: 0), "#000000")
+    }
+
+    func testComponentsAboveRangeAreClampedToMaximum() {
+        XCTAssertEqual(ColorHex.string(red: 1.3, green: 1, blue: 2.1), "#FFFFFF")
+    }
+
+    func testComponentsAreRoundedToTheNearestChannelValue() {
+        // 0x80 = 128。128/255 = 0.50196... を往復させても値が落ちないこと。
+        XCTAssertEqual(ColorHex.string(red: 128.0 / 255.0, green: 0, blue: 0), "#800000")
+    }
+
+    func testWhiteAndBlackConvertExactly() {
+        XCTAssertEqual(ColorHex.string(from: ColorHex.color(from: "#FFFFFF")), "#FFFFFF")
+        XCTAssertEqual(ColorHex.string(from: ColorHex.color(from: "#000000")), "#000000")
+    }
+}
