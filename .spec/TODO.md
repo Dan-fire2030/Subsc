@@ -4,12 +4,19 @@
 （現在なし）
 
 ## 優先度：中
-- [ ] `Features/Dashboard/ReportCard.swift`（776行）の分割。AGENTS.mdの400行目安を超えている
+- [ ] `Features/Dashboard/DashboardView.swift`（670行）の分割。AGENTS.mdの400行目安を超えている
+- [ ] レポートの棒グラフと「サービス別料金」シートを、金額 > 0 のデータで目視確認する
+      （`ReportCard.swift` 分割時に、シミュレーターMCPで金額欄へ入力できず未確認のまま）
 
 ## 優先度：低
 - [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
 
 ## 完了済み
+- [x] `Features/Dashboard/ReportCard.swift`（776行）を6ファイルへ分割（2026-07-30）
+  - [x] `ReportPager` / `ReportPage` / `GlassBarChart` / `ReportBreakdownSheet` / `ReportGlassStyle` を切り出し
+  - [x] `project.pbxproj` へ新規5ファイルを登録
+  - [x] ビルドとユニットテスト52件が成功、正規化差分ゼロで「移動のみ」を確認
+  - [x] シミュレーターでカード表示・期間切替・スワイプ・「今月」復帰を目視確認
 - [x] 初期セットアップ
 - [x] AGENTS.md の整備（目的・Git運用・iOSビルドとテスト・コーディング規約・リリース運用・Codex委譲）
 - [x] README.md を Subsc の内容へ書き換え

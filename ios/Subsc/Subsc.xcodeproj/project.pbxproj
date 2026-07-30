@@ -20,6 +20,11 @@
 		AA0000050000000000000005 /* ReportCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000050000000000000005 /* ReportCalculator.swift */; };
 		AA0000060000000000000006 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000060000000000000006 /* DashboardView.swift */; };
 		AA0000070000000000000007 /* ReportCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000070000000000000007 /* ReportCard.swift */; };
+		AA0000280000000000000028 /* ReportGlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000280000000000000028 /* ReportGlassStyle.swift */; };
+		AA0000290000000000000029 /* ReportPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000290000000000000029 /* ReportPager.swift */; };
+		AA0000300000000000000030 /* ReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000300000000000000030 /* ReportPage.swift */; };
+		AA0000310000000000000031 /* GlassBarChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000310000000000000031 /* GlassBarChart.swift */; };
+		AA0000320000000000000032 /* ReportBreakdownSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000320000000000000032 /* ReportBreakdownSheet.swift */; };
 		AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000080000000000000008 /* SubscriptionFormView.swift */; };
 		AA0000090000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000090000000000000009 /* SettingsView.swift */; };
 		AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000100000000000000010 /* ReportCalculatorTests.swift */; };
@@ -62,6 +67,11 @@
 		BB0000050000000000000005 /* ReportCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculator.swift; sourceTree = "<group>"; };
 		BB0000060000000000000006 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		BB0000070000000000000007 /* ReportCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCard.swift; sourceTree = "<group>"; };
+		BB0000280000000000000028 /* ReportGlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportGlassStyle.swift; sourceTree = "<group>"; };
+		BB0000290000000000000029 /* ReportPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPager.swift; sourceTree = "<group>"; };
+		BB0000300000000000000030 /* ReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPage.swift; sourceTree = "<group>"; };
+		BB0000310000000000000031 /* GlassBarChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBarChart.swift; sourceTree = "<group>"; };
+		BB0000320000000000000032 /* ReportBreakdownSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportBreakdownSheet.swift; sourceTree = "<group>"; };
 		BB0000080000000000000008 /* SubscriptionFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFormView.swift; sourceTree = "<group>"; };
 		BB0000090000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BB0000100000000000000010 /* ReportCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorTests.swift; sourceTree = "<group>"; };
@@ -172,6 +182,11 @@
 				BB0000050000000000000005 /* ReportCalculator.swift */,
 				BB0000060000000000000006 /* DashboardView.swift */,
 				BB0000070000000000000007 /* ReportCard.swift */,
+				BB0000290000000000000029 /* ReportPager.swift */,
+				BB0000300000000000000030 /* ReportPage.swift */,
+				BB0000310000000000000031 /* GlassBarChart.swift */,
+				BB0000320000000000000032 /* ReportBreakdownSheet.swift */,
+				BB0000280000000000000028 /* ReportGlassStyle.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -375,6 +390,11 @@
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
 				AA0000060000000000000006 /* DashboardView.swift in Sources */,
 				AA0000070000000000000007 /* ReportCard.swift in Sources */,
+				AA0000290000000000000029 /* ReportPager.swift in Sources */,
+				AA0000300000000000000030 /* ReportPage.swift in Sources */,
+				AA0000310000000000000031 /* GlassBarChart.swift in Sources */,
+				AA0000320000000000000032 /* ReportBreakdownSheet.swift in Sources */,
+				AA0000280000000000000028 /* ReportGlassStyle.swift in Sources */,
 				AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */,
 				AA0000090000000000000009 /* SettingsView.swift in Sources */,
 				AA0000120000000000000012 /* ExchangeRateService.swift in Sources */,

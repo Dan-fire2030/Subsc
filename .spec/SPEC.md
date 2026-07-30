@@ -90,3 +90,61 @@
 - [x] 一覧の各行にカテゴリがバッジとして表示される
 - [x] 最大文字サイズでも一覧行のレイアウトが破綻しない
 - [x] `xcodebuild build` と `xcodebuild test -only-testing:SubscTests` が成功する
+
+---
+
+# SPEC 追補 — `ReportCard.swift` の分割
+
+起点：TODO「`Features/Dashboard/ReportCard.swift`（776行）の分割」
+確定日：2026-07-30
+
+## 目的
+`ReportCard.swift` が776行あり、AGENTS.md の「1ファイル400行程度を目安」を大きく超えている。
+ビュー単位に分割して、変更時に読む範囲を絞れるようにする。
+
+## 要件
+
+### 振る舞いを変えない
+これは純粋なリファクタリングであり、**画面の見た目・操作・アクセシビリティの挙動を一切変更しない**。
+コードの移動と、ファイルをまたぐために必要なアクセスレベルの変更のみを行う。
+
+### 分割単位
+`Features/Dashboard/` 直下にフラットに配置する（サブフォルダを作らない。`project.pbxproj` へ
+`PBXGroup` を新設せずに済み、手編集のリスクを下げるため）。
+
+| ファイル | 含む型 | 役割 |
+|---|---|---|
+| `ReportCard.swift` | `ReportCard` | 期間ピッカーとカーソル状態の管理。カードの入口 |
+| `ReportPager.swift` | `ReportPageData`, `ReportPager` | 横スワイプ、前後ボタン、VoiceOverの調整可能アクション |
+| `ReportPage.swift` | `ReportPage` | 1期間分の合計額とチャート枠 |
+| `GlassBarChart.swift` | `GlassBarChart`, `GlassBarRow` | サービス別の棒グラフと「ほかN件」ボタン |
+| `ReportBreakdownSheet.swift` | `ReportBreakdownSheet`, `BreakdownRow` | サービス別料金の詳細シート |
+| `ReportGlassStyle.swift` | `ReportCardSurfaceModifier`, `ReportControlButtonModifier`, `CompactGlassCapsuleModifier`, `LiquidGlassCardBackground` | iOS 26 の Liquid Glass と iOS 17〜25 フォールバックの見た目を集約 |
+
+### アクセスレベルの方針
+- **ファイルをまたいで使われる型のみ `private` を外して internal にする**
+- 使用元と同じファイルに収まる型は `private` のまま残す
+  （`GlassBarRow` / `BreakdownRow` / `LiquidGlassCardBackground`）
+- モジュール内に同名の型がないことを確認済み
+
+## 非機能要件
+- 分割後の全ファイルが400行以下であること
+- `xcodebuild build` と `xcodebuild test -only-testing:SubscTests`（52件）が成功すること
+- CloudKitのスキーマ・`@Model` に影響を与えないこと（ビュー層のみの変更）
+- UIテストの識別子を変更しないこと（CLIから検証できないため）
+
+## 対象外
+- `DashboardView.swift`（670行）の分割。別タスクとして TODO に残す
+- ビューの構造や見た目の改善。今回は移動のみ
+
+## 受け入れ条件
+- [x] `ReportCard.swift` を含む分割後の全6ファイルが400行以下（最大192行）
+- [x] `xcodebuild build` が成功する
+- [x] `xcodebuild test -only-testing:SubscTests` が52件すべて成功する
+- [x] `git diff` にビューの構造変更（移動とアクセスレベル以外）が含まれない
+      → 元ファイルと分割後6ファイルの結合を、`import` / doc コメント / `private` 修飾子を除いて
+        行の多重集合として比較し、差分ゼロを確認した
+- [x] シミュレーターでカード表示・期間ピッカー・横スワイプ・「今月」復帰が分割前と同じに動く
+- [ ] **未確認**：棒グラフ（`GlassBarChart` / `GlassBarRow`）とサービス別料金シート（`ReportBreakdownSheet`）。
+      金額 > 0 のデータが必要だが、シミュレーターMCPのタップ座標がフォームの金額欄に届かず入力できなかった。
+      Xcodeから手動で確認するか、UIテストで担保したい
