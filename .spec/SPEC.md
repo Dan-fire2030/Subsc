@@ -148,3 +148,70 @@
 - [ ] **未確認**：棒グラフ（`GlassBarChart` / `GlassBarRow`）とサービス別料金シート（`ReportBreakdownSheet`）。
       金額 > 0 のデータが必要だが、シミュレーターMCPのタップ座標がフォームの金額欄に届かず入力できなかった。
       Xcodeから手動で確認するか、UIテストで担保したい
+
+---
+
+# SPEC 追補 — `DashboardView.swift` の分割
+
+起点：TODO「`Features/Dashboard/DashboardView.swift`（670行）の分割」
+確定日：2026-07-30
+
+## 目的
+`DashboardView.swift` が670行あり、AGENTS.md の「1ファイル400行程度を目安」を超えている。
+`ReportCard.swift` の分割と同じ方針で、ビュー単位に分割する。
+
+## 要件
+
+### 振る舞いを変えない
+純粋なリファクタリングとし、**画面の見た目・操作・アクセシビリティの挙動を一切変更しない**。
+コードの移動と、ファイルをまたぐために必要なアクセスレベルの変更のみを行う。
+
+### 分割の粒度
+**既に `private struct` / `private enum` になっている型を、そのまま別ファイルへ移すだけ**とする。
+`body` 内に直書きされているセクション（「次の更新」など）を新しい View 型として抽出することはしない。
+新しい型を作ると「元ファイルと分割後の結合を行の多重集合として比較する」検証が効かなくなり、
+振る舞い不変を機械的に証明できなくなるため。
+
+### 分割単位
+| ファイル | 含む型 | 役割 |
+|---|---|---|
+| `Features/Dashboard/DashboardView.swift` | `DashboardView`, `SubscriptionEditor` | 一覧画面本体。絞り込み・検索・スワイプ操作・為替更新 |
+| `Features/Dashboard/DashboardSearchFilter.swift` | `SubscriptionFilter`, `MinimizableSearchToolbarModifier` | 絞り込み条件と、iOS 26 の検索バー最小化 |
+| `Features/Dashboard/DashboardEmptyState.swift` | `DashboardEmptyState` | 0件のときの案内 |
+| `Features/Dashboard/SubscriptionRow.swift` | `SubscriptionRow`, `CategoryBadge` | 一覧の1行とカテゴリバッジ |
+| `Features/Subscriptions/SubscriptionDetailView.swift` | `SubscriptionDetailView` | サブスク1件の詳細画面 |
+
+`SubscriptionDetailView` はサブスク1件を扱う画面のため、`SubscriptionFormView.swift` と同じ
+`Features/Subscriptions/` へ置く（`PBXGroup` は既存のものを使うので手編集のリスクは増えない）。
+
+### アクセスレベルの方針
+- ファイルをまたいで使われる型のみ `private` を外して internal にする
+  （`SubscriptionFilter` / `MinimizableSearchToolbarModifier` / `DashboardEmptyState` /
+  `SubscriptionRow` / `SubscriptionDetailView`）
+- 使用元と同じファイルに収まる型は `private` のまま残す（`SubscriptionEditor` / `CategoryBadge`）
+- モジュール内に同名の型がないことを確認済み
+
+## 非機能要件
+- 分割後の全ファイルが400行以下であること
+- `xcodebuild build` と `xcodebuild test -only-testing:SubscTests`（52件）が成功すること
+- CloudKitのスキーマ・`@Model` に影響を与えないこと（ビュー層のみの変更）
+- UIテストの識別子（`add-subscription-button` / `empty-state-add-subscription-button`）を変更しないこと
+
+## 対象外
+- `SubscriptionFormView.swift`（642行）の分割。別タスクとして TODO に残す
+- ビューの構造や見た目の改善。今回は移動のみ
+
+## 受け入れ条件
+- [x] 分割後の全5ファイルが400行以下（最大 `DashboardView.swift` の339行）
+- [x] `xcodebuild build` が成功する
+- [x] `xcodebuild test -only-testing:SubscTests` が52件すべて成功する
+- [x] `git diff` にビューの構造変更（移動とアクセスレベル以外）が含まれない
+      → 元ファイルと分割後5ファイルの結合を、`import` / doc コメント / `private` 修飾子を除いて
+        行の多重集合として比較し、差分ゼロを確認した
+- [x] シミュレーターで一覧・レポートカード・「次の更新」・カテゴリバッジ付きの行・詳細画面・
+      戻る操作が分割前と同じに表示・動作する
+- [ ] **未確認**：絞り込みピッカー（`SubscriptionFilter`）の切り替え。
+      セグメンテッドピッカーへ注入したタップが届かず操作できなかった（4つの選択肢が
+      正しく描画されていることは確認済み）
+- [ ] **未確認**：`DashboardEmptyState`。表示には登録0件の状態が必要なため、検証用データを
+      消さずに残す判断をした

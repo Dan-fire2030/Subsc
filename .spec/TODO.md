@@ -4,14 +4,22 @@
 （現在なし）
 
 ## 優先度：中
-- [ ] `Features/Dashboard/DashboardView.swift`（670行）の分割。AGENTS.mdの400行目安を超えている
+- [ ] `Features/Subscriptions/SubscriptionFormView.swift`（642行）の分割。AGENTS.mdの400行目安を超えている
 - [ ] レポートの棒グラフと「サービス別料金」シートを、金額 > 0 のデータで目視確認する
       （`ReportCard.swift` 分割時に、シミュレーターMCPで金額欄へ入力できず未確認のまま）
+- [ ] 絞り込みピッカーの切り替えと `DashboardEmptyState` の目視確認
+      （`DashboardView.swift` 分割時に未達。ピッカーは注入タップが届かず、空状態は登録0件が必要）
 
 ## 優先度：低
 - [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
 
 ## 完了済み
+- [x] `Features/Dashboard/DashboardView.swift`（670行）を5ファイルへ分割（2026-07-30）
+  - [x] `DashboardSearchFilter` / `DashboardEmptyState` / `SubscriptionRow` を切り出し
+  - [x] `SubscriptionDetailView` を `Features/Subscriptions/` へ移動
+  - [x] `project.pbxproj` へ新規4ファイルを登録
+  - [x] ビルドとユニットテスト52件が成功、正規化差分ゼロで「移動のみ」を確認
+  - [x] シミュレーターで一覧・行・詳細画面・戻る操作を目視確認
 - [x] `Features/Dashboard/ReportCard.swift`（776行）を6ファイルへ分割（2026-07-30）
   - [x] `ReportPager` / `ReportPage` / `GlassBarChart` / `ReportBreakdownSheet` / `ReportGlassStyle` を切り出し
   - [x] `project.pbxproj` へ新規5ファイルを登録
