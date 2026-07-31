@@ -163,7 +163,7 @@ struct SubscriptionFormView: View {
                 validationSection
             }
             .liquidGlassScreen()
-            .navigationTitle(subscription == nil ? "サブスクを追加" : "登録内容を編集")
+            .navigationTitle(subscription == nil ? "費目を追加" : "登録内容を編集")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

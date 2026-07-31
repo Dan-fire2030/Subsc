@@ -10,6 +10,50 @@ enum SubscriptionFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+/// 種別での絞り込み条件です。
+///
+/// 一覧とレポートの**両方に効く1つの条件**として使います。同じ絞り込みを画面内に
+/// 2つ置くと、どちらが効いているのか分からなくなるためです。
+enum CostTypeFilter: Hashable, Identifiable, CaseIterable {
+    case all
+    case only(CostType)
+
+    static var allCases: [CostTypeFilter] {
+        [.all] + CostType.allCases.map(CostTypeFilter.only)
+    }
+
+    var id: String {
+        switch self {
+        case .all: "all"
+        case .only(let type): type.rawValue
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .all: "すべての種別"
+        case .only(let type): type.title
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .all: "square.grid.2x2"
+        case .only(let type): type.systemImage
+        }
+    }
+
+    /// 絞り込みが効いているか。ツールバーのアイコンを塗り分けるのに使います。
+    var isNarrowed: Bool { self != .all }
+
+    func matches(_ subscription: Subscription) -> Bool {
+        switch self {
+        case .all: true
+        case .only(let type): subscription.costType == type
+        }
+    }
+}
+
 /// iOS 26 でのみ検索バーの最小化を有効にします。
 ///
 /// `searchToolbarBehavior` は iOS 26 で追加された API のため、

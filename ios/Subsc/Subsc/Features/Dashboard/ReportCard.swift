@@ -4,6 +4,9 @@ import SwiftUI
 /// 集計期間（月／年）とカーソル日をここで持ち、表示は `ReportPager` 以下へ委ねます。
 struct ReportCard: View {
     let subscriptions: [Subscription]
+    /// 種別で絞り込んでいるときの見出しです。絞り込んでいなければ `nil`。
+    /// 合計が小さくなった理由が分からなくならないよう、カード側にも出します。
+    var costTypeTitle: String?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var period: ReportPeriod = .month
@@ -45,6 +48,16 @@ struct ReportCard: View {
                     .stroke(.white.opacity(0.3), lineWidth: 0.7)
             }
             .accessibilityLabel("レポート期間")
+
+            if let costTypeTitle {
+                Label(costTypeTitle, systemImage: "line.3.horizontal.decrease")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.92))
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 4)
+                    .background(.white.opacity(0.16), in: Capsule())
+                    .accessibilityLabel("\(costTypeTitle)だけを集計しています")
+            }
 
             ReportPager(
                 makePage: page(at:),

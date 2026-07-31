@@ -7,12 +7,18 @@ struct DashboardView: View {
     @Query(sort: \Subscription.renewalDate) private var subscriptions: [Subscription]
     @State private var query = ""
     @State private var filter: SubscriptionFilter = .all
+    @State private var costTypeFilter: CostTypeFilter = .all
     @State private var editor: SubscriptionEditor?
     @State private var operationError: String?
     @State private var pendingDeletion: Subscription?
 
+    /// 種別で絞り込んだ費目です。レポートと一覧の両方がここを起点にします。
+    private var subscriptionsInSelectedTypes: [Subscription] {
+        subscriptions.filter { costTypeFilter.matches($0) }
+    }
+
     private var visibleSubscriptions: [Subscription] {
-        subscriptions.filter { subscription in
+        subscriptionsInSelectedTypes.filter { subscription in
             let isHistory = subscription.endDate.map {
                 $0 < Calendar.current.startOfDay(for: .now)
             } ?? false
@@ -71,7 +77,10 @@ struct DashboardView: View {
                     }
                 } else {
                     Section {
-                        ReportCard(subscriptions: subscriptions)
+                        ReportCard(
+                            subscriptions: subscriptionsInSelectedTypes,
+                            costTypeTitle: costTypeFilter.isNarrowed ? costTypeFilter.title : nil
+                        )
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
@@ -131,10 +140,10 @@ struct DashboardView: View {
                         .listRowSeparator(.hidden)
                     }
 
-                    Section("サブスク一覧") {
+                    Section(listSectionTitle) {
                         if visibleSubscriptions.isEmpty {
                             ContentUnavailableView(
-                                query.isEmpty ? "対象のサブスクはありません" : "見つかりませんでした",
+                                query.isEmpty ? "対象の費目はありません" : "見つかりませんでした",
                                 systemImage: query.isEmpty ? "line.3.horizontal.decrease.circle" : "magnifyingglass",
                                 description: Text(
                                     query.isEmpty
@@ -213,11 +222,16 @@ struct DashboardView: View {
                 }
             }
             .toolbar {
+                if !subscriptions.isEmpty {
+                    ToolbarItem(placement: .topBarLeading) {
+                        costTypeFilterMenu
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editor = SubscriptionEditor(subscription: nil)
                     } label: {
-                        Label("サブスクを追加", systemImage: "plus")
+                        Label("費目を追加", systemImage: "plus")
                     }
                     .accessibilityIdentifier("add-subscription-button")
                 }
@@ -240,7 +254,7 @@ struct DashboardView: View {
                 Text(operationError ?? "")
             }
             .confirmationDialog(
-                "このサブスクを削除しますか？",
+                "この費目を削除しますか？",
                 isPresented: Binding(
                     get: { pendingDeletion != nil },
                     set: { if !$0 { pendingDeletion = nil } }
@@ -259,6 +273,31 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+
+    /// 一覧の見出しです。種別で絞り込んでいるときは、何を見ているかを見出しで示します。
+    private var listSectionTitle: String {
+        costTypeFilter.isNarrowed ? costTypeFilter.title : "費目一覧"
+    }
+
+    /// 種別の絞り込みです。段の数が多く、セグメントに並べると読めなくなるためメニューにしています。
+    private var costTypeFilterMenu: some View {
+        Menu {
+            Picker("種別", selection: $costTypeFilter) {
+                ForEach(CostTypeFilter.allCases) { option in
+                    Label(option.title, systemImage: option.systemImage).tag(option)
+                }
+            }
+        } label: {
+            Label(
+                "種別で絞り込む",
+                systemImage: costTypeFilter.isNarrowed
+                    ? "line.3.horizontal.decrease.circle.fill"
+                    : "line.3.horizontal.decrease.circle"
+            )
+        }
+        .accessibilityIdentifier("cost-type-filter-menu")
+        .accessibilityValue(costTypeFilter.title)
     }
 
     private func refreshUsdExchangeRate() async {
@@ -309,7 +348,7 @@ struct DashboardView: View {
             try modelContext.save()
         } catch {
             modelContext.rollback()
-            operationError = "サブスクを削除できませんでした。"
+            operationError = "費目を削除できませんでした。"
             return
         }
         Task {

@@ -125,7 +125,7 @@ struct SubscriptionDetailView: View {
             }
 
             Section {
-                Button("サブスクを削除", role: .destructive) {
+                Button("費目を削除", role: .destructive) {
                     showsDeleteConfirmation = true
                 }
             }
@@ -157,7 +157,7 @@ struct SubscriptionDetailView: View {
                     try modelContext.save()
                 } catch {
                     modelContext.rollback()
-                    operationError = "サブスクを削除できませんでした。"
+                    operationError = "費目を削除できませんでした。"
                     return
                 }
                 Task {

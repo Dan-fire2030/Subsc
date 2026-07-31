@@ -20,8 +20,8 @@ struct DashboardEmptyState: View {
             VStack(spacing: 7) {
                 Text(
                     dynamicTypeSize.isAccessibilitySize
-                        ? "サブスクを管理"
-                        : "サブスクをまとめて管理"
+                        ? "固定費を管理"
+                        : "固定費をまとめて管理"
                 )
                     .font(.title2.bold())
                     .multilineTextAlignment(.center)
@@ -41,8 +41,8 @@ struct DashboardEmptyState: View {
             Button(action: addSubscription) {
                 Label(
                     dynamicTypeSize.isAccessibilitySize
-                        ? "サブスクを追加"
-                        : "最初のサブスクを追加",
+                        ? "費目を追加"
+                        : "最初の費目を追加",
                     systemImage: "plus"
                 )
                     .font(.headline)
