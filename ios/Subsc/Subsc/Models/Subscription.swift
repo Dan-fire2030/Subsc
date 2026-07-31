@@ -27,11 +27,24 @@ enum SubscriptionState: String, CaseIterable, Codable, Identifiable {
     var title: String { self == .active ? "利用中" : "停止中" }
 }
 
+/// 毎月・毎年かかる費目です。
+///
+/// **サブスクに限らず、通信費や光熱費などの固定費全般を表します。**
+/// 名前が実態より狭いのは、SwiftDataのクラス名がそのままCloudKitのRecord Type名になるためです。
+/// 改名すると既存ユーザーのデータが読めなくなるので、名前は変えません。
+/// 何の費目かは `costType` で判別します。
 @Model
 final class Subscription {
     var clientID: String = UUID().uuidString
     var name: String = ""
     var category: String = "エンタメ"
+    var costTypeRaw: String = CostType.subscription.rawValue
+    /// 金額が毎月変わるかどうか。オンのとき、金額は `amountEntries` の月次実績で管理します。
+    ///
+    /// 種別では決まりません。通信費でも定額プランはあり、光熱費でも定額契約はあるためです。
+    var hasVariableAmount: Bool = false
+    var paymentMethodRaw: String = PaymentMethod.unspecified.rawValue
+    var paymentMethodNote: String = ""
     var originalAmount: Double = 0
     var exchangeRate: Double = 1
     var currencyRaw: String = SubscriptionCurrency.jpy.rawValue
@@ -51,10 +64,19 @@ final class Subscription {
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 
+    /// 変動費の月次実績です。費目を消したら実績も消えるよう `.cascade` にしています。
+    /// CloudKitミラーリングの制約でOptionalの配列にする必要があります。
+    @Relationship(deleteRule: .cascade, inverse: \AmountEntry.subscription)
+    var amountEntries: [AmountEntry]?
+
     init(
         clientID: String = UUID().uuidString,
         name: String,
         category: String = "エンタメ",
+        costType: CostType = .subscription,
+        hasVariableAmount: Bool = false,
+        paymentMethod: PaymentMethod = .unspecified,
+        paymentMethodNote: String = "",
         originalAmount: Double,
         exchangeRate: Double = 1,
         currency: SubscriptionCurrency = .jpy,
@@ -75,6 +97,10 @@ final class Subscription {
         self.clientID = clientID
         self.name = name
         self.category = category
+        self.costTypeRaw = costType.rawValue
+        self.hasVariableAmount = hasVariableAmount
+        self.paymentMethodRaw = paymentMethod.rawValue
+        self.paymentMethodNote = paymentMethodNote
         self.originalAmount = originalAmount
         self.exchangeRate = exchangeRate
         self.currencyRaw = currency.rawValue
@@ -93,6 +119,21 @@ final class Subscription {
         self.leadHoursCSV = leadHours.map(String.init).joined(separator: ",")
         self.createdAt = .now
         self.updatedAt = .now
+    }
+
+    var costType: CostType {
+        get { CostType(rawValue: costTypeRaw) ?? .subscription }
+        set { costTypeRaw = newValue.rawValue }
+    }
+
+    var paymentMethod: PaymentMethod {
+        get { PaymentMethod(rawValue: paymentMethodRaw) ?? .unspecified }
+        set { paymentMethodRaw = newValue.rawValue }
+    }
+
+    /// 月次実績を新しい年月の順に並べたものです。リレーションは順序を保証しないため、ここで揃えます。
+    var sortedAmountEntries: [AmountEntry] {
+        (amountEntries ?? []).sorted { $0.periodKey > $1.periodKey }
     }
 
     var currency: SubscriptionCurrency {

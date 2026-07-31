@@ -4,14 +4,15 @@ SPEC：`.spec/SPEC.md`（固定費の記録／2026-07-31 確定）
 
 ## 優先度：高（このサイクルの本体）
 
-### フェーズ1：データモデル
-- [ ] `CostType` enum を追加（`String` rawValue、`title`、アイコン名）
-- [ ] `PaymentMethod` enum を追加（`String` rawValue、`title`）
-- [ ] `Subscription` に `costTypeRaw` / `hasVariableAmount` / `paymentMethodRaw` / `paymentMethodNote` を追加（すべて既定値つき）
-- [ ] `AmountEntry` モデルを追加し、`Subscription` と双方向Optionalリレーションを張る
-- [ ] `ModelContainer` のスキーマに `AmountEntry` を登録
-- [ ] `project.pbxproj` へ新規ファイルを登録
-- [ ] ビルドと既存テストが通ることを確認（既存データが壊れていないこと）
+### フェーズ1：データモデル（完了）
+- [x] `CostType` enum を追加（`String` rawValue、`title`、アイコン名）
+- [x] `PaymentMethod` enum を追加（`String` rawValue、`title`）
+- [x] `Subscription` に `costTypeRaw` / `hasVariableAmount` / `paymentMethodRaw` / `paymentMethodNote` を追加（すべて既定値つき）
+- [x] `AmountEntry` モデルを追加し、`Subscription` と双方向Optionalリレーションを張る
+- [x] `ModelContainer` のスキーマに `AmountEntry` を登録
+- [x] `project.pbxproj` へ新規ファイルを登録
+- [x] ビルドと既存テストが通ることを確認（既存データが壊れていないこと）
+- [x] 永続化される rawValue を固定するテストを追加（テスト70件成功）
 
 ### フェーズ2：金額の解決とレポート
 - [ ] 実績の検索・上書き保存を担う型を追加（同じ年月は1件に保つ）

@@ -25,7 +25,7 @@ struct SubscApp: App {
             do {
                 let recoveryConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
                 modelContainer = try ModelContainer(
-                    for: Subscription.self,
+                    for: Subscription.self, AmountEntry.self,
                     configurations: recoveryConfiguration
                 )
                 startupError = error.localizedDescription

@@ -12,9 +12,13 @@
 		AA0000170000000000000017 /* StorageMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000220000000000000022 /* StorageMode.swift */; };
 		AA0000180000000000000018 /* StorageModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000230000000000000023 /* StorageModeTests.swift */; };
 		AA0000240000000000000024 /* ColorHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000240000000000000024 /* ColorHex.swift */; };
+		AA0000470000000000000047 /* AmountEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000470000000000000047 /* AmountEntry.swift */; };
+		AA0000460000000000000046 /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000460000000000000046 /* PaymentMethod.swift */; };
+		AA0000450000000000000045 /* CostType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000450000000000000045 /* CostType.swift */; };
 		AA0000250000000000000025 /* CategoryCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000250000000000000025 /* CategoryCatalog.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
 		AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000270000000000000027 /* CategoryCatalogTests.swift */; };
+		AA0000480000000000000048 /* CostTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000480000000000000048 /* CostTypeTests.swift */; };
 		AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000440000000000000044 /* NotificationPermissionTests.swift */; };
 		AA0000030000000000000003 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000030000000000000003 /* Subscription.swift */; };
 		AA0000040000000000000004 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000040000000000000004 /* NotificationService.swift */; };
@@ -71,9 +75,13 @@
 		BB0000220000000000000022 /* StorageMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageMode.swift; sourceTree = "<group>"; };
 		BB0000230000000000000023 /* StorageModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageModeTests.swift; sourceTree = "<group>"; };
 		BB0000240000000000000024 /* ColorHex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHex.swift; sourceTree = "<group>"; };
+		BB0000470000000000000047 /* AmountEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountEntry.swift; sourceTree = "<group>"; };
+		BB0000460000000000000046 /* PaymentMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethod.swift; sourceTree = "<group>"; };
+		BB0000450000000000000045 /* CostType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostType.swift; sourceTree = "<group>"; };
 		BB0000250000000000000025 /* CategoryCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalog.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		BB0000270000000000000027 /* CategoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalogTests.swift; sourceTree = "<group>"; };
+		BB0000480000000000000048 /* CostTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeTests.swift; sourceTree = "<group>"; };
 		BB0000440000000000000044 /* NotificationPermissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionTests.swift; sourceTree = "<group>"; };
 		BB0000030000000000000003 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		BB0000040000000000000004 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -177,6 +185,9 @@
 			children = (
 				BB0000030000000000000003 /* Subscription.swift */,
 				BB0000240000000000000024 /* ColorHex.swift */,
+				BB0000470000000000000047 /* AmountEntry.swift */,
+				BB0000460000000000000046 /* PaymentMethod.swift */,
+				BB0000450000000000000045 /* CostType.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -243,6 +254,7 @@
 				BB0000210000000000000021 /* ExchangeRateServiceTests.swift */,
 				BB0000260000000000000026 /* ColorHexTests.swift */,
 				BB0000270000000000000027 /* CategoryCatalogTests.swift */,
+				BB0000480000000000000048 /* CostTypeTests.swift */,
 				BB0000440000000000000044 /* NotificationPermissionTests.swift */,
 			);
 			path = SubscTests;
@@ -421,6 +433,9 @@
 				AA0000170000000000000017 /* StorageMode.swift in Sources */,
 				AA0000030000000000000003 /* Subscription.swift in Sources */,
 				AA0000240000000000000024 /* ColorHex.swift in Sources */,
+				AA0000470000000000000047 /* AmountEntry.swift in Sources */,
+				AA0000460000000000000046 /* PaymentMethod.swift in Sources */,
+				AA0000450000000000000045 /* CostType.swift in Sources */,
 				AA0000250000000000000025 /* CategoryCatalog.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
@@ -458,6 +473,7 @@
 				AA0000160000000000000016 /* ExchangeRateServiceTests.swift in Sources */,
 				AA0000260000000000000026 /* ColorHexTests.swift in Sources */,
 				AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */,
+				AA0000480000000000000048 /* CostTypeTests.swift in Sources */,
 				AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
