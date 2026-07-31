@@ -197,7 +197,7 @@ struct DashboardView: View {
             .searchable(
                 text: $query,
                 placement: .automatic,
-                prompt: "サービス名・カテゴリ・メモ"
+                prompt: "費目名・カテゴリ・メモ"
             )
             .modifier(MinimizableSearchToolbarModifier())
             .searchSuggestions {

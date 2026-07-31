@@ -4,7 +4,7 @@ import SwiftUI
 /// `body` から切り出しただけで、並び順・修飾子は元のまま保っています。
 extension SubscriptionFormView {
     var serviceSection: some View {
-        Section("サービス") {
+        Section("費目") {
             Picker("種別", selection: $costType) {
                 ForEach(CostType.allCases) { type in
                     Label(type.title, systemImage: type.systemImage).tag(type)
@@ -12,7 +12,7 @@ extension SubscriptionFormView {
             }
             .accessibilityIdentifier("subscription-cost-type-picker")
 
-            TextField("サービス名", text: $name)
+            TextField("費目名", text: $name)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("subscription-name-field")
             Picker("カテゴリ", selection: $category) {

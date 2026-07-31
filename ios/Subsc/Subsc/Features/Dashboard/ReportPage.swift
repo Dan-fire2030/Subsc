@@ -27,7 +27,7 @@ struct ReportPage: View {
                     .minimumScaleFactor(0.65)
                     .contentTransition(.numericText(value: report.total))
 
-                Text("\(report.entries.count)件のサービス")
+                Text("\(report.entries.count)件の費目")
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.84))
             }

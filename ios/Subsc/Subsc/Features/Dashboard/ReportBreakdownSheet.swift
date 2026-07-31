@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// サービス別料金の詳細を全件表示するシートです。
+/// 費目別料金の詳細を全件表示するシートです。
 /// カード上のグラフは上位数件しか出さないため、残りをここで確認できるようにしています。
 struct ReportBreakdownSheet: View {
     let entries: [ReportEntry]
@@ -63,7 +63,7 @@ struct ReportBreakdownSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("サービス別料金")
+            .navigationTitle("費目別料金")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .adaptiveNavigationBar()

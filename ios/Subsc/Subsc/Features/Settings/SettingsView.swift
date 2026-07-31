@@ -160,7 +160,7 @@ private struct PrivacyPolicyView: View {
     var body: some View {
         List {
             Section("保存する情報") {
-                Text("登録したサービス名、料金、契約日、通知設定、メモなどは、このiPhoneとユーザー自身のiCloudプライベートデータベースに保存されます。開発者がこれらの内容を閲覧する仕組みはありません。")
+                Text("登録した費目名、料金、契約日、通知設定、メモなどは、このiPhoneとユーザー自身のiCloudプライベートデータベースに保存されます。開発者がこれらの内容を閲覧する仕組みはありません。")
             }
 
             Section("外部通信") {

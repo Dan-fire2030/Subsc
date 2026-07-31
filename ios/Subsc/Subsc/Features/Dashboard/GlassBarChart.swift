@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// サービス別料金の棒グラフです。カード内は高さが限られるため上位数件だけを出し、
+/// 費目別料金の棒グラフです。カード内は高さが限られるため上位数件だけを出し、
 /// 残りは「ほかN件」から `ReportBreakdownSheet` で確認してもらいます。
 struct GlassBarChart: View {
     let entries: [ReportEntry]
@@ -48,7 +48,7 @@ struct GlassBarChart: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("ほか\(hiddenEntryCount)件をすべて見る")
-                .accessibilityHint("サービス別料金の詳細を開きます")
+                .accessibilityHint("費目別料金の詳細を開きます")
             } else {
                 Spacer(minLength: 0)
             }
