@@ -3,9 +3,11 @@ import UserNotifications
 
 @MainActor
 enum NotificationService {
-    private static let identifierPrefix = "subsc-"
     private static let maximumPendingRequests = 64
     private static let renewalCyclesPerSubscription = 12
+    /// 月末リマインドに割り当てる予約枠です。
+    /// iOSの予約数には上限があるため、更新日通知を圧迫しないように取り分を決めています。
+    private static let reminderBudget = 16
 
     struct SyncResult: Equatable {
         let scheduled: Int
@@ -34,18 +36,32 @@ enum NotificationService {
         let pending = await center.pendingNotificationRequests()
         guard !Task.isCancelled else { return }
 
-        let desired = plannedNotifications(
+        let now = Date.now
+        let renewals = plannedNotifications(subscriptions: [subscription], now: now)
+        // 金額を記録した直後にもここを通るため、リマインドも組み直します。
+        // 記録済みの月は計画から外れ、下の掃除で取り消されます。
+        let reminders = ReminderPlanner.plannedReminders(
             subscriptions: [subscription],
-            now: .now
+            now: now,
+            limit: reminderBudget
         )
-        let result = await add(notifications: desired)
+        let result = await add(notifications: renewals + reminders)
         guard !Task.isCancelled, result.failed == 0 else { return }
 
-        let desiredIdentifiers = Set(desired.map(\.identifier))
-        let prefix = "\(identifierPrefix)\(subscription.clientID)-"
-        let obsoleteIdentifiers = pending
-            .map(\.identifier)
-            .filter { $0.hasPrefix(prefix) && !desiredIdentifiers.contains($0) }
+        // この費目の予約だけを対象にし、さらに名前空間ごとに掃除します。
+        let ownIdentifiers = NotificationIdentifier.all(
+            pending: pending.map(\.identifier),
+            clientID: subscription.clientID
+        )
+        let obsoleteIdentifiers = NotificationIdentifier.obsolete(
+            pending: ownIdentifiers,
+            desired: Set(renewals.map(\.identifier)),
+            in: .renewal
+        ) + NotificationIdentifier.obsolete(
+            pending: ownIdentifiers,
+            desired: Set(reminders.map(\.identifier)),
+            in: .reminder
+        )
         center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
     }
 
@@ -61,27 +77,45 @@ enum NotificationService {
         guard !Task.isCancelled else {
             return SyncResult(scheduled: 0, failed: 0)
         }
-        let desired = plannedNotifications(subscriptions: subscriptions, now: now)
-        let result = await add(notifications: desired)
+        // リマインドを先に確保し、残りの枠を更新日通知へ回します。
+        let reminders = ReminderPlanner.plannedReminders(
+            subscriptions: subscriptions,
+            now: now,
+            limit: reminderBudget
+        )
+        let renewals = plannedNotifications(
+            subscriptions: subscriptions,
+            now: now,
+            limit: maximumPendingRequests - reminders.count
+        )
+        let result = await add(notifications: renewals + reminders)
         guard !Task.isCancelled, result.failed == 0 else { return result }
 
-        let desiredIdentifiers = Set(desired.map(\.identifier))
-        let obsoleteIdentifiers = pending
-            .map(\.identifier)
-            .filter {
-                $0.hasPrefix(identifierPrefix) && !desiredIdentifiers.contains($0)
-            }
+        let pendingIdentifiers = pending.map(\.identifier)
+        // 名前空間ごとに掃除します。まとめて消すと、片方の再スケジュールが
+        // もう片方の予約を巻き添えにします。
+        let obsoleteIdentifiers = NotificationIdentifier.obsolete(
+            pending: pendingIdentifiers,
+            desired: Set(renewals.map(\.identifier)),
+            in: .renewal
+        ) + NotificationIdentifier.obsolete(
+            pending: pendingIdentifiers,
+            desired: Set(reminders.map(\.identifier)),
+            in: .reminder
+        )
         center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
         return result
     }
 
+    /// 費目を削除したときに、その費目の予約を取り消します。
+    /// 更新日通知とリマインドの**両方**が対象です。片方だけ消すと、消えた費目の通知が届き続けます。
     static func cancel(clientID: String) async {
         let center = UNUserNotificationCenter.current()
-        let prefix = "\(identifierPrefix)\(clientID)-"
         let pending = await center.pendingNotificationRequests()
-        let identifiers = pending
-            .map(\.identifier)
-            .filter { $0.hasPrefix(prefix) }
+        let identifiers = NotificationIdentifier.all(
+            pending: pending.map(\.identifier),
+            clientID: clientID
+        )
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
@@ -158,7 +192,11 @@ enum NotificationService {
                 guard date > now else { return nil }
                 return PlannedNotification(
                     clientID: subscription.clientID,
-                    identifier: "\(identifierPrefix)\(subscription.clientID)-\(cycleKey)-\(suffix)",
+                    identifier: NotificationIdentifier.renewal(
+                        clientID: subscription.clientID,
+                        cycleKey: cycleKey,
+                        suffix: suffix
+                    ),
                     date: date,
                     title: "\(subscription.name)の更新予定",
                     body: "\(targetDate.formatted(date: .abbreviated, time: .shortened))に更新されます。"
