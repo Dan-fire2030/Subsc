@@ -30,6 +30,12 @@
 		AA0000350000000000000035 /* SubscriptionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000350000000000000035 /* SubscriptionRow.swift */; };
 		AA0000360000000000000036 /* SubscriptionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000360000000000000036 /* SubscriptionDetailView.swift */; };
 		AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000080000000000000008 /* SubscriptionFormView.swift */; };
+		AA0000370000000000000037 /* SubscriptionFormView+FormSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */; };
+		AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */; };
+		AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */; };
+		AA0000400000000000000040 /* SubscriptionFormView+Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000400000000000000040 /* SubscriptionFormView+Save.swift */; };
+		AA0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */; };
+		AA0000420000000000000042 /* NotificationTimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000420000000000000042 /* NotificationTimingView.swift */; };
 		AA0000090000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000090000000000000009 /* SettingsView.swift */; };
 		AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000100000000000000010 /* ReportCalculatorTests.swift */; };
 		AA0000110000000000000011 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB0000130000000000000013 /* Assets.xcassets */; };
@@ -81,6 +87,12 @@
 		BB0000350000000000000035 /* SubscriptionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRow.swift; sourceTree = "<group>"; };
 		BB0000360000000000000036 /* SubscriptionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionDetailView.swift; sourceTree = "<group>"; };
 		BB0000080000000000000008 /* SubscriptionFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFormView.swift; sourceTree = "<group>"; };
+		BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+FormSections.swift"; sourceTree = "<group>"; };
+		BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+CategoryColor.swift"; sourceTree = "<group>"; };
+		BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+Draft.swift"; sourceTree = "<group>"; };
+		BB0000400000000000000040 /* SubscriptionFormView+Save.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+Save.swift"; sourceTree = "<group>"; };
+		BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+ExchangeRate.swift"; sourceTree = "<group>"; };
+		BB0000420000000000000042 /* NotificationTimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationTimingView.swift"; sourceTree = "<group>"; };
 		BB0000090000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BB0000100000000000000010 /* ReportCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorTests.swift; sourceTree = "<group>"; };
 		BB0000110000000000000011 /* Subsc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Subsc.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -206,6 +218,12 @@
 			isa = PBXGroup;
 			children = (
 				BB0000080000000000000008 /* SubscriptionFormView.swift */,
+				BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */,
+				BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */,
+				BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */,
+				BB0000400000000000000040 /* SubscriptionFormView+Save.swift */,
+				BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */,
+				BB0000420000000000000042 /* NotificationTimingView.swift */,
 				BB0000250000000000000025 /* CategoryCatalog.swift */,
 				BB0000360000000000000036 /* SubscriptionDetailView.swift */,
 			);
@@ -412,6 +430,12 @@
 				AA0000350000000000000035 /* SubscriptionRow.swift in Sources */,
 				AA0000360000000000000036 /* SubscriptionDetailView.swift in Sources */,
 				AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */,
+				AA0000370000000000000037 /* SubscriptionFormView+FormSections.swift in Sources */,
+				AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */,
+				AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */,
+				AA0000400000000000000040 /* SubscriptionFormView+Save.swift in Sources */,
+				AA0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift in Sources */,
+				AA0000420000000000000042 /* NotificationTimingView.swift in Sources */,
 				AA0000090000000000000009 /* SettingsView.swift in Sources */,
 				AA0000120000000000000012 /* ExchangeRateService.swift in Sources */,
 			);

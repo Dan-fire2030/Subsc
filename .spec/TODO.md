@@ -4,7 +4,6 @@
 （現在なし）
 
 ## 優先度：中
-- [ ] `Features/Subscriptions/SubscriptionFormView.swift`（642行）の分割。AGENTS.mdの400行目安を超えている
 - [ ] レポートの棒グラフと「サービス別料金」シートを、金額 > 0 のデータで目視確認する
       （`ReportCard.swift` 分割時に、シミュレーターMCPで金額欄へ入力できず未確認のまま）
 - [ ] 絞り込みピッカーの切り替えと `DashboardEmptyState` の目視確認
@@ -14,6 +13,12 @@
 - [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
 
 ## 完了済み
+- [x] `Features/Subscriptions/SubscriptionFormView.swift`（642行）を7ファイルへ分割（2026-07-31）
+  - [x] フォームの各セクション・カテゴリ/カラー・下書き比較・保存・為替取得を extension へ分離
+  - [x] `NotificationTimingView` と `ExchangeRateLoadStatus` を独立させ、最大230行に収めた
+  - [x] `project.pbxproj` へ新規6ファイルを登録
+  - [x] ビルドとユニットテストが成功、正規化差分で「元の行が1行も欠けていない」ことを確認
+  - [x] シミュレーターで追加フォームと通知タイミング画面を目視確認
 - [x] `Features/Dashboard/DashboardView.swift`（670行）を5ファイルへ分割（2026-07-30）
   - [x] `DashboardSearchFilter` / `DashboardEmptyState` / `SubscriptionRow` を切り出し
   - [x] `SubscriptionDetailView` を `Features/Subscriptions/` へ移動
