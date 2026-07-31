@@ -6,6 +6,10 @@ extension SubscriptionFormView {
     struct Draft: Equatable {
         let name: String
         let category: String
+        let costType: CostType
+        let hasVariableAmount: Bool
+        let paymentMethod: PaymentMethod
+        let paymentMethodNote: String
         let amount: Double
         let currency: SubscriptionCurrency
         let exchangeRate: Double
@@ -35,6 +39,10 @@ extension SubscriptionFormView {
         return Draft(
             name: name,
             category: category,
+            costType: costType,
+            hasVariableAmount: hasVariableAmount,
+            paymentMethod: paymentMethod,
+            paymentMethodNote: paymentMethodNote,
             amount: amount,
             currency: currency,
             exchangeRate: exchangeRate,

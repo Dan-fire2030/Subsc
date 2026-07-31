@@ -5,6 +5,13 @@ import SwiftUI
 extension SubscriptionFormView {
     var serviceSection: some View {
         Section("サービス") {
+            Picker("種別", selection: $costType) {
+                ForEach(CostType.allCases) { type in
+                    Label(type.title, systemImage: type.systemImage).tag(type)
+                }
+            }
+            .accessibilityIdentifier("subscription-cost-type-picker")
+
             TextField("サービス名", text: $name)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("subscription-name-field")
@@ -54,7 +61,13 @@ extension SubscriptionFormView {
     }
 
     var priceSection: some View {
-        Section("料金") {
+        Section {
+            Toggle("金額が毎月変わる", isOn: $hasVariableAmount.animation())
+                .accessibilityIdentifier("subscription-variable-amount-toggle")
+                .onChange(of: hasVariableAmount) {
+                    hasEditedVariableToggle = true
+                }
+
             Picker("通貨", selection: $currency) {
                 ForEach(SubscriptionCurrency.allCases) { currency in
                     Text(currency.title).tag(currency)
@@ -64,7 +77,7 @@ extension SubscriptionFormView {
             .padding(3)
             .glassSurface(cornerRadius: 14)
 
-            LabeledContent("金額") {
+            LabeledContent(hasVariableAmount ? "今月の金額" : "金額") {
                 HStack(spacing: 6) {
                     Text(currency.symbol)
                         .foregroundStyle(.secondary)
@@ -130,10 +143,18 @@ extension SubscriptionFormView {
                 }
             }
 
-            Picker("支払い周期", selection: $billingCycle) {
-                ForEach(BillingCycle.allCases) { cycle in
-                    Text(cycle.title).tag(cycle)
+            if !hasVariableAmount {
+                Picker("支払い周期", selection: $billingCycle) {
+                    ForEach(BillingCycle.allCases) { cycle in
+                        Text(cycle.title).tag(cycle)
+                    }
                 }
+            }
+        } header: {
+            Text("料金")
+        } footer: {
+            if hasVariableAmount {
+                Text("入力した金額は今月の実績として記録されます。ほかの月は詳細画面から記録できます。")
             }
         }
         .glassListRow()
@@ -204,6 +225,14 @@ extension SubscriptionFormView {
 
     var otherSection: some View {
         Section("その他") {
+            Picker("支払い方法", selection: $paymentMethod) {
+                ForEach(PaymentMethod.allCases) { method in
+                    Text(method.title).tag(method)
+                }
+            }
+            TextField("支払い方法の補足（例：◯◯カード）", text: $paymentMethodNote)
+                .textInputAutocapitalization(.never)
+
             TextField("公式サイト", text: $websiteURL)
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)

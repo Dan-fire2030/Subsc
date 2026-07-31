@@ -9,6 +9,14 @@ struct SubscriptionDetailView: View {
     @State private var isEditing = false
     @State private var showsDeleteConfirmation = false
     @State private var operationError: String?
+    /// 記録画面で編集する年月。`nil` のあいだは画面を出しません。
+    @State private var editingPeriod: EditingPeriod?
+
+    /// `sheet(item:)` は `Identifiable` を要求するため、年月を包んで渡します。
+    private struct EditingPeriod: Identifiable {
+        let periodKey: Int
+        var id: Int { periodKey }
+    }
 
     var body: some View {
         List {
@@ -22,8 +30,16 @@ struct SubscriptionDetailView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(subscription.name)
                             .font(.title3.bold())
-                        Text(subscription.category)
-                            .foregroundStyle(.secondary)
+                        HStack(spacing: 6) {
+                            Label(
+                                subscription.costType.title,
+                                systemImage: subscription.costType.systemImage
+                            )
+                            .font(.caption.weight(.medium))
+                            Text("・")
+                            Text(subscription.category)
+                        }
+                        .foregroundStyle(.secondary)
                     }
                 }
                 .padding(.vertical, 6)
@@ -44,15 +60,38 @@ struct SubscriptionDetailView: View {
                             .monospacedDigit()
                     }
                 }
-                LabeledContent("月額換算") {
-                    Text(subscription.monthlyYen, format: .currency(code: "JPY").precision(.fractionLength(0)))
+                LabeledContent("今月の金額") {
+                    HStack(spacing: 6) {
+                        if thisMonth.source == .estimated {
+                            Text("見込み")
+                                .font(.caption2.weight(.semibold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.orange.opacity(0.18), in: Capsule())
+                                .foregroundStyle(.orange)
+                        }
+                        Text(
+                            thisMonth.amount,
+                            format: .currency(code: "JPY").precision(.fractionLength(0))
+                        )
+                        .monospacedDigit()
+                    }
                 }
-                LabeledContent("支払い周期", value: subscription.billingCycle.title)
+                if !subscription.hasVariableAmount {
+                    LabeledContent("支払い周期", value: subscription.billingCycle.title)
+                }
+                LabeledContent("支払い方法", value: paymentMethodDescription)
                 LabeledContent("次の更新") {
                     Text(subscription.renewalDate, format: .dateTime.year().month().day())
                 }
             }
             .glassListRow()
+
+            if subscription.hasVariableAmount {
+                AmountHistorySection(subscription: subscription) { periodKey in
+                    editingPeriod = EditingPeriod(periodKey: periodKey)
+                }
+            }
 
             Section("契約") {
                 LabeledContent("利用状況", value: subscription.state.title)
@@ -103,6 +142,9 @@ struct SubscriptionDetailView: View {
         .sheet(isPresented: $isEditing) {
             SubscriptionFormView(subscription: subscription)
         }
+        .sheet(item: $editingPeriod) { period in
+            AmountEntryEditorView(subscription: subscription, periodKey: period.periodKey)
+        }
         .confirmationDialog(
             "\(subscription.name)を削除しますか？",
             isPresented: $showsDeleteConfirmation,
@@ -135,6 +177,21 @@ struct SubscriptionDetailView: View {
         } message: {
             Text(operationError ?? "")
         }
+    }
+
+    /// 今月かかる額です。変動費は実績、無ければ直近の実績からの見込みになります。
+    private var thisMonth: MonthlyAmount {
+        subscription.monthlyAmount(forPeriodKey: AmountEntry.periodKey(for: .now))
+    }
+
+    /// 支払い方法と、その補足メモをつないだ表示です。
+    private var paymentMethodDescription: String {
+        let note = subscription.paymentMethodNote.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !note.isEmpty else { return subscription.paymentMethod.title }
+        if subscription.paymentMethod == .unspecified { return note }
+        return "\(subscription.paymentMethod.title)（\(note)）"
     }
 
     /// スキームのないURL（`example.com` など）にも `https://` を補ってリンクを開けるようにします。

@@ -16,6 +16,13 @@ struct SubscriptionFormView: View {
 
     @State var name: String
     @State var category: String
+    @State var costType: CostType
+    @State var hasVariableAmount: Bool
+    /// 変動費トグルを利用者が自分で操作したか。
+    /// 操作済みなら、種別を変えても勝手に上書きしないための目印です。
+    @State var hasEditedVariableToggle = false
+    @State var paymentMethod: PaymentMethod
+    @State var paymentMethodNote: String
     @State var amount: Double
     @State var currency: SubscriptionCurrency
     @State var exchangeRate: Double
@@ -59,7 +66,19 @@ struct SubscriptionFormView: View {
         ) ?? .now
         let initialName = subscription?.name ?? ""
         let initialCategory = subscription?.category ?? "エンタメ"
-        let initialAmount = subscription?.originalAmount ?? 0
+        let initialCostType = subscription?.costType ?? .subscription
+        let initialHasVariableAmount = subscription?.hasVariableAmount ?? false
+        let initialPaymentMethod = subscription?.paymentMethod ?? .unspecified
+        let initialPaymentMethodNote = subscription?.paymentMethodNote ?? ""
+        // 変動費は「今月の実績」を編集します。まだ記録が無ければ定額欄の値を初期値にします。
+        let currentPeriodKey = AmountEntry.periodKey(for: .now, calendar: calendar)
+        let initialAmount: Double = {
+            guard let subscription, subscription.hasVariableAmount else {
+                return subscription?.originalAmount ?? 0
+            }
+            return AmountEntryStore.entry(on: subscription, periodKey: currentPeriodKey)?.amount
+                ?? subscription.originalAmount
+        }()
         let initialCurrency = subscription?.currency ?? .jpy
         let initialExchangeRate = initialCurrency == .usd ? subscription?.exchangeRate ?? 0 : 0
         let initialBillingCycle = subscription?.billingCycle ?? .monthly
@@ -81,6 +100,10 @@ struct SubscriptionFormView: View {
         initialDraft = Draft(
             name: initialName,
             category: initialCategory,
+            costType: initialCostType,
+            hasVariableAmount: initialHasVariableAmount,
+            paymentMethod: initialPaymentMethod,
+            paymentMethodNote: initialPaymentMethodNote,
             amount: initialAmount,
             currency: initialCurrency,
             exchangeRate: initialExchangeRate,
@@ -103,6 +126,10 @@ struct SubscriptionFormView: View {
 
         _name = State(initialValue: initialName)
         _category = State(initialValue: initialCategory)
+        _costType = State(initialValue: initialCostType)
+        _hasVariableAmount = State(initialValue: initialHasVariableAmount)
+        _paymentMethod = State(initialValue: initialPaymentMethod)
+        _paymentMethodNote = State(initialValue: initialPaymentMethodNote)
         _amount = State(initialValue: initialAmount)
         _currency = State(initialValue: initialCurrency)
         _exchangeRate = State(initialValue: initialExchangeRate)
@@ -163,6 +190,12 @@ struct SubscriptionFormView: View {
             .task(id: currency) {
                 guard currency == .usd else { return }
                 await loadExchangeRate()
+            }
+            // 新規登録では、種別に合わせて変動費の初期値を提案します。
+            // 利用者が自分でトグルを操作したあとは、提案で上書きしません。
+            .onChange(of: costType) {
+                guard subscription == nil, !hasEditedVariableToggle else { return }
+                hasVariableAmount = costType.suggestsVariableAmount
             }
         }
     }

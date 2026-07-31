@@ -39,6 +39,8 @@
 		AA0000350000000000000035 /* SubscriptionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000350000000000000035 /* SubscriptionRow.swift */; };
 		AA0000360000000000000036 /* SubscriptionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000360000000000000036 /* SubscriptionDetailView.swift */; };
 		AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000080000000000000008 /* SubscriptionFormView.swift */; };
+		AA0000550000000000000055 /* AmountHistorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000550000000000000055 /* AmountHistorySection.swift */; };
+		AA0000540000000000000054 /* AmountEntryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000540000000000000054 /* AmountEntryEditorView.swift */; };
 		AA0000370000000000000037 /* SubscriptionFormView+FormSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */; };
 		AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */; };
 		AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */; };
@@ -107,6 +109,8 @@
 		BB0000350000000000000035 /* SubscriptionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRow.swift; sourceTree = "<group>"; };
 		BB0000360000000000000036 /* SubscriptionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionDetailView.swift; sourceTree = "<group>"; };
 		BB0000080000000000000008 /* SubscriptionFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFormView.swift; sourceTree = "<group>"; };
+		BB0000550000000000000055 /* AmountHistorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountHistorySection.swift; sourceTree = "<group>"; };
+		BB0000540000000000000054 /* AmountEntryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountEntryEditorView.swift; sourceTree = "<group>"; };
 		BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+FormSections.swift"; sourceTree = "<group>"; };
 		BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+CategoryColor.swift"; sourceTree = "<group>"; };
 		BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+Draft.swift"; sourceTree = "<group>"; };
@@ -245,6 +249,8 @@
 			isa = PBXGroup;
 			children = (
 				BB0000080000000000000008 /* SubscriptionFormView.swift */,
+				BB0000550000000000000055 /* AmountHistorySection.swift */,
+				BB0000540000000000000054 /* AmountEntryEditorView.swift */,
 				BB0000370000000000000037 /* SubscriptionFormView+FormSections.swift */,
 				BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */,
 				BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */,
@@ -467,6 +473,8 @@
 				AA0000350000000000000035 /* SubscriptionRow.swift in Sources */,
 				AA0000360000000000000036 /* SubscriptionDetailView.swift in Sources */,
 				AA0000080000000000000008 /* SubscriptionFormView.swift in Sources */,
+				AA0000550000000000000055 /* AmountHistorySection.swift in Sources */,
+				AA0000540000000000000054 /* AmountEntryEditorView.swift in Sources */,
 				AA0000370000000000000037 /* SubscriptionFormView+FormSections.swift in Sources */,
 				AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */,
 				AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */,

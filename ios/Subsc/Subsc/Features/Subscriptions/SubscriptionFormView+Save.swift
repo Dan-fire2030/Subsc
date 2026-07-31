@@ -48,6 +48,13 @@ extension SubscriptionFormView {
         let time = Calendar.current.dateComponents([.hour, .minute], from: notificationTime)
         target.name = trimmedName
         target.category = category
+        target.costType = costType
+        target.hasVariableAmount = hasVariableAmount
+        target.paymentMethod = paymentMethod
+        target.paymentMethodNote = paymentMethodNote.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        // 定額へ戻したときのために、変動費でも金額欄の値は保持しておきます。
         target.originalAmount = amount
         target.currency = currency
         target.exchangeRate = currency == .usd ? exchangeRate : 1
@@ -65,6 +72,18 @@ extension SubscriptionFormView {
         target.leadDays = Array(leadDays)
         target.leadHours = Array(leadHours)
         target.updatedAt = .now
+
+        if hasVariableAmount {
+            let now = Date.now
+            let components = Calendar.current.dateComponents([.year, .month], from: now)
+            AmountEntryStore.record(
+                amount: amount,
+                year: components.year ?? 0,
+                month: components.month ?? 0,
+                on: target,
+                recordedAt: now
+            )
+        }
 
         do {
             try modelContext.save()
