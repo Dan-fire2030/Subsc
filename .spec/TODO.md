@@ -13,6 +13,10 @@
 - [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
 
 ## 完了済み
+- [x] 設定画面の「通知を許可」が実機で無反応だった問題を修正（2026-07-31）
+  - [x] `NotificationPermission` を新設し、状態に応じてボタンを出し分け（ユニットテスト7件）
+  - [x] 拒否済み・許可済みでは設定アプリへ誘導、設定から戻ったら状態を取り直す
+  - [x] シミュレーターで「許可済み→iOSの設定を開く」と設定アプリ遷移・復帰を目視確認
 - [x] `Features/Subscriptions/SubscriptionFormView.swift`（642行）を7ファイルへ分割（2026-07-31）
   - [x] フォームの各セクション・カテゴリ/カラー・下書き比較・保存・為替取得を extension へ分離
   - [x] `NotificationTimingView` と `ExchangeRateLoadStatus` を独立させ、最大230行に収めた

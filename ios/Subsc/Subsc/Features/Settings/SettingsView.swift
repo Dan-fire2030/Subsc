@@ -1,10 +1,14 @@
 import CloudKit
 import SwiftUI
+import UIKit
 import UserNotifications
 
 struct SettingsView: View {
-    @State private var notificationStatus = "確認中…"
+    @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var notificationPermission = NotificationPermission.checking
     @State private var iCloudStatus = "確認中…"
+    @State private var notificationError: String?
 
     var body: some View {
         NavigationStack {
@@ -46,13 +50,21 @@ struct SettingsView: View {
                 }
                 .glassListRow()
 
-                Section("通知") {
-                    LabeledContent("通知の状態", value: notificationStatus)
-                    Button("通知を許可") {
-                        Task {
-                            _ = await NotificationService.requestAuthorization()
-                            await updateNotificationStatus()
-                        }
+                Section {
+                    LabeledContent("通知の状態", value: notificationPermission.title)
+                    if let action = notificationPermission.action {
+                        Button(action.title) { perform(action) }
+                    }
+                    if let notificationError {
+                        Text(notificationError)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                } header: {
+                    Text("通知")
+                } footer: {
+                    if notificationPermission == .denied {
+                        Text("通知は一度断ると、アプリからは再度お願いできません。iOSの設定アプリから許可してください。")
                     }
                 }
                 .glassListRow()
@@ -67,7 +79,9 @@ struct SettingsView: View {
             }
             .liquidGlassScreen()
             .navigationTitle("設定")
-            .task {
+            // 設定アプリで許可を変えて戻ってきたときにも状態を取り直します。
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
                 async let notificationUpdate: Void = updateNotificationStatus()
                 async let iCloudUpdate: Void = updateICloudStatus()
                 _ = await (notificationUpdate, iCloudUpdate)
@@ -85,14 +99,41 @@ struct SettingsView: View {
         return "\(version)（\(build)）"
     }
 
+    /// 通知の状態に応じた操作を実行します。
+    private func perform(_ action: NotificationPermissionAction) {
+        switch action {
+        case .requestAuthorization:
+            Task {
+                _ = await NotificationService.requestAuthorization()
+                await updateNotificationStatus()
+            }
+        case .openSystemSettings:
+            openSystemSettings()
+        }
+    }
+
+    /// 設定アプリのSubscのページを開きます。
+    /// iOSは一度許可を断られると再度ダイアログを出さないため、ここからしか許可を戻せません。
+    private func openSystemSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            notificationError = settingsAppFailureMessage
+            return
+        }
+        notificationError = nil
+        openURL(url) { accepted in
+            if !accepted {
+                notificationError = settingsAppFailureMessage
+            }
+        }
+    }
+
+    private var settingsAppFailureMessage: String {
+        "設定アプリを開けませんでした。ホーム画面の「設定」からSubscを選んでください。"
+    }
+
     private func updateNotificationStatus() async {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
-        notificationStatus = switch settings.authorizationStatus {
-        case .authorized, .provisional, .ephemeral: "許可済み"
-        case .denied: "許可されていません"
-        case .notDetermined: "未設定"
-        @unknown default: "不明"
-        }
+        notificationPermission = NotificationPermission(status: settings.authorizationStatus)
     }
 
     private func updateICloudStatus() async {
