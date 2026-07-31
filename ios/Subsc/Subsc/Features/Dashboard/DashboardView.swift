@@ -40,7 +40,7 @@ struct DashboardView: View {
     private var searchSuggestions: [Subscription] {
         let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedQuery.isEmpty else { return [] }
-        return subscriptions.filter {
+        return subscriptionsInSelectedTypes.filter {
             $0.name.localizedCaseInsensitiveContains(normalizedQuery) ||
                 $0.category.localizedCaseInsensitiveContains(normalizedQuery) ||
                 $0.notes.localizedCaseInsensitiveContains(normalizedQuery)
@@ -50,11 +50,12 @@ struct DashboardView: View {
     }
 
     private var nextRenewal: Subscription? {
-        subscriptions
+        subscriptionsInSelectedTypes
             .filter { $0.state == .active && $0.renewalDate >= Calendar.current.startOfDay(for: .now) }
             .min { $0.renewalDate < $1.renewalDate }
     }
 
+    /// 為替レートの更新は表示上の種別絞り込みと無関係なため、全費目の米ドル契約を監視します。
     private var usdSubscriptionIDs: String {
         subscriptions
             .filter { $0.currency == .usd }
@@ -300,6 +301,7 @@ struct DashboardView: View {
         .accessibilityValue(costTypeFilter.title)
     }
 
+    /// 非表示の費目も次に表示した時点で正しい換算額にするため、全費目の為替レートを更新します。
     private func refreshUsdExchangeRate() async {
         let dollarSubscriptions = subscriptions.filter { $0.currency == .usd }
         guard !dollarSubscriptions.isEmpty,

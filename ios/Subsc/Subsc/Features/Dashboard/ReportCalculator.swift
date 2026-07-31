@@ -31,7 +31,7 @@ enum ReportCalculator {
         let active = subscriptions.filter { subscription in
             guard subscription.state == .active else { return false }
             if let startDate = subscription.startDate,
-               startDate > periodEnd(period, cursor: cursor, calendar: calendar) {
+               startDate >= periodEnd(period, cursor: cursor, calendar: calendar) {
                 return false
             }
             if let endDate = subscription.endDate,
