@@ -5,6 +5,8 @@ struct ReportEntry: Identifiable, Equatable {
     let name: String
     let amount: Double
     let colorHex: String
+    /// 実績ではなく直近の実績から見込んだ額かどうか。画面で実績と区別するために使います。
+    let isEstimated: Bool
 }
 
 struct PaymentReport: Equatable {
@@ -40,13 +42,18 @@ enum ReportCalculator {
         }
 
         let entries = active.map { subscription in
-            ReportEntry(
+            let resolved = amount(
+                for: subscription,
+                period: period,
+                cursor: cursor,
+                calendar: calendar
+            )
+            return ReportEntry(
                 id: subscription.clientID,
                 name: subscription.name,
-                amount: period == .month
-                    ? subscription.monthlyYen
-                    : annualAmount(subscription, cursor: cursor, calendar: calendar),
-                colorHex: subscription.colorHex
+                amount: resolved.amount,
+                colorHex: subscription.colorHex,
+                isEstimated: resolved.source == .estimated
             )
         }
         .filter { $0.amount > 0 }
@@ -80,11 +87,28 @@ enum ReportCalculator {
         )
     }
 
+    /// 表示中の期間について、その費目がいくらかを解決します。
+    private static func amount(
+        for subscription: Subscription,
+        period: ReportPeriod,
+        cursor: Date,
+        calendar: Calendar
+    ) -> MonthlyAmount {
+        if period == .month {
+            return subscription.monthlyAmount(
+                forPeriodKey: AmountEntry.periodKey(for: cursor, calendar: calendar)
+            )
+        }
+        return annualAmount(subscription, cursor: cursor, calendar: calendar)
+    }
+
+    /// 年間の合計です。**月ごとに解決した額を足し上げます。**
+    /// 変動費は月によって額が違うため、1ヶ月ぶんを12倍する方法では合いません。
     private static func annualAmount(
         _ subscription: Subscription,
         cursor: Date,
         calendar: Calendar
-    ) -> Double {
+    ) -> MonthlyAmount {
         let year = calendar.component(.year, from: cursor)
         let yearStart = calendar.date(from: DateComponents(year: year, month: 1, day: 1)) ?? cursor
         let nextYear = calendar.date(byAdding: .year, value: 1, to: yearStart) ?? cursor
@@ -93,24 +117,38 @@ enum ReportCalculator {
             calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: $0))
         } ?? nextYear
         let activeEnd = min(endDateExclusive, nextYear)
-        guard activeStart < activeEnd else { return 0 }
+        guard activeStart < activeEnd else { return .unavailable }
 
         guard var monthCursor = calendar.date(
             from: calendar.dateComponents([.year, .month], from: activeStart)
         ) else {
-            return 0
+            return .unavailable
         }
 
-        var months = 0
+        var total: Double = 0
+        var hasEstimatedMonth = false
+        var hasKnownMonth = false
         while monthCursor < activeEnd {
-            months += 1
+            let monthly = subscription.monthlyAmount(
+                forPeriodKey: AmountEntry.periodKey(for: monthCursor, calendar: calendar)
+            )
+            total += monthly.amount
+            switch monthly.source {
+            case .estimated: hasEstimatedMonth = true
+            case .recorded: hasKnownMonth = true
+            case .unavailable: break
+            }
             guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: monthCursor) else {
                 break
             }
             monthCursor = nextMonth
         }
 
-        return subscription.monthlyYen * Double(months)
+        guard hasEstimatedMonth || hasKnownMonth else { return .unavailable }
+        return MonthlyAmount(
+            amount: total,
+            source: hasEstimatedMonth ? .estimated : .recorded
+        )
     }
 
     private static func periodStart(
