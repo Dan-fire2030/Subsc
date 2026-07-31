@@ -131,9 +131,15 @@ final class Subscription {
         set { paymentMethodRaw = newValue.rawValue }
     }
 
-    /// 月次実績を新しい年月の順に並べたものです。リレーションは順序を保証しないため、ここで揃えます。
+    /// 月次実績を新しい年月の順に並べたものです。
+    ///
+    /// CloudKit同期で同じ年月が重複した場合は、読み出しと同じ規則で1件に畳みます。
+    /// リレーション自体は順序を保証しないため、最後に年月で並べます。
     var sortedAmountEntries: [AmountEntry] {
-        (amountEntries ?? []).sorted { $0.periodKey > $1.periodKey }
+        Dictionary(grouping: amountEntries ?? [], by: \.periodKey)
+            .values
+            .compactMap { MonthlyAmountResolver.winner(among: $0) }
+            .sorted { $0.periodKey > $1.periodKey }
     }
 
     var currency: SubscriptionCurrency {
@@ -174,27 +180,20 @@ final class Subscription {
     /// 定額の費目は今までどおり `monthlyYen` を返し、常に実績扱いになります。
     /// 変動費は月次実績から解決します（実績 → 直近の実績で見込み → 0円）。
     ///
-    /// **変動費は支払い周期で割りません。** 月ごとの実績はその月に払った額そのものであり、
-    /// 年払い設定が残っていても12で割ると実態と合わなくなるためです。
+    /// **変動費は支払い周期で割りません。** 月ごとの実績はその月に払った額そのものだからです。
+    /// そのため変動費の支払い周期は月払いに固定しています（`SubscriptionFormView` の保存時）。
+    ///
+    /// 換算は実績が持つ記録時のレートで行います。費目側の `exchangeRate` は最新レートで
+    /// 上書きされるため、それを使うと支払い済みの月の金額が今日のレートで動いてしまいます。
     func monthlyAmount(forPeriodKey periodKey: Int) -> MonthlyAmount {
         guard hasVariableAmount else {
             return MonthlyAmount(amount: monthlyYen, source: .recorded)
         }
 
-        let resolved = MonthlyAmountResolver.resolve(
+        return MonthlyAmountResolver.resolve(
             entries: amountEntries ?? [],
             periodKey: periodKey
         )
-        guard resolved.source != .unavailable else { return .unavailable }
-        return MonthlyAmount(
-            amount: resolved.amount * currencyRate,
-            source: resolved.source
-        )
-    }
-
-    /// 保存されている金額を円へ換算する係数です。
-    private var currencyRate: Double {
-        currency == .usd ? exchangeRate : 1
     }
 
     var color: Color { ColorHex.color(from: colorHex) }

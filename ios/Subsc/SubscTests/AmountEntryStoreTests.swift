@@ -36,6 +36,47 @@ final class AmountEntryStoreTests: XCTestCase {
         XCTAssertEqual(electricity.sortedAmountEntries.first?.amount, 7900)
     }
 
+    func testRecordingUpdatesAllDuplicatesCreatedByCloudSync() {
+        let electricity = makeUtility()
+        let first = AmountEntry(year: 2026, month: 7, amount: 7000)
+        let second = AmountEntry(year: 2026, month: 7, amount: 8000)
+        electricity.amountEntries = [first, second]
+
+        AmountEntryStore.record(amount: 7900, year: 2026, month: 7, on: electricity)
+
+        XCTAssertEqual(electricity.amountEntries?.count, 2)
+        XCTAssertEqual(electricity.amountEntries?.map(\.amount), [7900, 7900])
+        XCTAssertEqual(electricity.sortedAmountEntries.count, 1)
+        XCTAssertEqual(electricity.sortedAmountEntries.first?.amount, 7900)
+    }
+
+    func testRecordingCopiesTheCurrencyAndRateAtThatTime() {
+        let electricity = makeUtility()
+        electricity.currency = .usd
+        electricity.exchangeRate = 150
+
+        let entry = AmountEntryStore.record(
+            amount: 20,
+            year: 2026,
+            month: 7,
+            on: electricity
+        )
+
+        XCTAssertEqual(entry?.currency, .usd)
+        XCTAssertEqual(entry?.exchangeRate, 150)
+        XCTAssertEqual(entry?.yenAmount, 3000)
+    }
+
+    func testInvalidYearOrMonthDoesNotCreateARecord() {
+        let electricity = makeUtility()
+        let originalUpdatedAt = electricity.updatedAt
+
+        XCTAssertNil(AmountEntryStore.record(amount: 100, year: 0, month: 7, on: electricity))
+        XCTAssertNil(AmountEntryStore.record(amount: 100, year: 2026, month: 13, on: electricity))
+        XCTAssertTrue(electricity.sortedAmountEntries.isEmpty)
+        XCTAssertEqual(electricity.updatedAt, originalUpdatedAt)
+    }
+
     func testDifferentMonthsAreKeptSeparately() {
         let electricity = makeUtility()
 

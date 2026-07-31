@@ -15,6 +15,16 @@ final class AmountEntry {
     var year: Int = 0
     var month: Int = 0
     var amount: Double = 0
+    /// 記録した時点の通貨です。
+    ///
+    /// **費目側の通貨を参照してはいけません。** 費目の通貨を後から変えると、
+    /// 過去に円で記録した実績がドルとして解釈されてしまいます。
+    var currencyRaw: String = SubscriptionCurrency.jpy.rawValue
+    /// 記録した時点の為替レートです。
+    ///
+    /// 費目の `exchangeRate` は最新レートで随時上書きされるため、これを使って過去月を
+    /// 換算すると、**支払い済みの月の金額が今日のレートで変動してしまいます。**
+    var exchangeRate: Double = 1
     var recordedAt: Date = Date.now
     /// 逆リレーション。CloudKitミラーリングはリレーションを非Optionalにできないため Optional です。
     var subscription: Subscription?
@@ -24,13 +34,27 @@ final class AmountEntry {
         year: Int,
         month: Int,
         amount: Double,
+        currency: SubscriptionCurrency = .jpy,
+        exchangeRate: Double = 1,
         recordedAt: Date = .now
     ) {
         self.clientID = clientID
         self.year = year
         self.month = month
         self.amount = amount
+        self.currencyRaw = currency.rawValue
+        self.exchangeRate = exchangeRate
         self.recordedAt = recordedAt
+    }
+
+    var currency: SubscriptionCurrency {
+        get { SubscriptionCurrency(rawValue: currencyRaw) ?? .jpy }
+        set { currencyRaw = newValue.rawValue }
+    }
+
+    /// 記録時のレートで円に換算した金額です。あとから為替レートが動いても変わりません。
+    var yenAmount: Double {
+        currency == .usd ? amount * exchangeRate : amount
     }
 
     /// 並べ替えと比較に使う、年月を1つの整数にした値です（例：2026年7月 → 202607）。

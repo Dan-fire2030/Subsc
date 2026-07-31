@@ -31,15 +31,30 @@ struct MonthlyAmount: Equatable {
 /// 払っていない額を計上してしまうためです。
 enum MonthlyAmountResolver {
     static func resolve(entries: [AmountEntry], periodKey: Int) -> MonthlyAmount {
-        if let exact = entries.first(where: { $0.periodKey == periodKey }) {
-            return MonthlyAmount(amount: exact.amount, source: .recorded)
+        if let exact = winner(among: entries.filter { $0.periodKey == periodKey }) {
+            return MonthlyAmount(amount: exact.yenAmount, source: .recorded)
         }
 
-        let latestEarlier = entries
-            .filter { $0.periodKey < periodKey }
-            .max { $0.periodKey < $1.periodKey }
+        let earlier = entries.filter { $0.periodKey < periodKey }
+        guard let latestPeriodKey = earlier.map(\.periodKey).max(),
+              let latestEarlier = winner(
+                among: earlier.filter { $0.periodKey == latestPeriodKey }
+              ) else {
+            return .unavailable
+        }
+        return MonthlyAmount(amount: latestEarlier.yenAmount, source: .estimated)
+    }
 
-        guard let latestEarlier else { return .unavailable }
-        return MonthlyAmount(amount: latestEarlier.amount, source: .estimated)
+    /// 同じ年月に複数の実績があるときに、どれを採用するかを**決定的に**選びます。
+    ///
+    /// CloudKitでは一意制約が使えないため、2台の端末がオフラインで同じ月を記録すると
+    /// 両方が残ります。`first` で拾うと配列順しだいで金額が変わってしまうので、
+    /// 「あとに記録したもの」を勝ちとし、同時刻なら識別子で決めます。
+    static func winner(among entries: [AmountEntry]) -> AmountEntry? {
+        entries.max {
+            $0.recordedAt == $1.recordedAt
+                ? $0.clientID < $1.clientID
+                : $0.recordedAt < $1.recordedAt
+        }
     }
 }

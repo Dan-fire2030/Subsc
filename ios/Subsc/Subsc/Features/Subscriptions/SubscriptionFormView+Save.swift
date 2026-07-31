@@ -6,7 +6,7 @@ extension SubscriptionFormView {
     func save() async {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
-            showValidation("サービス名を入力してください。")
+            showValidation("費目名を入力してください。")
             return
         }
         guard amount >= 0 else {
@@ -50,6 +50,9 @@ extension SubscriptionFormView {
         target.category = category
         target.costType = costType
         target.hasVariableAmount = hasVariableAmount
+        // 変動費は月ごとの実績で管理するため、支払い周期は月払いに固定します。
+        // 年払いのまま変動費にすると、年額が毎月そのまま繰り越されて過大に計上されます。
+        target.billingCycle = hasVariableAmount ? .monthly : billingCycle
         target.paymentMethod = paymentMethod
         target.paymentMethodNote = paymentMethodNote.trimmingCharacters(
             in: .whitespacesAndNewlines
@@ -58,7 +61,6 @@ extension SubscriptionFormView {
         target.originalAmount = amount
         target.currency = currency
         target.exchangeRate = currency == .usd ? exchangeRate : 1
-        target.billingCycle = billingCycle
         target.state = state
         target.renewalDate = renewalDate
         target.startDate = hasStartDate ? startDate : nil

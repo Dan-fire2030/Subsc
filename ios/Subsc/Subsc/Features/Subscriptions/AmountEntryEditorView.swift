@@ -14,6 +14,8 @@ struct AmountEntryEditorView: View {
     @State private var year: Int
     @State private var month: Int
     @State private var amount: Double
+    @State private var currency: SubscriptionCurrency
+    @State private var exchangeRate: Double
     @State private var errorMessage: String?
 
     private let selectableYears: [Int]
@@ -22,11 +24,12 @@ struct AmountEntryEditorView: View {
         self.subscription = subscription
         let initialYear = periodKey / 100
         let initialMonth = periodKey % 100
+        let initialEntry = AmountEntryStore.entry(on: subscription, periodKey: periodKey)
         _year = State(initialValue: initialYear)
         _month = State(initialValue: initialMonth)
-        _amount = State(
-            initialValue: AmountEntryStore.entry(on: subscription, periodKey: periodKey)?.amount ?? 0
-        )
+        _amount = State(initialValue: initialEntry?.amount ?? 0)
+        _currency = State(initialValue: initialEntry?.currency ?? subscription.currency)
+        _exchangeRate = State(initialValue: initialEntry?.exchangeRate ?? subscription.exchangeRate)
 
         // 選べる年は、今年の前後と、すでに記録がある年を必ず含めます。
         let thisYear = calendar.component(.year, from: .now)
@@ -56,10 +59,10 @@ struct AmountEntryEditorView: View {
                 Section {
                     LabeledContent("金額") {
                         HStack(spacing: 6) {
-                            Text(subscription.currency.symbol)
+                            Text(currency.symbol)
                                 .foregroundStyle(.secondary)
                             TextField(
-                                subscription.currency == .usd ? "19.99" : "8,200",
+                                currency == .usd ? "19.99" : "8,200",
                                 value: $amount,
                                 format: .number.precision(.fractionLength(0...2))
                             )
@@ -71,6 +74,8 @@ struct AmountEntryEditorView: View {
                 } footer: {
                     if AmountEntryStore.hasRecord(on: subscription, periodKey: periodKey) {
                         Text("この月にはすでに記録があります。保存すると上書きされます。")
+                    } else if currency == .usd {
+                        Text("現在のドル円レートで記録します。")
                     }
                 }
                 .glassListRow()
@@ -86,6 +91,9 @@ struct AmountEntryEditorView: View {
             .liquidGlassScreen()
             .navigationTitle("金額を記録")
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: periodKey) {
+                loadSelectedPeriod()
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("キャンセル") { dismiss() }
@@ -107,12 +115,17 @@ struct AmountEntryEditorView: View {
             return
         }
 
-        AmountEntryStore.record(
+        guard AmountEntryStore.record(
             amount: amount,
             year: year,
             month: month,
+            currency: currency,
+            exchangeRate: exchangeRate,
             on: subscription
-        )
+        ) != nil else {
+            errorMessage = "対象の年月を確認してください。"
+            return
+        }
 
         do {
             try modelContext.save()
@@ -126,5 +139,20 @@ struct AmountEntryEditorView: View {
             await NotificationService.reschedule(for: subscription)
         }
         dismiss()
+    }
+
+    /// 年月を切り替えたら、その月に保存済みの通貨・レートも含めて入力欄へ反映します。
+    /// 過去の円実績を、現在の費目がドルだからという理由でドルとして上書きしないためです。
+    private func loadSelectedPeriod() {
+        if let entry = AmountEntryStore.entry(on: subscription, periodKey: periodKey) {
+            amount = entry.amount
+            currency = entry.currency
+            exchangeRate = entry.exchangeRate
+        } else {
+            amount = 0
+            currency = subscription.currency
+            exchangeRate = subscription.exchangeRate
+        }
+        errorMessage = nil
     }
 }

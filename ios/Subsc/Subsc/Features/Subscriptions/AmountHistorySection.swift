@@ -22,7 +22,7 @@ struct AmountHistorySection: View {
                 } label: {
                     LabeledContent(periodLabel(entry.periodKey)) {
                         Text(
-                            entry.amount * currencyRate,
+                            entry.yenAmount,
                             format: .currency(code: "JPY").precision(.fractionLength(0))
                         )
                         .monospacedDigit()
@@ -84,10 +84,6 @@ struct AmountHistorySection: View {
 
     private var hasRecordForThisMonth: Bool {
         AmountEntryStore.hasRecord(on: subscription, periodKey: currentPeriodKey)
-    }
-
-    private var currencyRate: Double {
-        subscription.currency == .usd ? subscription.exchangeRate : 1
     }
 
     private func periodLabel(_ periodKey: Int) -> String {

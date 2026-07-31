@@ -19,6 +19,29 @@ final class MonthlyAmountResolverTests: XCTestCase {
         XCTAssertEqual(resolved.source, .recorded)
     }
 
+    func testTheNewestDuplicateForTheSameMonthWinsDeterministically() {
+        let older = AmountEntry(
+            clientID: "older",
+            year: 2026,
+            month: 7,
+            amount: 7000,
+            recordedAt: Date(timeIntervalSince1970: 100)
+        )
+        let newer = AmountEntry(
+            clientID: "newer",
+            year: 2026,
+            month: 7,
+            amount: 8200,
+            recordedAt: Date(timeIntervalSince1970: 200)
+        )
+
+        let forward = MonthlyAmountResolver.resolve(entries: [older, newer], periodKey: 202607)
+        let reversed = MonthlyAmountResolver.resolve(entries: [newer, older], periodKey: 202607)
+
+        XCTAssertEqual(forward.amount, 8200)
+        XCTAssertEqual(reversed.amount, 8200)
+    }
+
     func testTheMostRecentEarlierRecordIsUsedWhenTheMonthIsMissing() {
         let resolved = MonthlyAmountResolver.resolve(
             entries: entries([(2026, 4, 5000), (2026, 6, 6500)]),
@@ -111,7 +134,26 @@ final class SubscriptionMonthlyAmountTests: XCTestCase {
         let subscription = makeSubscription(variable: true)
         subscription.currency = .usd
         subscription.exchangeRate = 150
-        subscription.amountEntries = [AmountEntry(year: 2026, month: 7, amount: 20)]
+        subscription.amountEntries = [
+            AmountEntry(
+                year: 2026,
+                month: 7,
+                amount: 20,
+                currency: .usd,
+                exchangeRate: 150
+            )
+        ]
+
+        XCTAssertEqual(subscription.monthlyAmount(forPeriodKey: 202607).amount, 3000)
+    }
+
+    func testChangingTheCurrentRateDoesNotChangeAPastRecordedAmount() {
+        let subscription = makeSubscription(variable: true)
+        subscription.currency = .usd
+        subscription.exchangeRate = 150
+        AmountEntryStore.record(amount: 20, year: 2026, month: 7, on: subscription)
+
+        subscription.exchangeRate = 200
 
         XCTAssertEqual(subscription.monthlyAmount(forPeriodKey: 202607).amount, 3000)
     }
