@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ページャが表示する1ページぶんの入力です。`step` は現在の期間からの相対位置（-1／0／+1）。
+/// ページャが表示する1ページぶんの入力です。`step` は基準の期間からの相対位置。
 struct ReportPageData: Identifiable, Equatable {
     let step: Int
     let report: PaymentReport
@@ -9,17 +9,33 @@ struct ReportPageData: Identifiable, Equatable {
     var id: Int { step }
 }
 
+enum ReportPagerConfiguration {
+    /// 基準の期間から前後に用意する期間の数です。
+    ///
+    /// 慣性スクロールは「指を離したあとに滑った先」へ吸着するため、
+    /// 滑る余地となるページをあらかじめ並べておく必要があります。
+    /// 3枚しか無いと1枚めくった時点で行き止まりになり、勢いが打ち消されます。
+    static let stepReach = 60
+
+    static let stepRange = -stepReach...stepReach
+}
+
 /// 前後の期間を横スワイプで見せるページャです。
-/// スワイプが終わったらカーソル自体を動かし、選択位置を常に中央（`step == 0`）へ戻すことで、
-/// 何回スワイプしてもページを3枚だけ保てるようにしています。
+///
+/// 弾いた勢いのぶんだけ滑って、いちばん近い期間に吸着します（慣性スライド）。
+/// そのため `.paging`（1ページずつ確定）ではなく `.viewAligned` を使います。
+///
+/// **スクロール位置はこの型の内側に閉じ込めています。** 位置を親に持たせると、
+/// 慣性で流れている最中にページが通過するたびにカード全体が作り直され、
+/// 減速と吸着が中断されてページの途中で止まってしまいます。
+/// ページの中身は `makePage` から都度受け取るので、`LazyHStack` が実際に必要とした
+/// ぶんだけしか集計が走りません。
 struct ReportPager: View {
-    let pages: [ReportPageData]
+    let makePage: (Int) -> ReportPageData
     let pageHeight: CGFloat
     let periodUnit: String
     let reduceMotion: Bool
-    let isViewingCurrentPeriod: Bool
-    let accessibilityValue: String
-    let onShift: (Int) -> Void
+    let accessibilityValue: (ReportPageData) -> String
     let onReturnToCurrentPeriod: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -27,30 +43,42 @@ struct ReportPager: View {
     @State private var selectedStep: Int? = 0
     @State private var feedbackTrigger = 0
 
+    private var currentStep: Int { selectedStep ?? 0 }
+
+    /// `step == 0` は基準の期間そのものなので、現在地の判定は位置だけで決まります。
+    private var isViewingCurrentPeriod: Bool { currentStep == 0 }
+
     var body: some View {
         VStack(spacing: 10) {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
-                    ForEach(pages) { page in
+                    ForEach(ReportPagerConfiguration.stepRange, id: \.self) { step in
+                        let page = makePage(step)
                         ReportPage(
                             report: page.report,
                             periodLabel: page.periodLabel,
                             reduceMotion: reduceMotion
                         )
                         .containerRelativeFrame(.horizontal)
-                        .id(page.step)
-                        .accessibilityHidden(page.step != 0)
+                        .id(step)
+                        .accessibilityHidden(step != currentStep)
                     }
                 }
                 .scrollTargetLayout()
             }
             .scrollPosition(id: $selectedStep)
-            .scrollTargetBehavior(.paging)
+            // limitBehavior の既定（.automatic）は1回のスワイプを1ページに制限してしまい、
+            // 勢いよく弾いても隣で止まる。慣性を活かすため制限を外します。
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .scrollIndicators(.hidden)
             .frame(height: pageHeight)
             .clipped()
-            .onChange(of: selectedStep) {
-                completeSwipeIfNeeded()
+            .onChange(of: currentStep) {
+                // 慣性で流れている最中に状態を書き換えるとスクロールが途切れるため、
+                // 案内の非表示だけを、まだ消していないときに限って行います。
+                if !hasUsedReportPaging {
+                    hasUsedReportPaging = true
+                }
             }
 
             HStack(spacing: 12) {
@@ -76,7 +104,7 @@ struct ReportPager: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("利用コストレポート")
-        .accessibilityValue(accessibilityValue)
+        .accessibilityValue(accessibilityValue(makePage(currentStep)))
         .accessibilityHint("上下にスワイプして前後の\(periodUnit)へ移動できます")
         .accessibilityAdjustableAction { direction in
             switch direction {
@@ -166,27 +194,36 @@ struct ReportPager: View {
         .foregroundStyle(.white)
         .modifier(ReportControlButtonModifier())
         .accessibilityLabel(title)
+        .disabled(!canShift(by: shift))
     }
 
-    private func completeSwipeIfNeeded() {
-        guard let selectedStep, selectedStep != 0 else { return }
-        shiftPage(by: selectedStep)
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction) {
-            self.selectedStep = 0
-        }
+    private func canShift(by value: Int) -> Bool {
+        ReportPagerConfiguration.stepRange.contains(currentStep + value)
     }
 
+    /// ボタンとVoiceOverからのページ送りです。スワイプと同じ位置へアニメーションで寄せます。
     private func shiftPage(by value: Int) {
-        onShift(value)
-        hasUsedReportPaging = true
-        feedbackTrigger += 1
+        guard canShift(by: value) else { return }
+        scroll(to: currentStep + value)
     }
 
     private func returnToCurrentPeriod() {
         onReturnToCurrentPeriod()
+        scroll(to: 0)
+    }
+
+    /// ボタン・VoiceOver からの移動だけがここを通ります。
+    /// スワイプはスクロールビュー自身が処理するので、触覚は指の操作と競合しません。
+    private func scroll(to step: Int) {
+        guard step != currentStep else { return }
         hasUsedReportPaging = true
         feedbackTrigger += 1
+        if reduceMotion {
+            selectedStep = step
+        } else {
+            withAnimation(.snappy) {
+                selectedStep = step
+            }
+        }
     }
 }
