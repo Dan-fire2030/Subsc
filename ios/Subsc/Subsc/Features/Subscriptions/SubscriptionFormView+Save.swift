@@ -75,7 +75,11 @@ extension SubscriptionFormView {
         target.leadHours = Array(leadHours)
         target.updatedAt = .now
 
-        if hasVariableAmount {
+        // 金額欄に触れていない編集では実績を作りません。
+        // 作ってしまうと、支払い方法を直しただけで未入力の月が「見込み」から
+        // 「実績」に黙って変わり、記録済みだと誤解されます。
+        let didEnterAmount = subscription == nil || amount != initialDraft.amount
+        if hasVariableAmount, didEnterAmount {
             let now = Date.now
             let components = Calendar.current.dateComponents([.year, .month], from: now)
             AmountEntryStore.record(

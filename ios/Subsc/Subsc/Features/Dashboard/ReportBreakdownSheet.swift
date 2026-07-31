@@ -108,10 +108,22 @@ private struct BreakdownRow: View {
                 }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(entry.name)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
+                HStack(spacing: 5) {
+                    Text(entry.name)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+
+                    if entry.isEstimated {
+                        // 実績が未入力で、直近の実績から見込んだ額であることを示します。
+                        Text("見込み")
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(.white.opacity(0.22), in: Capsule())
+                            .foregroundStyle(.white)
+                    }
+                }
 
                 Text(
                     ratio,

@@ -3,6 +3,21 @@ import SwiftUI
 /// `SubscriptionFormView` のフォーム各セクションです。
 /// `body` から切り出しただけで、並び順・修飾子は元のまま保っています。
 extension SubscriptionFormView {
+    /// 変動費トグルの値です。
+    ///
+    /// 「利用者が自分で操作した」印は**このsetterでだけ**立てます。
+    /// `onChange` で立てると、種別の変更にともなう自動提案まで操作扱いになり、
+    /// 光熱費を選んだあとサブスクへ戻しても提案が働かなくなります。
+    var variableAmountSelection: Binding<Bool> {
+        Binding(
+            get: { hasVariableAmount },
+            set: { newValue in
+                hasEditedVariableToggle = true
+                hasVariableAmount = newValue
+            }
+        )
+    }
+
     var serviceSection: some View {
         Section("費目") {
             Picker("種別", selection: $costType) {
@@ -62,11 +77,8 @@ extension SubscriptionFormView {
 
     var priceSection: some View {
         Section {
-            Toggle("金額が毎月変わる", isOn: $hasVariableAmount.animation())
+            Toggle("金額が毎月変わる", isOn: variableAmountSelection.animation())
                 .accessibilityIdentifier("subscription-variable-amount-toggle")
-                .onChange(of: hasVariableAmount) {
-                    hasEditedVariableToggle = true
-                }
 
             Picker("通貨", selection: $currency) {
                 ForEach(SubscriptionCurrency.allCases) { currency in

@@ -12,6 +12,15 @@ struct ReportPage: View {
         dynamicTypeSize.isAccessibilitySize ? 340 : 130
     }
 
+    /// 合計の下に出す内訳の説明です。
+    ///
+    /// 見込みが混ざっているときは合計が確定額ではないので、その旨をここで断ります。
+    /// 断らないと、実績として記録済みの金額だと誤解されます。
+    private var entriesDescription: String {
+        let base = "\(report.entries.count)件の費目"
+        return report.entries.contains(where: \.isEstimated) ? "\(base)・見込みを含む" : base
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 10) {
             VStack(alignment: .leading, spacing: 6) {
@@ -27,7 +36,7 @@ struct ReportPage: View {
                     .minimumScaleFactor(0.65)
                     .contentTransition(.numericText(value: report.total))
 
-                Text("\(report.entries.count)件の費目")
+                Text(entriesDescription)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.84))
             }
