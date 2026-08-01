@@ -5,6 +5,7 @@ struct ReportEntry: Identifiable, Equatable {
     let name: String
     let amount: Double
     let colorHex: String
+    let costType: CostType
     /// 実績ではなく直近の実績から見込んだ額かどうか。画面で実績と区別するために使います。
     let isEstimated: Bool
 }
@@ -53,6 +54,7 @@ enum ReportCalculator {
                 name: subscription.name,
                 amount: resolved.amount,
                 colorHex: subscription.colorHex,
+                costType: subscription.costType,
                 isEstimated: resolved.source == .estimated
             )
         }

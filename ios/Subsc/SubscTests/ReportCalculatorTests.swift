@@ -41,6 +41,27 @@ final class ReportCalculatorTests: XCTestCase {
         XCTAssertTrue(report.entries.isEmpty)
     }
 
+    func testReportEntryIncludesSubscriptionCostType() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let cursor = calendar.date(from: DateComponents(year: 2026, month: 7, day: 1))!
+        let subscription = Subscription(
+            name: "電気",
+            costType: .utility,
+            originalAmount: 8_000,
+            renewalDate: cursor,
+            startDate: cursor
+        )
+
+        let report = ReportCalculator.report(
+            subscriptions: [subscription],
+            period: .month,
+            cursor: cursor,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(try XCTUnwrap(report.entries.first).costType, .utility)
+    }
+
     func testPeriodShiftMovesBySelectedUnit() {
         let calendar = Calendar.current
         let cursor = calendar.date(from: DateComponents(year: 2026, month: 7, day: 1))!

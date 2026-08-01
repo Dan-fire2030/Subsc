@@ -28,6 +28,22 @@ final class CostTypeTests: XCTestCase {
         XCTAssertFalse(CostType.fixed.suggestsVariableAmount)
     }
 
+    func testColorHexValuesArePresentAndUniqueForEveryCostType() {
+        let colorHexValues = CostType.allCases.map(\.colorHex)
+
+        XCTAssertEqual(colorHexValues.count, 4)
+        XCTAssertEqual(Set(colorHexValues).count, 4)
+        XCTAssertFalse(colorHexValues.contains(where: \.isEmpty))
+    }
+
+    func testColorHexValuesUseSixDigitRGBFormat() throws {
+        let pattern = /^#[0-9A-F]{6}$/
+
+        for colorHex in CostType.allCases.map(\.colorHex) {
+            XCTAssertNotNil(colorHex.wholeMatch(of: pattern), "\(colorHex) は #RRGGBB 形式ではありません")
+        }
+    }
+
     func testPaymentMethodRawValuesAreStable() {
         XCTAssertEqual(PaymentMethod.unspecified.rawValue, "unspecified")
         XCTAssertEqual(PaymentMethod.creditCard.rawValue, "creditCard")

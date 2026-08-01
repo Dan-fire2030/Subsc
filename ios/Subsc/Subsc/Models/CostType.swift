@@ -32,6 +32,19 @@ enum CostType: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    /// レポートで種別を見分けるための色です。
+    ///
+    /// カード背景は必ず暗い色へ補正されるため、明るく高彩度な色なら背景上で見分けられます。
+    /// また、利用中の緑・停止中のオレンジ・削除の赤という状態色と意味が衝突しない色を選んでいます。
+    var colorHex: String {
+        switch self {
+        case .subscription: "#64D2FF"
+        case .communication: "#BF5AF2"
+        case .utility: "#FFD60A"
+        case .fixed: "#FF6482"
+        }
+    }
+
     /// 金額が毎月変わることが多い種別かどうかです。
     /// 登録時のトグルの初期値を決めるだけで、実際に変動費かどうかは費目ごとに指定します。
     var suggestsVariableAmount: Bool {
