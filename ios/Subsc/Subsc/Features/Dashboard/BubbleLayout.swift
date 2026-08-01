@@ -21,6 +21,11 @@ enum BubbleLayout {
         static let candidateAngleCount = 72
         /// 浮動小数の誤差で「重なっている」と誤判定しないための許容差です。
         static let tolerance: CGFloat = 1e-9
+        /// 描画時にわずかに縮める割合です。
+        ///
+        /// 配置は円が接するように詰めるため、そのまま描くと**漂うアニメーションで
+        /// 隣同士が食い込みます**。一律に縮めれば面積比も非重複も保ったまま隙間ができます。
+        static let renderRadiusRatio: CGFloat = 0.93
     }
 
     private struct IndexedEntry {
@@ -72,7 +77,8 @@ enum BubbleLayout {
                 center = packedCenter(
                     radius: radius,
                     padding: padding,
-                    existingNodes: nodes
+                    existingNodes: nodes,
+                    aspect: size
                 )
             }
             nodes.append(BubbleNode(id: indexedEntry.entry.id, center: center, radius: radius))
@@ -86,10 +92,15 @@ enum BubbleLayout {
     /// らせん上の等間隔な候補では、刻み幅を最大の円に合わせる必要があり、
     /// 小さい円ほど大きな隙間を空けて置かれてしまいます（実際、9件で領域の大半が空きました）。
     /// 接点を候補にすると円が寄り集まり、最後の一様縮小でも大きさを保てます。
+    ///
+    /// **「近さ」は表示領域の縦横比で正規化して測ります。** 素の距離で測るとクラスタが
+    /// 円形になり、横長の領域では縦が先に埋まって左右に大きな余白が残ります。
+    /// 正規化すると領域と相似な形に広がり、縦横のどちらもほぼ埋まります。
     private static func packedCenter(
         radius: CGFloat,
         padding: CGFloat,
-        existingNodes: [BubbleNode]
+        existingNodes: [BubbleNode],
+        aspect: CGSize
     ) -> CGPoint {
         var bestCenter: CGPoint?
         var bestDistance = CGFloat.greatestFiniteMagnitude
@@ -109,7 +120,10 @@ enum BubbleLayout {
                 }
                 guard fits else { continue }
 
-                let distance = hypot(candidate.x, candidate.y)
+                let distance = hypot(
+                    candidate.x / max(aspect.width, Constants.tolerance),
+                    candidate.y / max(aspect.height, Constants.tolerance)
+                )
                 if distance < bestDistance - Constants.tolerance
                     || (abs(distance - bestDistance) <= Constants.tolerance
                         && isEarlier(candidate, than: bestCenter)) {
@@ -156,7 +170,7 @@ enum BubbleLayout {
                     x: (node.center.x - contentCenter.x) * scale + targetCenter.x,
                     y: (node.center.y - contentCenter.y) * scale + targetCenter.y
                 ),
-                radius: node.radius * scale
+                radius: node.radius * scale * Constants.renderRadiusRatio
             )
         }
     }

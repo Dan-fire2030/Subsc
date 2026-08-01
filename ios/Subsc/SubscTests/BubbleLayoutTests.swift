@@ -32,6 +32,29 @@ final class BubbleLayoutTests: XCTestCase {
         )
     }
 
+    /// クラスタが円形に固まると、横長の領域では左右に大きな余白が残ります。
+    /// 縦横どちらもおおむね埋まっていることを縛ります。
+    func testLayoutFillsBothAxesOfAWideRectangle() throws {
+        let entries = (0..<9).map { entry(id: "item-\($0)", amount: Double(9 - $0) * 500) }
+        let nodes = BubbleLayout.layout(entries: entries, in: TestLayout.size)
+
+        let minimumX = try XCTUnwrap(nodes.map { $0.center.x - $0.radius }.min())
+        let maximumX = try XCTUnwrap(nodes.map { $0.center.x + $0.radius }.max())
+        let minimumY = try XCTUnwrap(nodes.map { $0.center.y - $0.radius }.min())
+        let maximumY = try XCTUnwrap(nodes.map { $0.center.y + $0.radius }.max())
+
+        XCTAssertGreaterThanOrEqual(
+            (maximumX - minimumX) / TestLayout.size.width,
+            0.8,
+            "横方向が埋まっていません"
+        )
+        XCTAssertGreaterThanOrEqual(
+            (maximumY - minimumY) / TestLayout.size.height,
+            0.8,
+            "縦方向が埋まっていません"
+        )
+    }
+
     func testCirclesDoNotOverlap() {
         assertValidGeometry(for: variedEntries())
     }
