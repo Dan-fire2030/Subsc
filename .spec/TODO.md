@@ -70,6 +70,37 @@ SPEC：`.spec/SPEC.md`（固定費の記録／2026-07-31 確定）
       保存するモデルが要り、SPECにない追加要件のため
 - [ ] `SettingsView` に、変動費のリマインドをまとめてオン／オフする設定を置くか検討
 
+### 次サイクルの候補：テーマ色の設定（2026-08-01にharuto さんから依頼・方針確定済み）
+
+**固定費機能をmainへマージし、CloudKitのProduction反映を終えてから着手する**。着手時は `/newplan` で
+新しいサイクルを開始し、下記の決定事項をPLAN/SPECへ引き継ぐこと。
+
+決定事項：
+
+- **ボタン色とカード色を別々に**設定できる（2つの独立した設定項目）
+- **選び方はプリセット＋自由選択の両方**。プリセットを並べつつ「その他の色」で `ColorPicker` も開ける
+- **適用範囲は青系すべて**。レポートカードに加えて、画面背景の淡いグラデーション・設定画面ヘッダー・
+  一覧の空状態・通知タイミング画面のチェック色も連動させる
+- **保存はこの端末だけ**（`@AppStorage` / UserDefaults）。**CloudKitのスキーマは変更しない**
+
+実装で触る場所（調査済み）：
+
+- ボタン色＝アプリ全体のアクセント色は `App/RootView.swift:41` の `.tint(...)` 1箇所に集約されている
+- カード色は `Features/Dashboard/ReportGlassStyle.swift` の `LiquidGlassCardBackground`
+  （青→紫→シアンの3色グラデーション＋発光する円2つ）と、`glassEffect` のtint・影の色
+- そのほかの青：`App/RootView.swift:89`（背景）、`Features/Settings/SettingsView.swift:23,30`、
+  `Features/Dashboard/DashboardEmptyState.swift:12,17`、`Features/Dashboard/DashboardView.swift:101`、
+  `Features/Subscriptions/NotificationTimingView.swift:24,44`
+
+注意点：
+
+- **カードは単色ではなく3色グラデーション**。1色の選択から色相をずらして生成する必要がある。
+  単純に置き換えると立体感が失われる
+- **自由選択を許すと、暗すぎる／薄すぎる色でカード上の白文字が読めなくなる**。
+  コントラストの下限を設けるか、文字色を明度で出し分ける必要がある
+- 既存の `ColorHex`（`Features/Subscriptions/SubscriptionFormView+CategoryColor.swift` と
+  `SubscTests/ColorHexTests.swift`）が流用できるか最初に確認する
+
 ## 優先度：低
 - [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
 
