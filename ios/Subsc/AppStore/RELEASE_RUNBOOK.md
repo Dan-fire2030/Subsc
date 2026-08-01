@@ -1,6 +1,6 @@
 # Subsc iOS Release Runbook
 
-最終更新：2026-07-28
+最終更新：2026-08-01
 
 この文書はSubsc固有のリリース情報と作業状態を記録します。パスワード、APIキー、証明書の秘密鍵は記録しません。
 
@@ -15,7 +15,8 @@
 | 対応端末 | iPhone |
 | 最低対応OS | iOS 17以降 |
 | ホーム画面名 | Subsc |
-| App Store掲載名 | Subsc - サブスク管理 |
+| App Store掲載名 | Subsc - サブスク・固定費管理（2026-08-01に`Subsc - サブスク管理`から変更。App Store Connectへは未入力） |
+| サブタイトル | サブスクも固定費も、ひとつに |
 | App Store Connect App ID | `6795086857` |
 | SKU | `subsc-ios-20260727` |
 | プライマリ言語 | 日本語 |
@@ -34,10 +35,22 @@
 |---|---|
 | Container | `iCloud.com.tonaria.subsc` |
 | Database | ユーザーごとのPrivate Database |
-| Productionスキーマ | 2026-07-27反映済み |
-| Record Type | `CD_Subscription` |
-| Fields | 27 |
+| Productionスキーマ | 2026-07-27反映済み（固定費機能ぶんは**未反映**） |
+| Record Type（Production） | `CD_Subscription` |
+| Fields（Production） | 27 |
 | Indexes | 54 |
+| Record Type（Development） | `CD_Subscription` / `CD_AmountEntry` |
+| Fields（Development） | `CD_Subscription` 32 / `CD_AmountEntry` 15 |
+
+### 固定費機能で追加したスキーマ（2026-08-01時点でDevelopmentのみ）
+
+`feat/cost-type-data-model` で追加した項目です。Developmentへの自動生成は確認済みで、**Productionへの反映はまだ行っていません**。
+
+- 新規Record Type：`CD_AmountEntry`（変動費の月次実績）
+  - `CD_clientID` / `CD_year` / `CD_month` / `CD_amount` / `CD_currencyRaw` / `CD_exchangeRate` / `CD_recordedAt` / `CD_subscription` / `CD_entityName`
+- `CD_Subscription` への追加フィールド
+  - `CD_costTypeRaw` / `CD_hasVariableAmount` / `CD_paymentMethodRaw` / `CD_paymentMethodNote`
+  - `CD_endDate`（既存の`endDate`ぶん。**終了日を設定したレコードが一度も保存されておらず、フィールドが生成されていませんでした**。Optionalのプロパティは値が保存されるまでフィールド化されないため、代表データを保存して生成させました）
 
 Developmentで作成したテストレコードはProductionへコピーされません。TestFlight版とApp Store版はProductionを使用するため、同じBundle ID、CloudKit Container、互換スキーマ、Apple Accountを維持する限り、TestFlight中のユーザーデータは正式版へ引き継がれます。
 
@@ -66,10 +79,12 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 ### アプリ
 
-- [x] 単体テスト24件合格
+- [x] 単体テスト120件合格（2026-08-01・固定費機能を含む）
 - [x] Release Archive成功
-- [x] CloudKit Productionスキーマ反映
+- [x] CloudKit Productionスキーマ反映（ビルド4時点）
 - [x] TestFlightビルド4アップロード
+- [ ] **固定費機能のCloudKitスキーマをProductionへ反映**（Developmentでは生成確認済み・不可逆のため未実施）
+- [ ] 固定費機能を含むビルド5のArchiveとアップロード
 - [ ] ビルド4を実機TestFlightへインストール
 - [ ] UIテストをXcodeから実行（このMacではテストランナーが起動できません）
 - [ ] iOS 26実機でLiquid Glassの表示崩れがないか確認
@@ -87,6 +102,7 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - [ ] サポート公開URL
 - [ ] サポート用メールアドレス
 - [ ] iPhone用スクリーンショット
+- [ ] 掲載名・サブタイトルを固定費管理向けへ変更（文言は`AppStore/Metadata-ja.md`）
 - [ ] 概要・キーワード・カテゴリ
 - [ ] App Privacy回答
 - [ ] 年齢区分の質問回答
@@ -102,7 +118,8 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - ユーザーデータは端末と本人のiCloud Private Databaseへ保存します。
 - 米ドル選択時のみFrankfurter APIから日次USD/JPY参考レートを取得します。
 - サブスク名や料金を為替APIへ送信しません。
-- 更新通知はiOSのローカル通知です。
+- 更新通知と、変動費の未入力を知らせる月末リマインドはいずれもiOSのローカル通知です。
+- 金額はすべて利用者の手入力です。銀行やクレジットカードとの連携、明細の自動取り込みはありません。
 - アプリ内課金や自動更新サブスクリプションの販売機能はありません。
 
 ## 既知のリリース時トラブル
@@ -129,7 +146,10 @@ App Store掲載名は`Subsc - サブスク管理`を使用します。端末上�
 
 ## 次の安全な作業
 
-1. 実機TestFlightの機能確認を完了する。
-2. 公開URL、連絡先、スクリーンショットを用意する。
-3. App Store Connectのプライバシー、年齢区分、価格、審査情報を入力する。
-4. 最終確認後にApp Reviewへ提出する。
+1. 固定費機能のCloudKitスキーマをProductionへ反映する（Development側は生成確認済み・**不可逆**）。
+2. `feat/cost-type-data-model`をmainへマージし、ビルド5をArchiveしてアップロードする。
+3. 実機TestFlightの機能確認を完了する。
+4. 公開URL、連絡先、スクリーンショットを用意する。
+5. App Store Connectの掲載名・サブタイトル・概要・キーワードを`AppStore/Metadata-ja.md`の内容へ更新する。
+6. App Store Connectのプライバシー、年齢区分、価格、審査情報を入力する。
+7. 最終確認後にApp Reviewへ提出する。
