@@ -47,9 +47,9 @@ SPEC：`.spec/SPEC.md`（レポートカードの可視化スタイル／2026-08
 
 ### フェーズ2：スタイルの選択と保存
 
-- [ ] `ReportChartStyle` enum（`bar` / `ring` / `bubble` / `column`）を追加する
-- [ ] `ThemeStore` へ保存する（既定は `bar`。`resetToDefaults` の対象に含める）
-- [ ] **CloudKitのスキーマを変更していないことを確認する**
+- [x] `ReportChartStyle` enum（`bar` / `ring` / `bubble` / `column`）を追加する
+- [x] `ThemeStore` へ保存する（既定は `bar`。`resetToDefaults` の対象に含める）
+- [x] **CloudKitのスキーマを変更していないことを確認する**（`UserDefaults` のみで完結）
 
 ### フェーズ3：4つのスタイルの実装
 

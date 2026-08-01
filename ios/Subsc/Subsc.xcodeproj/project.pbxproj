@@ -29,6 +29,10 @@
 		AA0000660000000000000066 /* CostTypeBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000660000000000000066 /* CostTypeBreakdown.swift */; };
 		AA0000670000000000000067 /* BubbleLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000670000000000000067 /* BubbleLayout.swift */; };
 		AA0000700000000000000070 /* ReportChartStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000700000000000000070 /* ReportChartStyle.swift */; };
+		AA0000710000000000000071 /* ReportChartPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000710000000000000071 /* ReportChartPalette.swift */; };
+		AA0000720000000000000072 /* StackedBarChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000720000000000000072 /* StackedBarChart.swift */; };
+		AA0000730000000000000073 /* ConcentricRingChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000730000000000000073 /* ConcentricRingChart.swift */; };
+		AA0000740000000000000074 /* ReportChartPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000740000000000000074 /* ReportChartPaletteTests.swift */; };
 		AA0000680000000000000068 /* CostTypeBreakdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000680000000000000068 /* CostTypeBreakdownTests.swift */; };
 		AA0000690000000000000069 /* BubbleLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000690000000000000069 /* BubbleLayoutTests.swift */; };
 		AA0000530000000000000053 /* AmountEntryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000530000000000000053 /* AmountEntryStoreTests.swift */; };
@@ -113,6 +117,10 @@
 		BB0000660000000000000066 /* CostTypeBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeBreakdown.swift; sourceTree = "<group>"; };
 		BB0000670000000000000067 /* BubbleLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleLayout.swift; sourceTree = "<group>"; };
 		BB0000700000000000000070 /* ReportChartStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartStyle.swift; sourceTree = "<group>"; };
+		BB0000710000000000000071 /* ReportChartPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartPalette.swift; sourceTree = "<group>"; };
+		BB0000720000000000000072 /* StackedBarChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedBarChart.swift; sourceTree = "<group>"; };
+		BB0000730000000000000073 /* ConcentricRingChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentricRingChart.swift; sourceTree = "<group>"; };
+		BB0000740000000000000074 /* ReportChartPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartPaletteTests.swift; sourceTree = "<group>"; };
 		BB0000680000000000000068 /* CostTypeBreakdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeBreakdownTests.swift; sourceTree = "<group>"; };
 		BB0000690000000000000069 /* BubbleLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleLayoutTests.swift; sourceTree = "<group>"; };
 		BB0000530000000000000053 /* AmountEntryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountEntryStoreTests.swift; sourceTree = "<group>"; };
@@ -267,6 +275,9 @@
 				BB0000050000000000000005 /* ReportCalculator.swift */,
 				BB0000660000000000000066 /* CostTypeBreakdown.swift */,
 				BB0000670000000000000067 /* BubbleLayout.swift */,
+				BB0000710000000000000071 /* ReportChartPalette.swift */,
+				BB0000720000000000000072 /* StackedBarChart.swift */,
+				BB0000730000000000000073 /* ConcentricRingChart.swift */,
 				BB0000060000000000000006 /* DashboardView.swift */,
 				BB0000070000000000000007 /* ReportCard.swift */,
 				BB0000290000000000000029 /* ReportPager.swift */,
@@ -305,6 +316,7 @@
 				BB0000100000000000000010 /* ReportCalculatorTests.swift */,
 				BB0000680000000000000068 /* CostTypeBreakdownTests.swift */,
 				BB0000690000000000000069 /* BubbleLayoutTests.swift */,
+				BB0000740000000000000074 /* ReportChartPaletteTests.swift */,
 				BB0000190000000000000019 /* NotificationPlannerTests.swift */,
 				BB0000230000000000000023 /* StorageModeTests.swift */,
 				BB0000210000000000000021 /* ExchangeRateServiceTests.swift */,
@@ -509,6 +521,9 @@
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
 				AA0000660000000000000066 /* CostTypeBreakdown.swift in Sources */,
 				AA0000670000000000000067 /* BubbleLayout.swift in Sources */,
+				AA0000710000000000000071 /* ReportChartPalette.swift in Sources */,
+				AA0000720000000000000072 /* StackedBarChart.swift in Sources */,
+				AA0000730000000000000073 /* ConcentricRingChart.swift in Sources */,
 				AA0000060000000000000006 /* DashboardView.swift in Sources */,
 				AA0000070000000000000007 /* ReportCard.swift in Sources */,
 				AA0000290000000000000029 /* ReportPager.swift in Sources */,
@@ -546,6 +561,7 @@
 				AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */,
 				AA0000680000000000000068 /* CostTypeBreakdownTests.swift in Sources */,
 				AA0000690000000000000069 /* BubbleLayoutTests.swift in Sources */,
+				AA0000740000000000000074 /* ReportChartPaletteTests.swift in Sources */,
 				AA0000140000000000000014 /* NotificationPlannerTests.swift in Sources */,
 				AA0000180000000000000018 /* StorageModeTests.swift in Sources */,
 				AA0000160000000000000016 /* ExchangeRateServiceTests.swift in Sources */,

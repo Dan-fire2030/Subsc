@@ -81,7 +81,7 @@ struct DashboardView: View {
                     Section {
                         ReportCard(
                             subscriptions: subscriptionsInSelectedTypes,
-                            costTypeTitle: costTypeFilter.isNarrowed ? costTypeFilter.title : nil
+                            costTypeFilter: costTypeFilter
                         )
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)

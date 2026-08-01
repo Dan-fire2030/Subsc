@@ -6,6 +6,8 @@ struct ReportPage: View {
     let report: PaymentReport
     let periodLabel: String
     let reduceMotion: Bool
+    let costTypeFilter: CostTypeFilter
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var chartHeight: CGFloat {
@@ -81,10 +83,7 @@ struct ReportPage: View {
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("この期間の利用コストはありません")
                 } else {
-                    GlassBarChart(
-                        entries: report.entries,
-                        reduceMotion: reduceMotion
-                    )
+                    chart
                 }
             }
             .frame(maxWidth: .infinity, minHeight: chartHeight, maxHeight: chartHeight)
@@ -106,5 +105,28 @@ struct ReportPage: View {
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
+    }
+
+    @ViewBuilder
+    private var chart: some View {
+        switch theme.chartStyle {
+        case .bar:
+            StackedBarChart(
+                entries: report.entries,
+                costTypeFilter: costTypeFilter,
+                reduceMotion: reduceMotion
+            )
+        case .ring:
+            ConcentricRingChart(
+                entries: report.entries,
+                costTypeFilter: costTypeFilter,
+                reduceMotion: reduceMotion
+            )
+        case .bubble, .column:
+            GlassBarChart(
+                entries: report.entries,
+                reduceMotion: reduceMotion
+            )
+        }
     }
 }
