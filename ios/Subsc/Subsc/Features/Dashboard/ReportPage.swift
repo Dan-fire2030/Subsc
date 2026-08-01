@@ -125,9 +125,18 @@ struct ReportPage: View {
                 period: period,
                 reduceMotion: reduceMotion
             )
-        case .bubble, .column:
-            GlassBarChart(
+        case .bubble:
+            BubbleChart(
                 entries: report.entries,
+                costTypeFilter: costTypeFilter,
+                period: period,
+                reduceMotion: reduceMotion
+            )
+        case .column:
+            ColumnChart(
+                entries: report.entries,
+                costTypeFilter: costTypeFilter,
+                period: period,
                 reduceMotion: reduceMotion
             )
         }

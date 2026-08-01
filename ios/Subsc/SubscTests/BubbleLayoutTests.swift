@@ -94,7 +94,7 @@ final class BubbleLayoutTests: XCTestCase {
     }
 
     private func assertValidGeometry(
-        for entries: [ReportEntry],
+        for entries: [ReportChartItem],
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -148,7 +148,7 @@ final class BubbleLayoutTests: XCTestCase {
         try XCTUnwrap(nodes.first { $0.id == id })
     }
 
-    private func variedEntries() -> [ReportEntry] {
+    private func variedEntries() -> [ReportChartItem] {
         [
             entry(id: "a", amount: 10_000),
             entry(id: "b", amount: 8_000),
@@ -159,14 +159,14 @@ final class BubbleLayoutTests: XCTestCase {
         ]
     }
 
-    private func entry(id: String, amount: Double) -> ReportEntry {
-        ReportEntry(
+    private func entry(id: String, amount: Double) -> ReportChartItem {
+        ReportChartItem(
             id: id,
             name: id,
             amount: amount,
             colorHex: "#64D2FF",
-            costType: .subscription,
-            isEstimated: false
+            isEstimated: false,
+            opacity: 1
         )
     }
 }

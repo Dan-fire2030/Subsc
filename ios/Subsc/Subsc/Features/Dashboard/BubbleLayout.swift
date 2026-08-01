@@ -15,22 +15,24 @@ struct BubbleNode: Identifiable, Equatable {
 
 enum BubbleLayout {
     private enum Constants {
-        static let goldenAngle = CGFloat.pi * (3 - sqrt(5))
         static let radiusPaddingRatio: CGFloat = 0.02
         static let minimumPadding: CGFloat = 1
-        static let maximumSpiralAttempts = 10_000
+        /// 既存の円のまわりに試す角度の数です。多いほど詰まりますが計算量が増えます。
+        static let candidateAngleCount = 72
+        /// 浮動小数の誤差で「重なっている」と誤判定しないための許容差です。
+        static let tolerance: CGFloat = 1e-9
     }
 
     private struct IndexedEntry {
         let index: Int
-        let entry: ReportEntry
+        let entry: ReportChartItem
     }
 
     /// 金額比を保ったまま、すべての円を表示領域へ収められる配置を返します。
     ///
-    /// 先に金額の大きい円から決定的ならせん上へ置き、最後に全体を一様に縮小します。
-    /// 一様な縮小なら円同士の非重複と面積比を同時に維持できるためです。
-    static func layout(entries: [ReportEntry], in size: CGSize) -> [BubbleNode] {
+    /// 金額の大きい円から順に、既存の円へ接する位置のうち中心に最も近い場所へ置き、
+    /// 最後に全体を一様に縮小します。一様な縮小なら円同士の非重複と面積比を同時に維持できます。
+    static func layout(entries: [ReportChartItem], in size: CGSize) -> [BubbleNode] {
         guard size.width > 0, size.height > 0 else { return [] }
 
         let validEntries = entries.enumerated()
@@ -60,8 +62,6 @@ enum BubbleLayout {
             maximumRadius * Constants.radiusPaddingRatio,
             Constants.minimumPadding
         )
-        let radialStep = maximumRadius * 2 + padding
-
         var nodes: [BubbleNode] = []
         for (offset, indexedEntry) in validEntries.enumerated() {
             let radius = unscaledRadii[offset]
@@ -69,9 +69,8 @@ enum BubbleLayout {
             if nodes.isEmpty {
                 center = CGPoint(x: 0, y: 0)
             } else {
-                center = spiralCenter(
+                center = packedCenter(
                     radius: radius,
-                    radialStep: radialStep,
                     padding: padding,
                     existingNodes: nodes
                 )
@@ -82,29 +81,56 @@ enum BubbleLayout {
         return fitted(nodes, in: size)
     }
 
-    private static func spiralCenter(
+    /// 既存の円に**接する位置**のうち、中心へ最も近いものを選びます。
+    ///
+    /// らせん上の等間隔な候補では、刻み幅を最大の円に合わせる必要があり、
+    /// 小さい円ほど大きな隙間を空けて置かれてしまいます（実際、9件で領域の大半が空きました）。
+    /// 接点を候補にすると円が寄り集まり、最後の一様縮小でも大きさを保てます。
+    private static func packedCenter(
         radius: CGFloat,
-        radialStep: CGFloat,
         padding: CGFloat,
         existingNodes: [BubbleNode]
     ) -> CGPoint {
-        for attempt in 1...Constants.maximumSpiralAttempts {
-            let angle = CGFloat(attempt) * Constants.goldenAngle
-            let distance = radialStep * sqrt(CGFloat(attempt))
-            let candidate = CGPoint(
-                x: cos(angle) * distance,
-                y: sin(angle) * distance
-            )
-            if existingNodes.allSatisfy({ node in
-                hypot(candidate.x - node.center.x, candidate.y - node.center.y)
-                    >= radius + node.radius + padding
-            }) {
-                return candidate
+        var bestCenter: CGPoint?
+        var bestDistance = CGFloat.greatestFiniteMagnitude
+
+        for anchor in existingNodes {
+            let ringRadius = anchor.radius + radius + padding
+            for step in 0..<Constants.candidateAngleCount {
+                let angle = CGFloat(step) * 2 * .pi / CGFloat(Constants.candidateAngleCount)
+                let candidate = CGPoint(
+                    x: anchor.center.x + cos(angle) * ringRadius,
+                    y: anchor.center.y + sin(angle) * ringRadius
+                )
+
+                let fits = existingNodes.allSatisfy { node in
+                    hypot(candidate.x - node.center.x, candidate.y - node.center.y)
+                        >= node.radius + radius + padding - Constants.tolerance
+                }
+                guard fits else { continue }
+
+                let distance = hypot(candidate.x, candidate.y)
+                if distance < bestDistance - Constants.tolerance
+                    || (abs(distance - bestDistance) <= Constants.tolerance
+                        && isEarlier(candidate, than: bestCenter)) {
+                    bestDistance = distance
+                    bestCenter = candidate
+                }
             }
         }
 
+        if let bestCenter { return bestCenter }
+
+        // 接点が1つも見つからないことは通常起きませんが、右端へ逃がして必ず配置を返します。
         let rightEdge = existingNodes.map { $0.center.x + $0.radius }.max() ?? 0
         return CGPoint(x: rightEdge + padding + radius, y: 0)
+    }
+
+    /// 同じ距離の候補が複数あるとき、実行ごとに結果が変わらないよう順序を決めます。
+    private static func isEarlier(_ candidate: CGPoint, than current: CGPoint?) -> Bool {
+        guard let current else { return true }
+        if candidate.x != current.x { return candidate.x < current.x }
+        return candidate.y < current.y
     }
 
     private static func fitted(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
