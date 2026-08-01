@@ -44,8 +44,33 @@ final class ThemeStore {
     }
 
     /// 既定のままかどうかです。「既定に戻す」を出し分けるために使います。
+    ///
+    /// `ColorPicker` は同じ色でも表記が揺れた文字列を返すことがあるため、
+    /// 生の文字列ではなく正規形で比べます。表示名の判定とも基準を揃えています。
     var isDefault: Bool {
-        buttonHex == Defaults.buttonHex && cardHex == Defaults.cardHex
+        ColorHex.canonical(buttonHex) == ColorHex.canonical(Defaults.buttonHex)
+            && ColorHex.canonical(cardHex) == ColorHex.canonical(Defaults.cardHex)
+    }
+
+    // MARK: - 設定画面に出す名前
+
+    /// ボタン色の表示名です。
+    var buttonColorName: String {
+        Self.displayName(for: buttonHex, whenDefault: Defaults.buttonHex)
+    }
+
+    /// カード色の表示名です。
+    var cardColorName: String {
+        Self.displayName(for: cardHex, whenDefault: Defaults.cardHex)
+    }
+
+    /// 既定値は現在の画面の色を実測したもので、プリセットのブルー（`#007AFF`）とは別の色です。
+    /// そのままプリセット名を引くと、何も変更していない利用者に「カスタム」と見えてしまうため、
+    /// 既定値だけは「既定」と呼びます。
+    private static func displayName(for hex: String, whenDefault defaultHex: String) -> String {
+        ColorHex.canonical(hex) == ColorHex.canonical(defaultHex)
+            ? "既定"
+            : ThemeColorPreset.title(for: hex)
     }
 
     // MARK: - 画面が使う色

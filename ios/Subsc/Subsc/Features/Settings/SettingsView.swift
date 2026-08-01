@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var notificationPermission = NotificationPermission.checking
     @State private var iCloudStatus = "確認中…"
     @State private var notificationError: String?
+    @State private var showsThemeResetConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -70,6 +71,35 @@ struct SettingsView: View {
                 }
                 .glassListRow()
 
+                Section("テーマ") {
+                    NavigationLink {
+                        ThemeColorPickerView.buttonColor()
+                    } label: {
+                        ThemeColorSettingLabel(
+                            title: "ボタンの色",
+                            color: theme.buttonColor,
+                            colorName: theme.buttonColorName
+                        )
+                    }
+
+                    NavigationLink {
+                        ThemeColorPickerView.cardColor()
+                    } label: {
+                        ThemeColorSettingLabel(
+                            title: "カードの色",
+                            color: theme.cardBaseColor,
+                            colorName: theme.cardColorName
+                        )
+                    }
+
+                    if !theme.isDefault {
+                        Button("既定の色に戻す", role: .destructive) {
+                            showsThemeResetConfirmation = true
+                        }
+                    }
+                }
+                .glassListRow()
+
                 Section("アプリ情報") {
                     NavigationLink("プライバシーについて") {
                         PrivacyPolicyView()
@@ -80,6 +110,14 @@ struct SettingsView: View {
             }
             .liquidGlassScreen()
             .navigationTitle("設定")
+            .alert("テーマ色を既定に戻しますか？", isPresented: $showsThemeResetConfirmation) {
+                Button("戻す", role: .destructive) {
+                    theme.resetToDefaults()
+                }
+                Button("キャンセル", role: .cancel) {}
+            } message: {
+                Text("ボタンとカードの色が、どちらも既定の色に戻ります。")
+            }
             // 設定アプリで許可を変えて戻ってきたときにも状態を取り直します。
             .task(id: scenePhase) {
                 guard scenePhase == .active else { return }
@@ -154,6 +192,38 @@ struct SettingsView: View {
         } catch {
             iCloudStatus = "確認できません"
         }
+    }
+}
+
+private struct ThemeColorSettingLabel: View {
+    private enum Layout {
+        static let colorCircleSize: CGFloat = 12
+        static let borderWidth: CGFloat = 0.8
+        static let colorNameSpacing: CGFloat = 7
+    }
+
+    let title: String
+    let color: Color
+    let colorName: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+            Spacer()
+            HStack(spacing: Layout.colorNameSpacing) {
+                Circle()
+                    .fill(color)
+                    .frame(width: Layout.colorCircleSize, height: Layout.colorCircleSize)
+                    .overlay {
+                        Circle()
+                            .stroke(.primary.opacity(0.18), lineWidth: Layout.borderWidth)
+                    }
+                    .accessibilityHidden(true)
+                Text(colorName)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

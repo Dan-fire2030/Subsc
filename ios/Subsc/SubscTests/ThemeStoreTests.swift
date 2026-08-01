@@ -55,6 +55,34 @@ final class ThemeStoreTests: XCTestCase {
         XCTAssertTrue(ThemeStore(defaults: defaults).isDefault)
     }
 
+    /// 既定値はプリセットのブルー（`#007AFF`）とは別の色なので、
+    /// 素直にプリセット名を引くと初期状態から「カスタム」に見えてしまいます。
+    func testDefaultColorsAreNamedDefaultRatherThanCustom() {
+        let store = ThemeStore(defaults: defaults)
+
+        XCTAssertEqual(store.buttonColorName, "既定")
+        XCTAssertEqual(store.cardColorName, "既定")
+    }
+
+    func testPresetAndCustomColorsKeepTheirOwnNames() {
+        let store = ThemeStore(defaults: defaults)
+
+        store.buttonHex = "#34C759"
+        XCTAssertEqual(store.buttonColorName, "グリーン")
+
+        store.cardHex = "#123456"
+        XCTAssertEqual(store.cardColorName, "カスタム")
+    }
+
+    /// 大文字小文字や `#` の有無で「既定」判定が外れないことを確かめます。
+    func testDefaultNameIgnoresHexFormatting() {
+        let store = ThemeStore(defaults: defaults)
+        store.buttonHex = "1473fa"
+
+        XCTAssertEqual(store.buttonColorName, "既定")
+        XCTAssertTrue(store.isDefault, "表示名と「既定に戻す」の判定基準が食い違っています")
+    }
+
     /// 既定のカード色は補正の条件を満たすので、生成される1色目は指定どおりになります。
     func testDefaultCardGradientStartsFromTheStoredColor() {
         let store = ThemeStore(defaults: defaults)
