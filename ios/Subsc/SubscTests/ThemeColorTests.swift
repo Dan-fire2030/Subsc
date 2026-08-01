@@ -111,6 +111,31 @@ final class ThemeColorTests: XCTestCase {
         XCTAssertLessThan(hues[2], 360)
     }
 
+    /// 色相だけでなく彩度・明度の倍率も守られていないと、元のカードの立体感が再現できません。
+    func testCardGradientAppliesSaturationAndBrightnessMultipliers() throws {
+        let stops = try ThemeColor.cardGradient(from: "#0D61EB").map { try hsb(of: $0) }
+
+        XCTAssertEqual(stops[1].saturation, stops[0].saturation * 0.80, accuracy: 0.02)
+        XCTAssertEqual(stops[1].brightness, stops[0].brightness * 0.89, accuracy: 0.02)
+        XCTAssertEqual(stops[2].saturation, stops[0].saturation, accuracy: 0.02)
+        XCTAssertEqual(stops[2].brightness, stops[0].brightness * 0.957, accuracy: 0.02)
+    }
+
+    /// 明度だけを動かす設計なので、彩度が動くと「選んだ色」から離れてしまいます。
+    func testReadableCardBasePreservesSaturationWhenCorrectingBrightness() throws {
+        for hex in ["#FFFFFF", "#34C759", "#FF375F"] {
+            let original = try hsb(of: hex)
+            let corrected = try hsb(of: ThemeColor.readableCardBase(from: hex))
+
+            XCTAssertEqual(
+                corrected.saturation,
+                original.saturation,
+                accuracy: 0.02,
+                "\(hex)の彩度が補正で変化しています"
+            )
+        }
+    }
+
     func testButtonTintRaisesBrightnessBelowMinimum() throws {
         let result = ThemeColor.buttonTint(from: "#110000")
         let resultHSB = try hsb(of: result)
