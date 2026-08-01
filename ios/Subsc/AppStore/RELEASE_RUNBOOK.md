@@ -21,7 +21,7 @@
 | SKU | `subsc-ios-20260727` |
 | プライマリ言語 | 日本語 |
 | 現在のバージョン | 1.0.0 |
-| 現在のビルド | 4 |
+| 現在のビルド | 5 |
 
 ## 管理画面
 
@@ -35,16 +35,16 @@
 |---|---|
 | Container | `iCloud.com.tonaria.subsc` |
 | Database | ユーザーごとのPrivate Database |
-| Productionスキーマ | 2026-07-27反映済み（固定費機能ぶんは**未反映**） |
-| Record Type（Production） | `CD_Subscription` |
-| Fields（Production） | 27 |
+| Productionスキーマ | 2026-08-01反映済み |
+| Record Type（Production） | `CD_Subscription` / `CD_AmountEntry` |
+| Fields（Production） | `CD_Subscription` 32 / `CD_AmountEntry` 15 |
 | Indexes | 54 |
 | Record Type（Development） | `CD_Subscription` / `CD_AmountEntry` |
 | Fields（Development） | `CD_Subscription` 32 / `CD_AmountEntry` 15 |
 
-### 固定費機能で追加したスキーマ（2026-08-01時点でDevelopmentのみ）
+### 固定費機能で追加したスキーマ（2026-08-01にProductionへ反映済み）
 
-`feat/cost-type-data-model` で追加した項目です。Developmentへの自動生成は確認済みで、**Productionへの反映はまだ行っていません**。
+`feat/cost-type-data-model` で追加した項目です。Developmentでの自動生成を確認したうえで、**2026-08-01にDeploy Schema ChangesでProductionへ反映しました**。
 
 - 新規Record Type：`CD_AmountEntry`（変動費の月次実績）
   - `CD_clientID` / `CD_year` / `CD_month` / `CD_amount` / `CD_currencyRaw` / `CD_exchangeRate` / `CD_recordedAt` / `CD_subscription` / `CD_entityName`
@@ -73,6 +73,23 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 2026-07-28にレポートカードの操作改善を含むバージョン1.0.0、ビルド4をアップロードしました。Apple側の受領に成功し、App Store Connectで処理中です。サービス一覧を開くボタンを小型化し、ページ位置を示す点を削除し、現在の月や年から離れている間だけ復帰ボタンを表示します。
 
+2026-08-01に固定費の記録、テーマ色の設定、レポートカードの可視化スタイルを含むバージョン1.0.0、ビルド5をアップロードしました。Apple側の受領に成功し、App Store Connectで処理中です。
+
+このビルドに含めた変更：
+
+- 固定費の記録（種別、変動費の月次実績、支払い方法、種別での絞り込み、月末リマインド通知）
+- テーマ色の設定（ボタンとカードの色を個別に選択。白文字が読める範囲へ自動補正します）
+- レポートカードの可視化スタイル4種類（帯、リング、バブル、縦バー）を設定画面で切り替え
+- グラフの集計単位を期間で切り替え（年間換算は種別ごとの4色、月額換算は費目ごと）
+
+**このビルドで未検証の項目です。TestFlightで確認します。**
+
+- バブルのピンチズームとパン、カードのページ送りとの切り分け
+- 縦バーの横スクロールと、カード本体の慣性スライドの共存
+- iOS 17から25でのフォールバック表示（開発機にiOS 26のランタイムしかなく確認できていません）
+- 費目0件、1件、全件同額、1件だけ極端に大きい場合のグラフ表示
+- アクセシビリティ文字サイズでの4スタイル
+
 同じバージョンを再アップロードする場合は、先に`CURRENT_PROJECT_VERSION`を増やして新しいArchiveを作成します。
 
 ## リリース前の必須確認
@@ -83,8 +100,8 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - [x] Release Archive成功
 - [x] CloudKit Productionスキーマ反映（ビルド4時点）
 - [x] TestFlightビルド4アップロード
-- [ ] **固定費機能のCloudKitスキーマをProductionへ反映**（Developmentでは生成確認済み・不可逆のため未実施）
-- [ ] 固定費機能を含むビルド5のArchiveとアップロード
+- [x] **固定費機能のCloudKitスキーマをProductionへ反映**（2026-08-01）
+- [x] 固定費機能を含むビルド5のArchiveとアップロード（2026-08-01・Apple側の受領に成功）
 - [ ] ビルド4を実機TestFlightへインストール
 - [ ] UIテストをXcodeから実行（このMacではテストランナーが起動できません）
 - [ ] iOS 26実機でLiquid Glassの表示崩れがないか確認
@@ -146,9 +163,7 @@ App Store掲載名は`Subsc - サブスク管理`を使用します。端末上�
 
 ## 次の安全な作業
 
-1. 固定費機能のCloudKitスキーマをProductionへ反映する（Development側は生成確認済み・**不可逆**）。
-2. `feat/cost-type-data-model`をmainへマージし、ビルド5をArchiveしてアップロードする。
-3. 実機TestFlightの機能確認を完了する。
+1. 実機TestFlightでビルド5の機能確認を完了する（**未検証項目は上の記載を参照**）。
 4. 公開URL、連絡先、スクリーンショットを用意する。
 5. App Store Connectの掲載名・サブタイトル・概要・キーワードを`AppStore/Metadata-ja.md`の内容へ更新する。
 6. App Store Connectのプライバシー、年齢区分、価格、審査情報を入力する。
