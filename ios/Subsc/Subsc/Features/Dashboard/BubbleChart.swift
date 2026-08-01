@@ -75,7 +75,10 @@ struct BubbleChart: View {
                 .clipped()
                 .simultaneousGesture(magnifyGesture(in: layoutSize))
                 // 等倍ではDragGesture自体を外し、親のReportPagerへ横ドラッグを渡します。
-                .gesture(isZoomed ? panGesture(in: layoutSize) : nil)
+                //
+                // ズーム中は `highPriorityGesture` にします。`gesture` だと**親のスクロールビューの
+                // 方が優先度が高く、指を離すまで座標が反映されません**（追従せず最後に飛ぶ）。
+                .highPriorityGesture(isZoomed ? panGesture(in: layoutSize) : nil)
                 // ダブルタップを先に宣言し、単タップの詳細表示と共存させます。
                 .onTapGesture(count: 2) {
                     resetTransform()
@@ -203,8 +206,10 @@ struct BubbleChart: View {
             }
     }
 
+    /// ズーム中のパンです。**指を置いた瞬間から追従させたいので `minimumDistance` は0**にします。
+    /// 1以上にすると動き出しがわずかに遅れ、掴んでいる感覚が薄れます。
     private func panGesture(in size: CGSize) -> some Gesture {
-        DragGesture(minimumDistance: 1)
+        DragGesture(minimumDistance: 0)
             .onChanged { value in
                 let startingOffset = panStartOffset ?? offset
                 if panStartOffset == nil {
