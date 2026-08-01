@@ -111,14 +111,47 @@ final class ThemeColorTests: XCTestCase {
         XCTAssertLessThan(hues[2], 360)
     }
 
-    /// 色相だけでなく彩度・明度の倍率も守られていないと、元のカードの立体感が再現できません。
-    func testCardGradientAppliesSaturationAndBrightnessMultipliers() throws {
+    /// 基準色だけ補正しても、色相と明度をずらした停止色で輝度が上がってしまいます。
+    /// カードの右下に白文字が乗るため、**3色すべて**が読める必要があります。
+    func testEveryGradientStopMeetsTheContrastRequirement() throws {
+        let inputs = ThemeColorPreset.allCases.map(\.rawValue)
+            + ["#0D61EB", "#FFFFFF", "#000000", "#808080", "#FF0000", "#00FF00"]
+
+        for hex in inputs {
+            for (index, stop) in ThemeColor.cardGradient(from: hex).enumerated() {
+                XCTAssertLessThanOrEqual(
+                    try luminance(of: stop),
+                    TestConstants.maximumCardLuminance + TestConstants.luminanceTolerance,
+                    "\(hex)の\(index + 1)色目(\(stop))で白文字のコントラストが不足しています"
+                )
+            }
+        }
+    }
+
+    /// 補正で暗く潰れきってしまうと、グラデーションが単なる黒帯になります。
+    func testEveryGradientStopStaysAboveTheMinimumLuminance() throws {
+        for preset in ThemeColorPreset.allCases {
+            for stop in ThemeColor.cardGradient(from: preset.rawValue) {
+                XCTAssertGreaterThanOrEqual(
+                    try luminance(of: stop),
+                    TestConstants.minimumCardLuminance - TestConstants.luminanceTolerance,
+                    "\(preset.title)の停止色\(stop)が暗くなりすぎています"
+                )
+            }
+        }
+    }
+
+    /// 彩度の倍率が守られていないと、元のカードの立体感が再現できません。
+    ///
+    /// 明度は倍率をかけたあとに輝度の補正が入るため、**倍率どおりとは限りません**。
+    /// 補正は暗くする方向にしか働かないので、上限として検証します。
+    func testCardGradientAppliesSaturationMultipliersAndNeverBrightensBeyondThem() throws {
         let stops = try ThemeColor.cardGradient(from: "#0D61EB").map { try hsb(of: $0) }
 
         XCTAssertEqual(stops[1].saturation, stops[0].saturation * 0.80, accuracy: 0.02)
-        XCTAssertEqual(stops[1].brightness, stops[0].brightness * 0.89, accuracy: 0.02)
         XCTAssertEqual(stops[2].saturation, stops[0].saturation, accuracy: 0.02)
-        XCTAssertEqual(stops[2].brightness, stops[0].brightness * 0.957, accuracy: 0.02)
+        XCTAssertLessThanOrEqual(stops[1].brightness, stops[0].brightness * 0.89 + 0.02)
+        XCTAssertLessThanOrEqual(stops[2].brightness, stops[0].brightness * 0.957 + 0.02)
     }
 
     /// 明度だけを動かす設計なので、彩度が動くと「選んだ色」から離れてしまいます。

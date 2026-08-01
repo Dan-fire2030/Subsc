@@ -84,11 +84,15 @@ final class ThemeStoreTests: XCTestCase {
     }
 
     /// 既定のカード色は補正の条件を満たすので、生成される1色目は指定どおりになります。
+    ///
+    /// **`ThemeColor` を直接呼ばず、画面が実際に使うプロパティ経由で確かめます。**
+    /// 静的関数を呼んで検算すると、`cardBaseColor` から補正が消えてもテストが通ってしまいます。
     func testDefaultCardGradientStartsFromTheStoredColor() {
         let store = ThemeStore(defaults: defaults)
 
-        XCTAssertEqual(ThemeColor.cardGradient(from: store.cardHex).count, 3)
-        XCTAssertEqual(ThemeColor.cardGradient(from: store.cardHex).first, "#0D61EB")
+        XCTAssertEqual(store.cardGradientColors.count, 3)
+        XCTAssertEqual(ColorHex.string(from: store.cardBaseColor), "#0D61EB")
+        XCTAssertEqual(ColorHex.string(from: store.cardGradientColors[0]), "#0D61EB")
     }
 
     /// 読めない色を保存しても、画面が使う色は補正後になります。
@@ -98,9 +102,33 @@ final class ThemeStoreTests: XCTestCase {
 
         XCTAssertEqual(store.cardHex, "#FFFFFF", "保存値そのものは利用者の選択を残す")
         XCTAssertNotEqual(
-            ThemeColor.readableCardBase(from: store.cardHex),
+            ColorHex.string(from: store.cardBaseColor),
             "#FFFFFF",
             "画面が使う色は補正される"
         )
+        for color in store.cardGradientColors {
+            XCTAssertNotEqual(ColorHex.string(from: color), "#FFFFFF")
+        }
+    }
+
+    /// 保存値へ補正をかけていないことの確認です。かけていると選び直すたびに色がずれていきます。
+    func testCorrectionIsNotAppliedRepeatedlyToTheStoredValue() {
+        let store = ThemeStore(defaults: defaults)
+        store.cardHex = "#FFFFFF"
+        let first = ColorHex.string(from: store.cardBaseColor)
+
+        // 同じ値をもう一度保存しても、画面が使う色は変わらないはず。
+        store.cardHex = "#FFFFFF"
+
+        XCTAssertEqual(ColorHex.string(from: store.cardBaseColor), first)
+    }
+
+    /// ボタン色も、画面が使うプロパティ経由で補正を確かめます。
+    func testDarkButtonColorIsBrightenedBeforeUse() {
+        let store = ThemeStore(defaults: defaults)
+        store.buttonHex = "#110000"
+
+        XCTAssertEqual(store.buttonHex, "#110000")
+        XCTAssertNotEqual(ColorHex.string(from: store.buttonColor), "#110000")
     }
 }

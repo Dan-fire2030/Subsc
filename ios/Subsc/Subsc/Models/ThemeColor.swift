@@ -45,14 +45,19 @@ enum ThemeColor {
     }
 
     /// 単色指定でも既存カードの立体感を保てるよう、相対的な色相差を持つ3色を返します。
+    ///
+    /// **基準色だけでなく、生成した各停止色にも輝度の補正をかけます。**
+    /// 色相と明度をずらすと輝度が動くため、基準色だけ補正しても
+    /// グラデーションの端（既定色なら右下のシアン寄り）で白文字が読めなくなります。
     static func cardGradient(from hex: String) -> [String] {
         let base = hsb(from: rgb(from: readableCardBase(from: hex)))
         return Constants.gradientStops.map { stop in
-            hexString(from: HSB(
+            let shifted = hexString(from: HSB(
                 hue: wrappedHue(base.hue + stop.hueOffset),
                 saturation: clamped(base.saturation * stop.saturationMultiplier),
                 brightness: clamped(base.brightness * stop.brightnessMultiplier)
             ))
+            return readableCardBase(from: shifted)
         }
     }
 
