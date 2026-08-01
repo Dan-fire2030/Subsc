@@ -63,9 +63,13 @@ struct ConcentricRingChart: View {
                 legend
             }
         } else {
+            // リングは固定サイズなので、そのまま並べると凡例が残り幅を全部取り、
+            // リングが左端へ押し付けられます。左右で領域を分け合い、それぞれの中で中央・先頭に置きます。
             HStack(spacing: Layout.chartSpacing) {
                 rings
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 legend
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
