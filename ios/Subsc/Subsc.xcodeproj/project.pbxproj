@@ -28,6 +28,7 @@
 		AA0000640000000000000064 /* ThemeColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000640000000000000064 /* ThemeColorPickerView.swift */; };
 		AA0000660000000000000066 /* CostTypeBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000660000000000000066 /* CostTypeBreakdown.swift */; };
 		AA0000670000000000000067 /* BubbleLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000670000000000000067 /* BubbleLayout.swift */; };
+		AA0000700000000000000070 /* ReportChartStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000700000000000000070 /* ReportChartStyle.swift */; };
 		AA0000680000000000000068 /* CostTypeBreakdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000680000000000000068 /* CostTypeBreakdownTests.swift */; };
 		AA0000690000000000000069 /* BubbleLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000690000000000000069 /* BubbleLayoutTests.swift */; };
 		AA0000530000000000000053 /* AmountEntryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000530000000000000053 /* AmountEntryStoreTests.swift */; };
@@ -111,6 +112,7 @@
 		BB0000640000000000000064 /* ThemeColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColorPickerView.swift; sourceTree = "<group>"; };
 		BB0000660000000000000066 /* CostTypeBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeBreakdown.swift; sourceTree = "<group>"; };
 		BB0000670000000000000067 /* BubbleLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleLayout.swift; sourceTree = "<group>"; };
+		BB0000700000000000000070 /* ReportChartStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartStyle.swift; sourceTree = "<group>"; };
 		BB0000680000000000000068 /* CostTypeBreakdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeBreakdownTests.swift; sourceTree = "<group>"; };
 		BB0000690000000000000069 /* BubbleLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleLayoutTests.swift; sourceTree = "<group>"; };
 		BB0000530000000000000053 /* AmountEntryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountEntryStoreTests.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 				BB0000600000000000000060 /* ThemeColorPreset.swift */,
 				BB0000610000000000000061 /* ThemeColor.swift */,
 				BB0000620000000000000062 /* ThemeStore.swift */,
+				BB0000700000000000000070 /* ReportChartStyle.swift */,
 				BB0000510000000000000051 /* MonthlyAmount.swift */,
 				BB0000470000000000000047 /* AmountEntry.swift */,
 				BB0000460000000000000046 /* PaymentMethod.swift */,
@@ -496,6 +499,7 @@
 				AA0000600000000000000060 /* ThemeColorPreset.swift in Sources */,
 				AA0000610000000000000061 /* ThemeColor.swift in Sources */,
 				AA0000620000000000000062 /* ThemeStore.swift in Sources */,
+				AA0000700000000000000070 /* ReportChartStyle.swift in Sources */,
 				AA0000510000000000000051 /* MonthlyAmount.swift in Sources */,
 				AA0000470000000000000047 /* AmountEntry.swift in Sources */,
 				AA0000460000000000000046 /* PaymentMethod.swift in Sources */,

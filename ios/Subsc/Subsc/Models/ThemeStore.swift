@@ -13,11 +13,14 @@ final class ThemeStore {
         static let buttonHex = "#1473FA"
         /// レポートカードのグラデーション1色目です。
         static let cardHex = "#0D61EB"
+        /// これまで唯一の表示だった横棒グラフに最も近い、構成比が素直に読める表示です。
+        static let chartStyle = ReportChartStyle.bar
     }
 
     private enum Keys {
         static let buttonHex = "theme.buttonHex"
         static let cardHex = "theme.cardHex"
+        static let chartStyle = "theme.chartStyle"
     }
 
     /// テスト時に本物の`UserDefaults`を汚さないよう、既定値つきで注入します。
@@ -31,16 +34,24 @@ final class ThemeStore {
         didSet { defaults.set(cardHex, forKey: Keys.cardHex) }
     }
 
+    /// グラフの表示方法です。保存値が壊れていても既定へ倒して起動を止めません。
+    var chartStyle: ReportChartStyle {
+        didSet { defaults.set(chartStyle.rawValue, forKey: Keys.chartStyle) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.buttonHex = defaults.string(forKey: Keys.buttonHex) ?? Defaults.buttonHex
         self.cardHex = defaults.string(forKey: Keys.cardHex) ?? Defaults.cardHex
+        self.chartStyle = defaults.string(forKey: Keys.chartStyle)
+            .flatMap(ReportChartStyle.init(rawValue:)) ?? Defaults.chartStyle
     }
 
-    /// 自由選択で破綻した配色から復帰できるよう、両方をまとめて戻します。
+    /// 自由選択で破綻した配色から復帰できるよう、まとめて戻します。
     func resetToDefaults() {
         buttonHex = Defaults.buttonHex
         cardHex = Defaults.cardHex
+        chartStyle = Defaults.chartStyle
     }
 
     /// 既定のままかどうかです。「既定に戻す」を出し分けるために使います。
@@ -50,6 +61,7 @@ final class ThemeStore {
     var isDefault: Bool {
         ColorHex.canonical(buttonHex) == ColorHex.canonical(Defaults.buttonHex)
             && ColorHex.canonical(cardHex) == ColorHex.canonical(Defaults.cardHex)
+            && chartStyle == Defaults.chartStyle
     }
 
     // MARK: - 設定画面に出す名前

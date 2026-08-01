@@ -44,6 +44,35 @@ final class ThemeStoreTests: XCTestCase {
         XCTAssertEqual(ThemeStore(defaults: defaults).cardHex, "#0D61EB")
     }
 
+    func testChartStyleDefaultsToBar() {
+        XCTAssertEqual(ThemeStore(defaults: defaults).chartStyle, .bar)
+    }
+
+    func testChartStyleSurvivesANewInstance() {
+        let store = ThemeStore(defaults: defaults)
+        store.chartStyle = .bubble
+
+        XCTAssertEqual(ThemeStore(defaults: defaults).chartStyle, .bubble)
+        XCTAssertFalse(ThemeStore(defaults: defaults).isDefault)
+    }
+
+    /// 保存値が壊れていても起動を止めず、既定へ倒します。
+    func testUnknownSavedChartStyleFallsBackToTheDefault() {
+        defaults.set("存在しない表示", forKey: "theme.chartStyle")
+
+        XCTAssertEqual(ThemeStore(defaults: defaults).chartStyle, .bar)
+    }
+
+    func testResetRestoresChartStyleToo() {
+        let store = ThemeStore(defaults: defaults)
+        store.chartStyle = .column
+
+        store.resetToDefaults()
+
+        XCTAssertEqual(store.chartStyle, .bar)
+        XCTAssertTrue(store.isDefault)
+    }
+
     func testResetRestoresBothColors() {
         let store = ThemeStore(defaults: defaults)
         store.buttonHex = "#FF9F0A"
