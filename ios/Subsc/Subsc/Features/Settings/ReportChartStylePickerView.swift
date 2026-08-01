@@ -44,7 +44,7 @@ struct ReportChartStylePickerView: View {
         HStack(spacing: 8) {
             Image(systemName: style.systemImage)
                 .font(.callout)
-                .foregroundStyle(theme.buttonColor)
+                .foregroundStyle(ThemeStore.fixedButtonColor)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 1) {
@@ -61,7 +61,7 @@ struct ReportChartStylePickerView: View {
             if theme.chartStyle == style {
                 Image(systemName: "checkmark")
                     .fontWeight(.semibold)
-                    .foregroundStyle(theme.buttonColor)
+                    .foregroundStyle(ThemeStore.fixedButtonColor)
                     .accessibilityHidden(true)
             }
         }

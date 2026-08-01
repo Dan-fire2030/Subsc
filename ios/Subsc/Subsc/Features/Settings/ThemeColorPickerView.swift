@@ -71,7 +71,7 @@ struct ThemeColorPickerView: View {
                             if ThemeColorPreset.preset(for: selectedHex) == preset {
                                 Image(systemName: "checkmark")
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(theme.buttonColor)
+                                    .foregroundStyle(ThemeStore.fixedButtonColor)
                                     .accessibilityHidden(true)
                             }
                         }

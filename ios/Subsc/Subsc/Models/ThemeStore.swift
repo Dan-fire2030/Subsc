@@ -85,6 +85,14 @@ final class ThemeStore {
             : ThemeColorPreset.title(for: hex)
     }
 
+    /// 設定画面で使う、テーマの影響を受けないボタン色です。
+    ///
+    /// 色を選んでいる最中に設定画面自身の色まで動くと、
+    /// **何を変えているのかが分かりにくくなります**。設定画面は既定色で固定します。
+    static var fixedButtonColor: Color {
+        ColorHex.color(from: ThemeColor.buttonTint(from: Defaults.buttonHex))
+    }
+
     // MARK: - 画面が使う色
 
     /// タブバーやリンクの色です。暗すぎる指定だけ引き上げます。

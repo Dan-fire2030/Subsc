@@ -17,26 +17,20 @@ struct SettingsView: View {
             List {
                 Section {
                     HStack(spacing: 14) {
-                        Image(systemName: "creditcard.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white)
+                        // ホーム画面と同じアイコンを出します。別の絵を描くと、
+                        // どのアプリの設定なのかが一目で結びつかなくなります。
+                        Image("AppIconPreview")
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 52, height: 52)
-                            .background(
-                                theme.cardBaseColor.gradient,
-                                in: RoundedRectangle(cornerRadius: 13, style: .continuous)
-                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
                             .overlay {
                                 RoundedRectangle(cornerRadius: 13, style: .continuous)
-                                    .stroke(.white.opacity(0.58), lineWidth: 0.8)
+                                    .stroke(.primary.opacity(0.12), lineWidth: 0.8)
                             }
-                            .shadow(color: theme.cardBaseColor.opacity(0.25), radius: 10, y: 5)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Subsc")
-                                .font(.headline)
-                            Text("SwiftUI ネイティブ版")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+                            .accessibilityHidden(true)
+                        Text("Subsc")
+                            .font(.headline)
                     }
                     .padding(.vertical, 4)
                 }
@@ -118,6 +112,9 @@ struct SettingsView: View {
             }
             .liquidGlassScreen()
             .navigationTitle("設定")
+            // 設定画面はテーマ色に追従させません。色を選んでいる最中に
+            // 画面自身の色まで動くと、何を変えているのか分かりにくくなるためです。
+            .tint(ThemeStore.fixedButtonColor)
             .alert("テーマを既定に戻しますか？", isPresented: $showsThemeResetConfirmation) {
                 Button("戻す", role: .destructive) {
                     theme.resetToDefaults()
