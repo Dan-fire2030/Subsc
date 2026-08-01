@@ -12,7 +12,7 @@ struct ReportPage: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var chartHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? 340 : 130
+        dynamicTypeSize.isAccessibilitySize ? 340 : 156
     }
 
     /// 合計の下に出す内訳の説明です。
@@ -88,7 +88,7 @@ struct ReportPage: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: chartHeight, maxHeight: chartHeight)
-            .padding(dynamicTypeSize.isAccessibilitySize ? 10 : 8)
+            .padding(dynamicTypeSize.isAccessibilitySize ? 12 : 12)
             .background(
                 .black.opacity(0.14),
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)

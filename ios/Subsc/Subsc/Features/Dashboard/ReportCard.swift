@@ -29,7 +29,7 @@ struct ReportCard: View {
         if dynamicTypeSize >= .accessibility3 {
             return 660
         }
-        return dynamicTypeSize.isAccessibilitySize ? 520 : 264
+        return dynamicTypeSize.isAccessibilitySize ? 520 : 292
     }
 
     var body: some View {

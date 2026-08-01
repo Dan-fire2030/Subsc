@@ -15,8 +15,8 @@ struct ConcentricRingChart: View {
 
     private enum Layout {
         static let ringWidth: CGFloat = 9
-        static let ringSpacing: CGFloat = 5
-        static let regularDiameter: CGFloat = 92
+        static let ringSpacing: CGFloat = 6
+        static let regularDiameter: CGFloat = 100
         static let accessibilityDiameter: CGFloat = 168
         static let minimumFraction = 0.025
         static let maximumRingCount = 4
@@ -108,7 +108,7 @@ struct ConcentricRingChart: View {
     }
 
     private var legend: some View {
-        VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 8 : 5) {
+        VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 8 : 8) {
             ForEach(visibleItems) { item in
                 ConcentricRingLegendItem(item: item, total: total)
             }
