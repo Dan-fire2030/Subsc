@@ -1,6 +1,9 @@
 import SwiftUI
 
 /// 大きい金額から外側へ並べ、各リングの長さで全体に占める割合を見せます。
+///
+/// **中央に合計は置きません。** リングを4本重ねると中心の空きが直径10pt程度しか残らず、
+/// 文字がリングへ食い込みます。合計はカード上部に大きく出ているので、ここでは繰り返しません。
 struct ConcentricRingChart: View {
     let entries: [ReportEntry]
     let costTypeFilter: CostTypeFilter
@@ -13,8 +16,8 @@ struct ConcentricRingChart: View {
     private enum Layout {
         static let ringWidth: CGFloat = 9
         static let ringSpacing: CGFloat = 5
-        static let regularDiameter: CGFloat = 104
-        static let accessibilityDiameter: CGFloat = 180
+        static let regularDiameter: CGFloat = 92
+        static let accessibilityDiameter: CGFloat = 168
         static let minimumFraction = 0.025
         static let maximumRingCount = 4
         static let chartSpacing: CGFloat = 12
@@ -93,21 +96,11 @@ struct ConcentricRingChart: View {
                     .accessibilityValue(accessibilityValue(for: item))
             }
 
-            VStack(spacing: 1) {
-                Text("合計")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.8))
-                Text(total, format: .currency(code: "JPY").precision(.fractionLength(0)))
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .monospacedDigit()
-                    .minimumScaleFactor(0.55)
-                    .lineLimit(1)
-            }
-            .padding(32)
-            .accessibilityElement(children: .combine)
         }
+        // ストロークは線の中心がパス上に来るため、線幅の半分だけ枠の外へはみ出します。
+        // 余白を取らないと領域の縁で切れます。
         .frame(width: diameter, height: diameter)
+        .padding(Layout.ringWidth / 2)
     }
 
     private var legend: some View {

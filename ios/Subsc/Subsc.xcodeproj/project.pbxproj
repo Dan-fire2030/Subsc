@@ -26,6 +26,7 @@
 		AA0000620000000000000062 /* ThemeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000620000000000000062 /* ThemeStore.swift */; };
 		AA0000630000000000000063 /* ThemeStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000630000000000000063 /* ThemeStoreTests.swift */; };
 		AA0000640000000000000064 /* ThemeColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000640000000000000064 /* ThemeColorPickerView.swift */; };
+		AA0000800000000000000080 /* ReportChartStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000800000000000000080 /* ReportChartStylePickerView.swift */; };
 		AA0000660000000000000066 /* CostTypeBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000660000000000000066 /* CostTypeBreakdown.swift */; };
 		AA0000670000000000000067 /* BubbleLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000670000000000000067 /* BubbleLayout.swift */; };
 		AA0000700000000000000070 /* ReportChartStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000700000000000000070 /* ReportChartStyle.swift */; };
@@ -114,6 +115,7 @@
 		BB0000620000000000000062 /* ThemeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStore.swift; sourceTree = "<group>"; };
 		BB0000630000000000000063 /* ThemeStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStoreTests.swift; sourceTree = "<group>"; };
 		BB0000640000000000000064 /* ThemeColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColorPickerView.swift; sourceTree = "<group>"; };
+		BB0000800000000000000080 /* ReportChartStylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartStylePickerView.swift; sourceTree = "<group>"; };
 		BB0000660000000000000066 /* CostTypeBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeBreakdown.swift; sourceTree = "<group>"; };
 		BB0000670000000000000067 /* BubbleLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleLayout.swift; sourceTree = "<group>"; };
 		BB0000700000000000000070 /* ReportChartStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportChartStyle.swift; sourceTree = "<group>"; };
@@ -349,6 +351,7 @@
 			children = (
 				BB0000090000000000000009 /* SettingsView.swift */,
 				BB0000640000000000000064 /* ThemeColorPickerView.swift */,
+				BB0000800000000000000080 /* ReportChartStylePickerView.swift */,
 				BB0000430000000000000043 /* NotificationPermission.swift */,
 			);
 			path = Settings;
@@ -546,6 +549,7 @@
 				AA0000420000000000000042 /* NotificationTimingView.swift in Sources */,
 				AA0000090000000000000009 /* SettingsView.swift in Sources */,
 				AA0000640000000000000064 /* ThemeColorPickerView.swift in Sources */,
+				AA0000800000000000000080 /* ReportChartStylePickerView.swift in Sources */,
 				AA0000430000000000000043 /* NotificationPermission.swift in Sources */,
 				AA0000120000000000000012 /* ExchangeRateService.swift in Sources */,
 				AA0000570000000000000057 /* ReminderPlanner.swift in Sources */,

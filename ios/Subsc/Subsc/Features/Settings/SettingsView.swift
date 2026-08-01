@@ -92,8 +92,16 @@ struct SettingsView: View {
                         )
                     }
 
+                    NavigationLink {
+                        ReportChartStylePickerView()
+                    } label: {
+                        LabeledContent("グラフの表示") {
+                            Text(theme.chartStyle.title)
+                        }
+                    }
+
                     if !theme.isDefault {
-                        Button("既定の色に戻す", role: .destructive) {
+                        Button("既定に戻す", role: .destructive) {
                             showsThemeResetConfirmation = true
                         }
                     }
@@ -110,13 +118,13 @@ struct SettingsView: View {
             }
             .liquidGlassScreen()
             .navigationTitle("設定")
-            .alert("テーマ色を既定に戻しますか？", isPresented: $showsThemeResetConfirmation) {
+            .alert("テーマを既定に戻しますか？", isPresented: $showsThemeResetConfirmation) {
                 Button("戻す", role: .destructive) {
                     theme.resetToDefaults()
                 }
                 Button("キャンセル", role: .cancel) {}
             } message: {
-                Text("ボタンとカードの色が、どちらも既定の色に戻ります。")
+                Text("ボタンとカードの色、グラフの表示が、すべて既定に戻ります。")
             }
             // 設定アプリで許可を変えて戻ってきたときにも状態を取り直します。
             .task(id: scenePhase) {
