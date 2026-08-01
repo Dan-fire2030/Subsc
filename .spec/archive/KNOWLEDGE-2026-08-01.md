@@ -1,0 +1,216 @@
+# KNOWLEDGE - ドメイン知識・調査結果
+
+## 業務・ドメイン知識
+
+### Subscの性質と収益化の相性
+- サブスク管理アプリは**起動頻度が低い**（ユーザーは月に数回しか開かない）
+- この性質上、表示回数に比例する収益モデル（広告）は不利。一度の支払いで完結するモデル（買い切り）は起動頻度が弱点にならない
+- 「サブスク管理アプリが自分のサブスクを要求する」構図はレビューで批判されやすく、継続課金は相性が悪い
+
+## 調査・リサーチ結果
+
+### Google AdMob（iOS）の導入要件 — 2026-07-30 調査
+採用しない判断をしたが、再調査を避けるため記録する。
+
+- 使うのは AdSense ではなく **AdMob（Google Mobile Ads SDK）**
+- 要件：Xcode 16.0以上 / iOS Deployment Target 13.0以上（Subscは Xcode 26.6・iOS 17+ なので充足）
+- 導入：SPM `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`、または CocoaPods `Google-Mobile-Ads-SDK`
+- `Info.plist` に `GADApplicationIdentifier`（AdMob App ID）と `SKAdNetworkItems`（Googleは `cstr6suwn9.skadnetwork`）が必要
+- 初期化は `GADMobileAds.sharedInstance` の `start()`
+- **UMP SDK（同意管理）が必要**。起動ごとに `requestConsentInfoUpdate` → `loadAndPresentIfRequired` → `canRequestAds` が true になってから広告要求
+- EEA/UK/スイス対象なら **`start()` より前に同意を取る**必要がある（`start()` 時点で広告のプリロードが始まるため）
+- 開発中は必ずテスト広告IDかテストデバイス登録を使う。本番広告ユニットで自己テストするとポリシー違反でアカウント停止リスク
+
+導入した場合に連鎖して必要になる作業（採用しなかった主因）：
+- App Store Connect の App Privacy 回答を全面見直し（識別子・使用状況データの収集、**トラッキング**の申告）
+- `PrivacyInfo.xcprivacy` の更新
+- ATT許諾ダイアログと `NSUserTrackingUsageDescription`（IDFAを使う場合）
+- `AppStore/RELEASE_RUNBOOK.md` の「App Review向け要点」の書き換え
+
+## 技術的な知見
+
+### レポート期間は開始日を含み、翌期間の開始日を含まない（2026-08-01）
+
+- 集計期間は `[期間開始, 翌期間開始)` の半開区間として扱うため、費目の開始日が翌期間の開始時刻以上なら除外する
+- 費目の終了日はその日全体を契約期間に含むため、期間開始日と同じ終了日は含め、期間開始日より前なら除外する
+
+### 変動費の外貨換算は月次実績へスナップショットする（2026-08-01）
+
+- 費目側の `exchangeRate` は参照レート更新のたびに変わるため、月次実績の換算に使うと支払い済みの過去月まで動いてしまう
+- `AmountEntry` に記録時の `currencyRaw` と `exchangeRate` を保存し、集計・履歴表示のどちらも `yenAmount` を使う
+- 過去月を編集するときは、費目の現在通貨ではなく、その実績に保存された通貨とレートを入力画面へ戻す
+
+### CloudKitで同月の実績が重複する前提で読む（2026-08-01）
+
+- 一意制約を使えないため、2台がオフラインで同じ月を記録すると同期後に重複しうる
+- 採用規則は「`recordedAt` が新しいもの。同時刻なら `clientID`」として、配列順に依存させない
+- 集計だけでなく履歴表示も同じ規則で1件へ畳む。次回その月を保存したときは重複全件を同じ値へ揃える
+
+### 課金を実装する場合の設計方針（未実装・将来用）
+- **StoreKit 2** を使う。最低対応が iOS 17 なので全機能が使える。サーバー側のレシート検証は不要
+- **購入状態を SwiftData / CloudKit に保存しない**。`Transaction.currentEntitlements` を正とする
+  - App Storeアカウントに紐づくため端末間で自然に共有され、CloudKitミラーリングの制約（既定値必須・一意制約禁止・配列不可）を一切踏まない
+- ただしSubscはオフライン優先なので、検証結果をローカルに保持し**オフラインでも有料機能が使える**設計にする
+- **「購入を復元」ボタンは審査必須**（App Store Review Guideline 3.1.1）。設定画面に置く
+- Xcode の StoreKit Configuration File を使えば、App Store Connect への登録を待たずにローカルで課金フローを検証できる
+
+### Xcodeプロジェクトへのファイル追加手順（2026-07-30 確立）
+`Subsc.xcodeproj` は `PBXFileSystemSynchronizedRootGroup` を使っていないため、新規 `.swift` は `project.pbxproj` を手で編集しないとビルド対象に入らない。IDは規則的で、`AA` + 連番がPBXBuildFile、`BB` + 連番がPBXFileReference、`DD` + 連番がPBXGroup。1ファイルにつき4箇所を追加する。
+
+1. `PBXBuildFile` セクションに `AA...` の行（`fileRef` に対応する `BB...` を指定）
+2. `PBXFileReference` セクションに `BB...` の行
+3. 所属する `DD...` グループの `children` に `BB...`
+4. 対象ターゲットの `Sources` ビルドフェーズに `AA...`
+
+編集後は必ず `xcodebuild test` まで通して検証する。壊れていればプロジェクトが開けなくなるため、編集前にバックアップを取る。
+
+### 大きなSwiftUIファイルを安全に分割する手順（2026-07-30 確立）
+`ReportCard.swift`（776行）を6ファイルへ分割したときの型。
+
+1. 分割前にファイル内の型の依存関係を洗い出し、**使用元と同じファイルに収まる型は `private` のまま残す**。
+   ファイルをまたぐ型だけ `private` を外す。モジュール内に同名の型がないことを `grep` で先に確認する
+2. 分割後、**「移動のみ」であることを機械的に検証する**。元ファイルと分割後ファイル群の結合を、
+   `import` 行・doc コメント・空行を除去し `private ` 修飾子を正規化したうえで
+   `sort` して `diff` する。差分ゼロなら振る舞いは変わっていない
+   ```bash
+   norm() { grep -vE '^[[:space:]]*(import SwiftUI|import SwiftData|///|$)' "$1" \
+     | sed -E 's/^([[:space:]]*)private (struct|enum)/\1\2/' | sort; }
+   diff <(norm orig.swift) <(norm concatenated-new.swift)
+   ```
+   除外・正規化の対象は分割対象ファイルに合わせて足す（`import SwiftData`、`private enum` など）。
+   macOS の `sed`/`grep` は `\s` を解釈しないので `[[:space:]]` を使う
+3. `project.pbxproj` へ登録し、`xcodebuild test` まで通す
+
+この検証があると、目視確認が取れなくてもリグレッションがないことを示せる。
+
+**この検証を効かせるために、分割は「既存の型をそのまま移す」だけに留める**（2026-07-30 追記）。
+`DashboardView.swift`（670行）の分割時、`body` 内に直書きされたセクションを新しい View 型として
+抽出する案もあったが、新しい型を作ると行の多重集合が一致しなくなり振る舞い不変を証明できなくなる。
+既存の `private` 型を移すだけでも 670行 → 最大339行に収まり、目安は満たせた。
+**「もっと細かく割れる」より「機械的に安全と言える」を優先する。**
+
+### 巨大な単一Viewは extension で分割する（2026-07-31 確立）
+`SubscriptionFormView.swift`（642行）を7ファイルへ分割したときの型。**型を移すだけでは足りない場合**に使う。
+
+- `ReportCard` / `DashboardView` は「ファイル内の複数の型を別ファイルへ移す」で済んだが、
+  `SubscriptionFormView` は**569行が単一の struct** で、移せる型は2つ（61行）しかなく目安に届かない。
+  この場合は `extension SubscriptionFormView` を別ファイルに置き、メンバーを移す
+- **代償：保存プロパティの `private` を外すことになる。** Swiftの extension はファイルをまたぐと
+  `private` メンバーを参照できないため、別ファイルの `save()` や各セクションから触る
+  `@State` / `@Environment` はすべて internal にする必要がある。これは避けられないので、
+  理由を型のdocコメントに書き残す
+- `body` の `Form` 内セクションは `var xxxSection: some View` として切り出す。
+  条件付きで出す `if let` を含むものだけ `@ViewBuilder` を付ける
+- **検証は「差分ゼロ」ではなく「元の行が1行も欠けていない」に切り替える。**
+  computed property の宣言・`extension` のラッパー・閉じ括弧が増えるため差分ゼロにはならない。
+  正規化して `diff` し、**`<`（元にあって分割後に無い行）が0件**であることを見る。
+  `>` 側は目視で構造的な行だけかを確認する
+  ```bash
+  norm() { grep -vE '^[[:space:]]*(import [A-Za-z]+|///|$)' "$1" \
+    | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s/private //g' | sort; }
+  diff <(norm orig.swift) <(norm concat.swift) | grep '^<'   # 0件であること
+  ```
+  実績：`<` 0件、`>` は extension 5・セクション宣言7・呼び出し7・`@ViewBuilder` 1・`}` 12 のみ
+
+### シミュレーターMCPのタップ座標は `simctl` のスクリーンショットから求める（2026-07-31 解決）
+**「タップが届かない」と繰り返し記録してきた症状は、ほぼ全て座標のずれが原因だった。**
+以下の手順に従えば、シート内の `Toggle` も `NavigationLink` も問題なく操作できる。
+
+- **MCPが返すスクリーンショット画像は縮小されている。** この画像上で測った座標から比率を推測してはいけない。
+  実測すると MCP画像は約 921x2018 で、換算比は約 0.433。一方、
+  **`xcrun simctl io booted screenshot` で撮った画像は 1206x2622（3倍スケール）で、
+  ポイント座標はちょうど「画像座標 ÷ 3」になる**
+- したがって**位置を決めるときは `simctl` で撮り直し、Pillow などで対象の画素位置を測って3で割る**。
+  MCPのスクリーンショットは「結果の確認」用と割り切る
+  ```bash
+  xcrun simctl io booted screenshot shot.png   # 1206x2622 → pt = px / 3
+  ```
+- この方法で、**それまで「届かない」と判断していた シート内の `NavigationLink`（通知タイミング）と
+  タブバーの切り替えがどちらも一度で成功した**。ヒットテストの制約ではなかった
+- 過去の「金額欄に入力できない」「セグメンテッドPickerが切り替わらない」も同じ原因の可能性が高い。
+  **同じ症状が出たら制約と決めつけず、まず `simctl` で座標を測り直す**
+- **システムアラート（通知許可ダイアログなど）には注入したタップが届かない**（これは本物の制約）。
+  `xcrun simctl privacy <udid> grant all <bundle-id>` で事前に許可してからアプリを起動し直すと出なくなる
+- 日本語IMEがONだとASCII入力がかな変換される（既知）。数字だけは変換されないので、
+  **確認用のテストデータ名は数字にすると崩れない**
+
+### ColorPickerの色を16進数で保存する際の注意
+`ColorPicker` はDisplay P3の色を返すことがあり、`UIColor.getRed` の成分が 0...1 の範囲外になりうる。クランプせずに `Int(value * 255)` すると破綻する。`Models/ColorHex.swift` の `channel(_:)` でクランプしてから丸めている。
+
+また `Picker` の `selection` が選択肢に含まれていないと表示が空欄になる。プリセット外の色を選んだ場合に備え、`colorOptions` は現在の色を必ず含める。
+
+### 一覧のカテゴリバッジで色を文字色に使わない理由
+カラーを利用者が自由に選べるようになったため、淡い色を文字色にすると読めなくなる。バッジは文字色を `.secondary` に固定し、色は小さなドットでのみ示している。ドットは `@ScaledMetric(relativeTo: .caption2)` で文字サイズに追従させる（固定6ptだと最大文字サイズで相対的に見えなくなる）。
+
+### ScrollViewのページャで慣性を効かせる条件（2026-07-31）
+レポートカードの横スワイプを慣性スライドにしたときの知見。**3つ全部そろわないと効かない。**
+
+1. **滑る先のページを並べておく。** `-1/0/+1` の3枚だけだと1枚で行き止まりになり勢いが死ぬ。
+   `ReportPagerConfiguration.stepReach = 60` で前後60期間ぶんを用意した（`LazyHStack` なので
+   実際に集計が走るのは表示されたページだけ）
+2. **`.scrollTargetBehavior(.viewAligned(limitBehavior: .never))` を使う。**
+   `.paging` は1ページずつ確定するので慣性が出ない。`.viewAligned` でも
+   **既定の `limitBehavior: .automatic` は1回のスワイプを1ページに制限する**ため、
+   `.never` を明示しないと「隣で止まる」ままになる
+3. **スクロール位置を親ビューに持たせない。** `@Binding` で親の `@State` に繋ぐと、
+   慣性で流れている最中にページを通過するたび親ごと再構築され、**減速と吸着が中断されて
+   ページの途中で止まる**。実際にこれで「月と月の境目で停止する」症状が出た。
+   位置はページャ自身の `@State` に閉じ込め、親は基準日だけを渡す
+
+同じ理由で、**スクロール中に走る `@State` / `@AppStorage` の書き換えも避ける**。
+触覚フィードバックはボタン・VoiceOver操作のときだけに限定し、スワイプでは鳴らさないようにした。
+
+### 通知の許可ダイアログは「未設定」のときしか出ない（2026-07-31）
+`UNUserNotificationCenter.requestAuthorization` がシステムダイアログを出すのは
+`authorizationStatus == .notDetermined` のときだけ。すでに許可・拒否したあとに呼んでも
+**何も表示せず即座に返る**。設定画面に「通知を許可」ボタンを常時出していたため、
+実機で「押しても何も起きない＝タップできない」という報告になった。
+
+- 状態に応じてボタンを出し分ける。拒否済み・許可済みでは
+  `UIApplication.openSettingsURLString` で設定アプリへ誘導するしかない
+- 判定は `Features/Settings/NotificationPermission.swift` に閉じ込め、ユニットテストで担保している
+- **設定アプリから戻ったときに状態を取り直す**必要がある（`.task(id: scenePhase)`）。
+  取り直さないと、許可したのに「許可されていません」のままになる
+
+### CloudKitのフィールドは「値が保存されて初めて」作られる（2026-08-01）
+`NSPersistentCloudKitContainer`（SwiftData）のスキーマ自動生成は、モデル定義を見て作るのではなく
+**実際にエクスポートされたレコードが持っていた値から作る**。そのため
+**Optional のプロパティは、nil のまま保存され続けるかぎりフィールドが生成されない**。
+
+実際に `Subscription.endDate` がこれに該当し、`CD_endDate` が Development にも Production にも
+存在しなかった。**Production はスキーマの自動生成が効かないため、このまま公開すると
+利用者が終了日を設定した瞬間にエクスポートが失敗する。** 気付いたのは、Console のフィールド一覧と
+モデルの保存プロパティを1件ずつ突き合わせたため。
+
+→ **Deploy前には、モデルの保存プロパティとConsoleのフィールドを機械的に突き合わせる。**
+Optional の項目は「その値を実際に入れたレコードを1件保存する」まで完了ではない。
+非Optional＋既定値の項目（今回の `costTypeRaw` など）は保存すれば必ず出るので、この罠は Optional 限定。
+
+なお **to-many の逆リレーションはフィールド化されない**。`Subscription.amountEntries` に対応する
+`CD_amountEntries` は存在せず、to-one 側の `CD_subscription`（型は REFERENCE ではなく STRING）
+だけが作られる。無いのが正常なので、欠落と誤認しないこと。
+
+### CloudKitの同期確認はConsoleより先にログを見る（2026-08-01）
+Console は「結果」しか見えないため、出ていないときに原因が分からない。
+`xcrun simctl spawn booted log show --last 5m --predicate 'process == "Subsc" AND subsystem == "com.apple.coredata"'`
+で `NSCloudKitMirroringDelegate` の動きが追え、**エクスポートしたCKRecordの中身がそのまま出る**。
+アカウント状態（`accountStatus=Available`）、zone作成、export成功までを1回で確認できる。
+
+`Failed to enqueue request ... already a pending request` は正常な多重発火の抑制で、異常ではない。
+見るべきは `Successfully set up CloudKit integration` と、`exportOperationFinished` に並ぶレコード。
+
+## 決定事項と理由
+
+### 2026-07-30：広告（AdMob）は採用しない
+- **理由1**：起動頻度が低く広告表示回数が伸びないため、収益がほぼ期待できない
+- **理由2**：現在の審査向け前提（「ユーザーデータは端末と本人のiCloud Private Databaseへ保存」「サブスク名や料金を為替APIへ送信しない」）が崩れ、App Privacy回答・Privacy Manifest・ATT・Runbookの全面見直しが発生する
+- **理由3**：iOS 26では画面全体がLiquid Glassで描画されるため、広告バナーの矩形が浮いて見える
+
+### 2026-07-30：1.0.0 は完全無料でリリースする
+- 収益化の仕組みより、まずリリースして見つけられることが優先。ダウンロードがなければ収益はゼロ
+- 課金を1.0.0に含めるとリリースが遅れるトレードオフを避ける
+
+### 2026-07-30：収益化はリリース後の反応を見て判断する。実施する場合は「新規機能の有料化」で行う
+- **既存機能に上限や制限を後から追加しない**。すでに提供した機能を有料化するのは最も嫌われるパターンで、確実に低評価につながる
+- 有料化の対象は新規開発する機能（例：CSV/PDFエクスポート、ホーム画面ウィジェット）とする
+- モデル自体（買い切り / Tip Jar / サブスク）は未確定。判断はリリース後
