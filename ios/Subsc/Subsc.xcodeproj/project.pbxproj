@@ -20,6 +20,9 @@
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
 		AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000270000000000000027 /* CategoryCatalogTests.swift */; };
 		AA0000580000000000000058 /* NotificationReminderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000580000000000000058 /* NotificationReminderTests.swift */; };
+		AA0000590000000000000059 /* ThemeColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000590000000000000059 /* ThemeColorTests.swift */; };
+		AA0000600000000000000060 /* ThemeColorPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000600000000000000060 /* ThemeColorPreset.swift */; };
+		AA0000610000000000000061 /* ThemeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000610000000000000061 /* ThemeColor.swift */; };
 		AA0000530000000000000053 /* AmountEntryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000530000000000000053 /* AmountEntryStoreTests.swift */; };
 		AA0000500000000000000050 /* ReportCalculatorVariableAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000500000000000000050 /* ReportCalculatorVariableAmountTests.swift */; };
 		AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000490000000000000049 /* MonthlyAmountTests.swift */; };
@@ -93,6 +96,9 @@
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		BB0000270000000000000027 /* CategoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalogTests.swift; sourceTree = "<group>"; };
 		BB0000580000000000000058 /* NotificationReminderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationReminderTests.swift; sourceTree = "<group>"; };
+		BB0000590000000000000059 /* ThemeColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColorTests.swift; sourceTree = "<group>"; };
+		BB0000600000000000000060 /* ThemeColorPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColorPreset.swift; sourceTree = "<group>"; };
+		BB0000610000000000000061 /* ThemeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColor.swift; sourceTree = "<group>"; };
 		BB0000530000000000000053 /* AmountEntryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountEntryStoreTests.swift; sourceTree = "<group>"; };
 		BB0000500000000000000050 /* ReportCalculatorVariableAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorVariableAmountTests.swift; sourceTree = "<group>"; };
 		BB0000490000000000000049 /* MonthlyAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyAmountTests.swift; sourceTree = "<group>"; };
@@ -205,6 +211,8 @@
 			children = (
 				BB0000030000000000000003 /* Subscription.swift */,
 				BB0000240000000000000024 /* ColorHex.swift */,
+				BB0000600000000000000060 /* ThemeColorPreset.swift */,
+				BB0000610000000000000061 /* ThemeColor.swift */,
 				BB0000510000000000000051 /* MonthlyAmount.swift */,
 				BB0000470000000000000047 /* AmountEntry.swift */,
 				BB0000460000000000000046 /* PaymentMethod.swift */,
@@ -281,6 +289,7 @@
 				BB0000260000000000000026 /* ColorHexTests.swift */,
 				BB0000270000000000000027 /* CategoryCatalogTests.swift */,
 				BB0000580000000000000058 /* NotificationReminderTests.swift */,
+				BB0000590000000000000059 /* ThemeColorTests.swift */,
 				BB0000530000000000000053 /* AmountEntryStoreTests.swift */,
 				BB0000500000000000000050 /* ReportCalculatorVariableAmountTests.swift */,
 				BB0000490000000000000049 /* MonthlyAmountTests.swift */,
@@ -463,6 +472,8 @@
 				AA0000170000000000000017 /* StorageMode.swift in Sources */,
 				AA0000030000000000000003 /* Subscription.swift in Sources */,
 				AA0000240000000000000024 /* ColorHex.swift in Sources */,
+				AA0000600000000000000060 /* ThemeColorPreset.swift in Sources */,
+				AA0000610000000000000061 /* ThemeColor.swift in Sources */,
 				AA0000510000000000000051 /* MonthlyAmount.swift in Sources */,
 				AA0000470000000000000047 /* AmountEntry.swift in Sources */,
 				AA0000460000000000000046 /* PaymentMethod.swift in Sources */,
@@ -510,6 +521,7 @@
 				AA0000260000000000000026 /* ColorHexTests.swift in Sources */,
 				AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */,
 				AA0000580000000000000058 /* NotificationReminderTests.swift in Sources */,
+				AA0000590000000000000059 /* ThemeColorTests.swift in Sources */,
 				AA0000530000000000000053 /* AmountEntryStoreTests.swift in Sources */,
 				AA0000500000000000000050 /* ReportCalculatorVariableAmountTests.swift in Sources */,
 				AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */,
