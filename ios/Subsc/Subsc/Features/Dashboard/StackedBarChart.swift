@@ -4,6 +4,7 @@ import SwiftUI
 struct StackedBarChart: View {
     let entries: [ReportEntry]
     let costTypeFilter: CostTypeFilter
+    let period: ReportPeriod
     let reduceMotion: Bool
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -22,7 +23,7 @@ struct StackedBarChart: View {
     }
 
     private var items: [ReportChartItem] {
-        ReportChartPalette.items(from: entries, filter: costTypeFilter)
+        ReportChartPalette.items(from: entries, filter: costTypeFilter, period: period)
     }
 
     private var total: Double {

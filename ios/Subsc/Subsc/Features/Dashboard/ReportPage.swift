@@ -7,6 +7,7 @@ struct ReportPage: View {
     let periodLabel: String
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
+    let period: ReportPeriod
     @Environment(ThemeStore.self) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -114,12 +115,14 @@ struct ReportPage: View {
             StackedBarChart(
                 entries: report.entries,
                 costTypeFilter: costTypeFilter,
+                period: period,
                 reduceMotion: reduceMotion
             )
         case .ring:
             ConcentricRingChart(
                 entries: report.entries,
                 costTypeFilter: costTypeFilter,
+                period: period,
                 reduceMotion: reduceMotion
             )
         case .bubble, .column:

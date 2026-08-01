@@ -36,6 +36,7 @@ struct ReportPager: View {
     let periodUnit: String
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
+    let period: ReportPeriod
     let accessibilityValue: (ReportPageData) -> String
     let onReturnToCurrentPeriod: () -> Void
 
@@ -59,7 +60,8 @@ struct ReportPager: View {
                             report: page.report,
                             periodLabel: page.periodLabel,
                             reduceMotion: reduceMotion,
-                            costTypeFilter: costTypeFilter
+                            costTypeFilter: costTypeFilter,
+                            period: period
                         )
                         .containerRelativeFrame(.horizontal)
                         .id(step)

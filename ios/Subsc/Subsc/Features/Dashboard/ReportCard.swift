@@ -65,6 +65,7 @@ struct ReportCard: View {
                 periodUnit: periodUnit,
                 reduceMotion: reduceMotion,
                 costTypeFilter: costTypeFilter,
+                period: period,
                 accessibilityValue: accessibilityValue(for:),
                 onReturnToCurrentPeriod: {
                     // 日付をまたいで基準が古くなっている場合に備え、戻るときに取り直します。

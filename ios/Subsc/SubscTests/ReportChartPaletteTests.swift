@@ -2,14 +2,16 @@ import XCTest
 @testable import Subsc
 
 final class ReportChartPaletteTests: XCTestCase {
-    func testAllFilterAggregatesByCostTypeAndUsesCostTypeColor() {
+    /// 年間換算かつ絞り込みなしのときだけ、種別へまとめて4色で塗ります。
+    func testYearlyWithoutFilterAggregatesByCostTypeAndUsesCostTypeColor() {
         let items = ReportChartPalette.items(
             from: [
                 entry(id: "a", amount: 300, colorHex: "#111111", costType: .utility),
                 entry(id: "b", amount: 100, colorHex: "#222222", costType: .subscription),
                 entry(id: "c", amount: 200, colorHex: "#333333", costType: .utility, isEstimated: true)
             ],
-            filter: .all
+            filter: .all,
+            period: .year
         )
 
         XCTAssertEqual(items.map(\.name), [CostType.utility.title, CostType.subscription.title])
@@ -19,13 +21,15 @@ final class ReportChartPaletteTests: XCTestCase {
         XCTAssertEqual(items[0].opacity, ReportChartPalette.estimatedOpacity)
     }
 
-    func testNarrowedFilterKeepsEntriesAndUsesUserColorsInDescendingOrder() {
+    /// 月間換算は件数が多くても費目のまま出します。同じ種別が同色になるのを避けるためです。
+    func testMonthlyKeepsEntriesAndUsesUserColorsEvenWithoutFilter() {
         let items = ReportChartPalette.items(
             from: [
                 entry(id: "b", amount: 100, colorHex: "#222222", costType: .utility),
-                entry(id: "a", amount: 300, colorHex: "#111111", costType: .utility)
+                entry(id: "a", amount: 300, colorHex: "#111111", costType: .subscription)
             ],
-            filter: .only(.utility)
+            filter: .all,
+            period: .month
         )
 
         XCTAssertEqual(items.map(\.id), ["a", "b"])
@@ -39,7 +43,8 @@ final class ReportChartPaletteTests: XCTestCase {
                 entry(id: "z", amount: 100, colorHex: "#111111", costType: .utility),
                 entry(id: "a", amount: 100, colorHex: "#222222", costType: .utility)
             ],
-            filter: .only(.utility)
+            filter: .only(.utility),
+            period: .month
         )
 
         XCTAssertEqual(items.map(\.id), ["a", "z"])
@@ -51,7 +56,8 @@ final class ReportChartPaletteTests: XCTestCase {
                 entry(id: "large", amount: 999, colorHex: "#111111", costType: .utility),
                 entry(id: "tiny", amount: 1, colorHex: "#222222", costType: .utility)
             ],
-            filter: .only(.utility)
+            filter: .only(.utility),
+            period: .month
         )
 
         let lengths = ReportChartPalette.lengths(
@@ -84,6 +90,21 @@ final class ReportChartPaletteTests: XCTestCase {
         )
 
         XCTAssertEqual(lengths, [4, 4, 4])
+    }
+
+    /// 年間でも絞り込み中は費目ごとに出します。種別集計だと区画が1つになり情報が消えるためです。
+    func testYearlyWithNarrowedFilterStaysPerEntry() {
+        let items = ReportChartPalette.items(
+            from: [
+                entry(id: "b", amount: 100, colorHex: "#222222", costType: .utility),
+                entry(id: "a", amount: 300, colorHex: "#111111", costType: .utility)
+            ],
+            filter: .only(.utility),
+            period: .year
+        )
+
+        XCTAssertEqual(items.map(\.id), ["a", "b"])
+        XCTAssertEqual(items.map(\.colorHex), ["#111111", "#222222"])
     }
 
     private func entry(

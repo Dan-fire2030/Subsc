@@ -14,21 +14,22 @@ enum ReportChartPalette {
     static let estimatedOpacity = 0.45
     static let confirmedOpacity = 1.0
 
-    /// 絞り込み状態に応じた集計単位と色をここで確定し、ビュー内の条件分岐を防ぎます。
-    static func items(from entries: [ReportEntry], filter: CostTypeFilter) -> [ReportChartItem] {
-        switch filter {
-        case .all:
-            return CostTypeBreakdown.slices(from: entries).map { slice in
-                ReportChartItem(
-                    id: slice.id,
-                    name: slice.costType.title,
-                    amount: slice.amount,
-                    colorHex: slice.costType.colorHex,
-                    isEstimated: slice.isEstimated,
-                    opacity: opacity(isEstimated: slice.isEstimated)
-                )
-            }
-        case .only:
+    /// 集計単位と色をここで確定し、ビュー内の条件分岐を防ぎます。
+    ///
+    /// **集計単位はスタイルではなく期間で決まります。**
+    /// 年間換算は「1年で何にいくら使ったか」の大づかみを見たいので種別へまとめ、
+    /// 月間換算は「今月どの費目が効いているか」を見たいので費目のまま出します。
+    ///
+    /// ただし**種別で絞り込んでいるときは年間でも費目ごと**にします。
+    /// 種別が1つしかない状態で種別集計すると、区画が1つだけになり構成比の情報が消えるためです。
+    static func items(
+        from entries: [ReportEntry],
+        filter: CostTypeFilter,
+        period: ReportPeriod
+    ) -> [ReportChartItem] {
+        let aggregatesByCostType = period == .year && filter == .all
+
+        guard aggregatesByCostType else {
             return entries
                 .sorted(by: descendingAmount)
                 .map { entry in
@@ -41,6 +42,17 @@ enum ReportChartPalette {
                         opacity: opacity(isEstimated: entry.isEstimated)
                     )
                 }
+        }
+
+        return CostTypeBreakdown.slices(from: entries).map { slice in
+            ReportChartItem(
+                id: slice.id,
+                name: slice.costType.title,
+                amount: slice.amount,
+                colorHex: slice.costType.colorHex,
+                isEstimated: slice.isEstimated,
+                opacity: opacity(isEstimated: slice.isEstimated)
+            )
         }
     }
 
