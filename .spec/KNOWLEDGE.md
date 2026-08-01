@@ -172,6 +172,33 @@
 - **設定アプリから戻ったときに状態を取り直す**必要がある（`.task(id: scenePhase)`）。
   取り直さないと、許可したのに「許可されていません」のままになる
 
+### CloudKitのフィールドは「値が保存されて初めて」作られる（2026-08-01）
+`NSPersistentCloudKitContainer`（SwiftData）のスキーマ自動生成は、モデル定義を見て作るのではなく
+**実際にエクスポートされたレコードが持っていた値から作る**。そのため
+**Optional のプロパティは、nil のまま保存され続けるかぎりフィールドが生成されない**。
+
+実際に `Subscription.endDate` がこれに該当し、`CD_endDate` が Development にも Production にも
+存在しなかった。**Production はスキーマの自動生成が効かないため、このまま公開すると
+利用者が終了日を設定した瞬間にエクスポートが失敗する。** 気付いたのは、Console のフィールド一覧と
+モデルの保存プロパティを1件ずつ突き合わせたため。
+
+→ **Deploy前には、モデルの保存プロパティとConsoleのフィールドを機械的に突き合わせる。**
+Optional の項目は「その値を実際に入れたレコードを1件保存する」まで完了ではない。
+非Optional＋既定値の項目（今回の `costTypeRaw` など）は保存すれば必ず出るので、この罠は Optional 限定。
+
+なお **to-many の逆リレーションはフィールド化されない**。`Subscription.amountEntries` に対応する
+`CD_amountEntries` は存在せず、to-one 側の `CD_subscription`（型は REFERENCE ではなく STRING）
+だけが作られる。無いのが正常なので、欠落と誤認しないこと。
+
+### CloudKitの同期確認はConsoleより先にログを見る（2026-08-01）
+Console は「結果」しか見えないため、出ていないときに原因が分からない。
+`xcrun simctl spawn booted log show --last 5m --predicate 'process == "Subsc" AND subsystem == "com.apple.coredata"'`
+で `NSCloudKitMirroringDelegate` の動きが追え、**エクスポートしたCKRecordの中身がそのまま出る**。
+アカウント状態（`accountStatus=Available`）、zone作成、export成功までを1回で確認できる。
+
+`Failed to enqueue request ... already a pending request` は正常な多重発火の抑制で、異常ではない。
+見るべきは `Successfully set up CloudKit integration` と、`exportOperationFinished` に並ぶレコード。
+
 ## 決定事項と理由
 
 ### 2026-07-30：広告（AdMob）は採用しない
