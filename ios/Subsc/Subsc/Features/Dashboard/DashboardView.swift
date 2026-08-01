@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.dismissSearch) private var dismissSearch
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Subscription.renewalDate) private var subscriptions: [Subscription]
@@ -98,7 +99,7 @@ struct DashboardView: View {
                                         .foregroundStyle(.white)
                                         .frame(width: 36, height: 36)
                                         .background(
-                                            .blue.gradient,
+                                            theme.cardBaseColor.gradient,
                                             in: RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         )
                                         .overlay {

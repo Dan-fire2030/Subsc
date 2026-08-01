@@ -3,6 +3,8 @@ import SwiftUI
 /// レポートカードの外枠です。iOS 26 では `glassEffect` を使い、
 /// それ以前は同系色のグラデーション＋縁取りでフォールバックします。
 struct ReportCardSurfaceModifier: ViewModifier {
+    @Environment(ThemeStore.self) private var theme
+
     @ViewBuilder
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
@@ -12,10 +14,10 @@ struct ReportCardSurfaceModifier: ViewModifier {
                         .opacity(0.82)
                 }
                 .glassEffect(
-                    .regular.tint(.blue.opacity(0.18)),
+                    .regular.tint(theme.cardBaseColor.opacity(0.18)),
                     in: .rect(cornerRadius: 24)
                 )
-                .shadow(color: .blue.opacity(0.2), radius: 20, y: 9)
+                .shadow(color: theme.cardBaseColor.opacity(0.2), radius: 20, y: 9)
         } else {
             content
                 .background {
@@ -33,7 +35,7 @@ struct ReportCardSurfaceModifier: ViewModifier {
                             lineWidth: 0.9
                         )
                 }
-                .shadow(color: .blue.opacity(0.22), radius: 22, y: 10)
+                .shadow(color: theme.cardBaseColor.opacity(0.22), radius: 22, y: 10)
         }
     }
 }
@@ -77,26 +79,28 @@ struct CompactGlassCapsuleModifier: ViewModifier {
 }
 
 private struct LiquidGlassCardBackground: View {
+    @Environment(ThemeStore.self) private var theme
+
     var body: some View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(red: 0.05, green: 0.38, blue: 0.92),
-                    Color(red: 0.29, green: 0.20, blue: 0.82),
-                    Color(red: 0.05, green: 0.61, blue: 0.88)
+                    theme.cardBaseColor,
+                    theme.cardHighlightColor,
+                    theme.cardAccentColor
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
             Circle()
-                .fill(.cyan.opacity(0.52))
+                .fill(theme.cardAccentColor.opacity(0.52))
                 .frame(width: 190, height: 190)
                 .blur(radius: 42)
                 .offset(x: 130, y: -145)
 
             Circle()
-                .fill(.purple.opacity(0.4))
+                .fill(theme.cardHighlightColor.opacity(0.4))
                 .frame(width: 170, height: 170)
                 .blur(radius: 46)
                 .offset(x: -140, y: 150)

@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RootView: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
@@ -38,7 +39,7 @@ struct RootView: View {
                 }
                 .tag(1)
         }
-        .tint(Color(red: 0.08, green: 0.45, blue: 0.98))
+        .tint(theme.buttonColor)
         .modifier(AdaptiveTabBarModifier())
         .task(id: notificationSyncID) {
             guard scenePhase == .active else { return }
@@ -78,6 +79,7 @@ struct RootView: View {
 }
 
 struct AppLiquidGlassBackground: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -86,22 +88,22 @@ struct AppLiquidGlassBackground: View {
 
             LinearGradient(
                 colors: [
-                    Color.blue.opacity(colorScheme == .dark ? 0.13 : 0.055),
-                    Color.purple.opacity(colorScheme == .dark ? 0.08 : 0.025),
-                    Color.cyan.opacity(colorScheme == .dark ? 0.1 : 0.04)
+                    theme.cardBaseColor.opacity(colorScheme == .dark ? 0.13 : 0.055),
+                    theme.cardHighlightColor.opacity(colorScheme == .dark ? 0.08 : 0.025),
+                    theme.cardAccentColor.opacity(colorScheme == .dark ? 0.1 : 0.04)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
             Circle()
-                .fill(Color.cyan.opacity(colorScheme == .dark ? 0.1 : 0.065))
+                .fill(theme.cardAccentColor.opacity(colorScheme == .dark ? 0.1 : 0.065))
                 .frame(width: 260, height: 260)
                 .blur(radius: 68)
                 .offset(x: 150, y: -280)
 
             Circle()
-                .fill(Color.purple.opacity(colorScheme == .dark ? 0.075 : 0.04))
+                .fill(theme.cardHighlightColor.opacity(colorScheme == .dark ? 0.075 : 0.04))
                 .frame(width: 290, height: 290)
                 .blur(radius: 76)
                 .offset(x: -170, y: 220)

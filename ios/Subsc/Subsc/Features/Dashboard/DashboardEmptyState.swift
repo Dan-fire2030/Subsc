@@ -3,18 +3,19 @@ import SwiftUI
 /// サブスクが1件も登録されていないときに一覧の代わりに出す案内です。
 struct DashboardEmptyState: View {
     let addSubscription: () -> Void
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 18) {
             Image(systemName: "creditcard.and.123")
                 .font(.system(.largeTitle, design: .rounded, weight: .semibold))
-                .foregroundStyle(.blue.gradient)
+                .foregroundStyle(theme.cardBaseColor.gradient)
                 .frame(
                     width: dynamicTypeSize.isAccessibilitySize ? 60 : 72,
                     height: dynamicTypeSize.isAccessibilitySize ? 60 : 72
                 )
-                .background(.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 22))
+                .background(theme.cardBaseColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 22))
                 .accessibilityHidden(true)
 
             VStack(spacing: 7) {

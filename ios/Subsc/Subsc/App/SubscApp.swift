@@ -9,6 +9,7 @@ enum CloudSyncConfiguration {
 struct SubscApp: App {
     private let modelContainer: ModelContainer
     private let startupError: String?
+    @State private var theme = ThemeStore()
 
     init() {
         let configuration = StorageMode.resolve().modelConfiguration(
@@ -45,6 +46,7 @@ struct SubscApp: App {
                 }
             }
             .modelContainer(modelContainer)
+            .environment(theme)
         }
     }
 }

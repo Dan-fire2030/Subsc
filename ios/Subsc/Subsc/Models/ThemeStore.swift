@@ -64,4 +64,18 @@ final class ThemeStore {
     var cardGradientColors: [Color] {
         ThemeColor.cardGradient(from: cardHex).map(ColorHex.color(from:))
     }
+
+    /// グラデーション2色目です。カード上と画面背景で光らせる円に使います。
+    ///
+    /// 呼び出し側で `cardGradientColors[1]` と書くと、段数を変えたときに
+    /// 範囲外アクセスで落ちます。名前で取り出せるようにして落ちない形にします。
+    var cardHighlightColor: Color {
+        let colors = cardGradientColors
+        return colors.count > 1 ? colors[1] : cardBaseColor
+    }
+
+    /// グラデーション3色目です。用途は `cardHighlightColor` と同じです。
+    var cardAccentColor: Color {
+        cardGradientColors.last ?? cardBaseColor
+    }
 }

@@ -6,6 +6,7 @@ struct NotificationTimingView: View {
     @Binding var leadHours: Set<Int>
     let dayOptions: [Int]
     let hourOptions: [Int]
+    @Environment(ThemeStore.self) private var theme
 
     var body: some View {
         List {
@@ -21,7 +22,7 @@ struct NotificationTimingView: View {
                             if leadDays.contains(day) {
                                 Image(systemName: "checkmark")
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(theme.buttonColor)
                             }
                         }
                     }
@@ -41,7 +42,7 @@ struct NotificationTimingView: View {
                             if leadHours.contains(hour) {
                                 Image(systemName: "checkmark")
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(theme.buttonColor)
                             }
                         }
                     }

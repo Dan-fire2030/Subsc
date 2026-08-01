@@ -4,6 +4,7 @@ import UIKit
 import UserNotifications
 
 struct SettingsView: View {
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationPermission = NotificationPermission.checking
@@ -20,14 +21,14 @@ struct SettingsView: View {
                             .foregroundStyle(.white)
                             .frame(width: 52, height: 52)
                             .background(
-                                .blue.gradient,
+                                theme.cardBaseColor.gradient,
                                 in: RoundedRectangle(cornerRadius: 13, style: .continuous)
                             )
                             .overlay {
                                 RoundedRectangle(cornerRadius: 13, style: .continuous)
                                     .stroke(.white.opacity(0.58), lineWidth: 0.8)
                             }
-                            .shadow(color: .blue.opacity(0.25), radius: 10, y: 5)
+                            .shadow(color: theme.cardBaseColor.opacity(0.25), radius: 10, y: 5)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Subsc")
                                 .font(.headline)
