@@ -234,6 +234,76 @@ final class DashboardListItemTests: XCTestCase {
         XCTAssertEqual(Set(items.map(\.id)).count, 2)
     }
 
+    // MARK: - 次の支払い
+
+    /// **借入も「次の支払い」の対象です。** 費目しか見ないと、明日が返済日でも出てきません。
+    func testNextDueComparesSubscriptionsAndLoans() throws {
+        let subscription = makeSubscription(name: "動画", renewalOn: date(2026, 2, 10))
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+
+        let next = DashboardListBuilder.nextDue(
+            subscriptions: [subscription],
+            loans: [loan],
+            costTypeFilter: .all,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        // 借入の1回目は 2026-01-27、費目の更新は 2026-02-10。
+        XCTAssertEqual(next?.name, "自動車ローン")
+    }
+
+    /// 過ぎた期日は「次」ではありません。
+    func testNextDueSkipsPastDates() {
+        let past = makeSubscription(name: "先月更新", renewalOn: date(2025, 12, 10))
+        let future = makeSubscription(name: "来月更新", renewalOn: date(2026, 2, 10))
+
+        let next = DashboardListBuilder.nextDue(
+            subscriptions: [past, future],
+            loans: [],
+            costTypeFilter: .all,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(next?.name, "来月更新")
+    }
+
+    /// 今日が期日なら「次」に含めます。今日払うものが消えると使えません。
+    func testNextDueIncludesToday() {
+        let today = makeSubscription(name: "今日更新", renewalOn: date(2026, 1, 15))
+
+        let next = DashboardListBuilder.nextDue(
+            subscriptions: [today],
+            loans: [],
+            costTypeFilter: .all,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(next?.name, "今日更新")
+    }
+
+    /// 停止中の費目と完済した借入は、もう支払いが来ないので対象外です。
+    func testNextDueIgnoresPausedAndCompleted() throws {
+        let paused = makeSubscription(name: "停止中", renewalOn: date(2026, 1, 20))
+        paused.state = .paused
+        let closed = try makeSynchronizedLoan(name: "完済ローン")
+        for payment in LoanPaymentStore.sortedPayments(on: closed) {
+            payment.status = .paid
+        }
+
+        let next = DashboardListBuilder.nextDue(
+            subscriptions: [paused],
+            loans: [closed],
+            costTypeFilter: .all,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertNil(next)
+    }
+
     // MARK: - 検索候補
 
     /// **候補に借入も出ること。** 費目しか出さないと、打っている最中に「見つからない」と受け取られます。

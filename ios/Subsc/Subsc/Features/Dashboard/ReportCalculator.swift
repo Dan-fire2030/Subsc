@@ -32,10 +32,18 @@ enum ReportCalculator {
         loans: [Loan] = [],
         period: ReportPeriod,
         cursor: Date,
+        now: Date = .now,
         calendar: Calendar = .current
     ) -> PaymentReport {
         let active = subscriptions.filter { subscription in
-            guard subscription.state == .active else { return false }
+            // **停止は「今」の状態であって、過去の事実ではありません。**
+            // 過ぎ去った期間からも消すと、その月に実際に払っていた記録まで
+            // 無かったことになり、あとから見返した合計が変わってしまいます。
+            // いつ停止したかは記録していないため、期間が過去かどうかだけで判断します。
+            if subscription.state != .active,
+               !isPastPeriod(period, cursor: cursor, now: now, calendar: calendar) {
+                return false
+            }
             if let startDate = subscription.startDate,
                startDate >= periodEnd(period, cursor: cursor, calendar: calendar) {
                 return false
@@ -193,6 +201,20 @@ enum ReportCalculator {
             amount: total,
             source: hasEstimatedMonth ? .estimated : .recorded
         )
+    }
+
+    /// その期間が丸ごと過ぎ去っているかどうかです。
+    ///
+    /// 期間の終わり（次の期間の始まり）が今日以前なら過去とみなします。
+    /// **今日を含む期間は過去に入れません。** 停止した当月まで計上すると、
+    /// もう払っていない額が「今月の支出」に残ります。
+    private static func isPastPeriod(
+        _ period: ReportPeriod,
+        cursor: Date,
+        now: Date,
+        calendar: Calendar
+    ) -> Bool {
+        periodEnd(period, cursor: cursor, calendar: calendar) <= calendar.startOfDay(for: now)
     }
 
     private static func periodStart(

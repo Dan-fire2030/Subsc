@@ -199,6 +199,65 @@ final class LoanPaymentStoreTests: XCTestCase {
 
     // MARK: - 補助
 
+    // MARK: - 完済の判定
+
+    /// 返済中は完済フラグが立ちません。
+    func testLoanIsNotClosedWhileRepaymentsRemain() throws {
+        let loan = makeLoan()
+
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+
+        XCTAssertFalse(loan.isClosed)
+    }
+
+    /// 全回の記録が済んだら完済フラグが立ちます。
+    func testLoanBecomesClosedWhenEveryInstallmentIsSettled() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+
+        for payment in LoanPaymentStore.sortedPayments(on: loan) {
+            try LoanPaymentStore.recordPayment(
+                amount: payment.scheduledAmount,
+                period: payment.period,
+                on: loan,
+                calendar: Fixture.calendar
+            )
+        }
+
+        XCTAssertTrue(loan.isClosed)
+    }
+
+    /// **返済日を過ぎただけでも完済になります。** 予定表を組み直さない経路なので、
+    /// ここで更新し忘れるとフラグが古いまま残ります。
+    func testSettlingPastDueAlsoClosesTheLoan() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+
+        // 最終回（2026-12-27）より後を「今」にします。
+        LoanPaymentStore.settlePastDue(on: loan, now: date(2027, 1, 5))
+
+        XCTAssertTrue(loan.isClosed)
+    }
+
+    /// 記録を取り消したら完済フラグも戻ります。戻さないと履歴へ入ったままになります。
+    func testClearingARecordReopensTheLoan() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+        for payment in LoanPaymentStore.sortedPayments(on: loan) {
+            try LoanPaymentStore.recordPayment(
+                amount: payment.scheduledAmount,
+                period: payment.period,
+                on: loan,
+                calendar: Fixture.calendar
+            )
+        }
+        XCTAssertTrue(loan.isClosed)
+
+        try LoanPaymentStore.clearRecord(period: 12, on: loan, calendar: Fixture.calendar)
+
+        XCTAssertFalse(loan.isClosed, "返済が1回戻ったのに完済のままです。")
+    }
+
     // MARK: - 記録の取り消し
 
     /// **滞納は押し間違えます。** 取り消したら完済予定日も元に戻らなければ、記録を直す意味がありません。

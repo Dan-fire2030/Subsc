@@ -82,6 +82,9 @@ enum LoanPaymentStore {
         }
 
         loan.payments = payments
+        // **完済したかどうかをここで確定させます。** 記録を取り消して返済が復活したときは
+        // false へ戻ります。
+        updateClosedState(of: loan)
         loan.updatedAt = .now
         return SynchronizationResult(payments: payments, removed: removed)
     }
@@ -154,7 +157,19 @@ enum LoanPaymentStore {
         for payment in settled {
             payment.status = .paid
         }
+        // 最後の回がここで返済済みになることがあります。**予定表を組み直さない経路**なので、
+        // 完済の判定もここで更新しないと、`isClosed` が古いまま残ります。
+        updateClosedState(of: loan)
         return settled
+    }
+
+    /// 予定が1回も残っていなければ完済とみなします。
+    ///
+    /// **判定はこの1箇所に閉じます。** 完済かどうかを画面ごとに数え直すと、
+    /// 記録を取り消したときに戻し忘れが起きます。
+    private static func updateClosedState(of loan: Loan) {
+        let payments = sortedPayments(on: loan)
+        loan.isClosed = !payments.isEmpty && payments.allSatisfy { $0.status != .scheduled }
     }
 
     /// 予定表の1回目の返済日です。

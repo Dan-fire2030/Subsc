@@ -137,7 +137,8 @@ final class ReportCalculatorVariableAmountTests: XCTestCase {
         XCTAssertEqual(report.entries.count, 2)
     }
 
-    func testPausedVariableCostsAreExcluded() {
+    /// 停止した変動費は、**これからの月**からは消えます。もう払わないためです。
+    func testPausedVariableCostsAreExcludedFromTheCurrentMonth() {
         let electricity = makeUtility(entries: [(2026, 7, 8200)])
         electricity.state = .paused
 
@@ -145,9 +146,30 @@ final class ReportCalculatorVariableAmountTests: XCTestCase {
             subscriptions: [electricity],
             period: .month,
             cursor: date(2026, 7, 15),
+            now: date(2026, 7, 20),
             calendar: calendar
         )
 
         XCTAssertTrue(report.entries.isEmpty)
+    }
+
+    /// **過去の月に記録した実績は、停止しても残ります。**
+    ///
+    /// 以前はここも消えており、停止した瞬間に「先月いくら払ったか」が変わっていました。
+    /// 8,200円は実際に払った額なので、あとから無かったことにはできません。
+    func testPausedVariableCostsKeepTheirPastRecords() {
+        let electricity = makeUtility(entries: [(2026, 7, 8200)])
+        electricity.state = .paused
+
+        let report = ReportCalculator.report(
+            subscriptions: [electricity],
+            period: .month,
+            cursor: date(2026, 7, 15),
+            now: date(2026, 9, 1),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(report.total, 8200)
+        XCTAssertEqual(report.entries.first?.isEstimated, false)
     }
 }

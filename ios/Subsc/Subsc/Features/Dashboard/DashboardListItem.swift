@@ -112,6 +112,34 @@ enum DashboardListBuilder {
         )
     }
 
+    /// 次に支払いが来る1件です。
+    ///
+    /// **費目の更新日と借入の返済日を同じ土俵で比べます。** 片方しか見ないと、
+    /// 明日が返済日の借入があっても「次の支払い」に出てきません。
+    /// 停止中の費目と完済した借入は、もう支払いが来ないので対象外です。
+    static func nextDue(
+        subscriptions: [Subscription],
+        loans: [Loan],
+        costTypeFilter: CostTypeFilter,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> DashboardListItem? {
+        let today = calendar.startOfDay(for: now)
+        return items(
+            subscriptions: subscriptions,
+            loans: loans,
+            stateFilter: .active,
+            costTypeFilter: costTypeFilter,
+            query: "",
+            now: now,
+            calendar: calendar
+        )
+        .first { item in
+            guard let dueDate = item.nextDueDate else { return false }
+            return calendar.startOfDay(for: dueDate) >= today
+        }
+    }
+
     /// 期日の昇順に並べ、**期日が無いものは末尾**へ送ります。
     /// 同じ日付のときは名前で並べ、再描画のたびに順序が入れ替わらないようにします。
     private static func sorted(_ items: [DashboardListItem]) -> [DashboardListItem] {

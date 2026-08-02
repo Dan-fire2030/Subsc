@@ -52,10 +52,13 @@ struct DashboardView: View {
         )
     }
 
-    private var nextRenewal: Subscription? {
-        subscriptionsInSelectedTypes
-            .filter { $0.state == .active && $0.renewalDate >= Calendar.current.startOfDay(for: .now) }
-            .min { $0.renewalDate < $1.renewalDate }
+    /// 次に支払いが来る1件です。**費目の更新日と借入の返済日を同じ土俵で比べます。**
+    private var nextDue: DashboardListItem? {
+        DashboardListBuilder.nextDue(
+            subscriptions: subscriptions,
+            loans: loans,
+            costTypeFilter: costTypeFilter
+        )
     }
 
     /// 為替レートの更新は表示上の種別絞り込みと無関係なため、全費目の米ドル契約を監視します。
@@ -91,13 +94,19 @@ struct DashboardView: View {
                             .listRowSeparator(.hidden)
                     }
 
-                    if let nextRenewal {
-                        Section("次の更新") {
+                    if let nextDue, let dueDate = nextDue.nextDueDate {
+                        // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
+                        Section("次の支払い") {
                             NavigationLink {
-                                SubscriptionDetailView(subscription: nextRenewal)
+                                switch nextDue {
+                                case .subscription(let subscription):
+                                    SubscriptionDetailView(subscription: subscription)
+                                case .loan(let loan, _):
+                                    LoanDetailView(loan: loan)
+                                }
                             } label: {
                                 HStack(spacing: 12) {
-                                    Image(systemName: "calendar.badge.clock")
+                                    Image(systemName: nextDueSymbol(for: nextDue))
                                         .font(.title3)
                                         .foregroundStyle(.white)
                                         .frame(width: 36, height: 36)
@@ -110,14 +119,14 @@ struct DashboardView: View {
                                                 .stroke(.white.opacity(0.55), lineWidth: 0.7)
                                         }
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text(nextRenewal.name)
+                                        Text(nextDue.name)
                                             .font(.headline)
-                                        Text(nextRenewal.renewalDate, format: .dateTime.month().day())
+                                        Text(dueDate, format: .dateTime.month().day())
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                     }
                                     Spacer()
-                                    Text(relativeDate(nextRenewal.renewalDate))
+                                    Text(relativeDate(dueDate))
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.green)
                                 }
@@ -248,6 +257,14 @@ struct DashboardView: View {
                     Text("「\(pendingDeletion.name)」の登録情報を削除します。この操作は取り消せません。")
                 }
             }
+        }
+    }
+
+    /// 「次の支払い」のアイコンです。更新なのか返済なのかを一目で分けます。
+    private func nextDueSymbol(for item: DashboardListItem) -> String {
+        switch item {
+        case .subscription: "calendar.badge.clock"
+        case .loan: CostType.loan.systemImage
         }
     }
 
