@@ -8,11 +8,13 @@ import Foundation
 enum NotificationNamespace: String, CaseIterable {
     case renewal
     case reminder
+    case loan
 
     var prefix: String {
         switch self {
         case .renewal: "subsc-"
         case .reminder: "subsc-remind-"
+        case .loan: "subsc-loan-"
         }
     }
 
@@ -24,9 +26,12 @@ enum NotificationNamespace: String, CaseIterable {
     func contains(_ identifier: String) -> Bool {
         switch self {
         case .renewal:
+            // **名前空間を増やすたびに、ここへ除外を足す必要があります。**
+            // 忘れると、更新日通知の再スケジュールが新しい名前空間を丸ごと消します。
             identifier.hasPrefix(prefix)
                 && !identifier.hasPrefix(NotificationNamespace.reminder.prefix)
-        case .reminder:
+                && !identifier.hasPrefix(NotificationNamespace.loan.prefix)
+        case .reminder, .loan:
             identifier.hasPrefix(prefix)
         }
     }
@@ -43,6 +48,11 @@ enum NotificationIdentifier {
         "\(NotificationNamespace.reminder.prefix)\(clientID)-\(periodKey)"
     }
 
+    /// ローンの返済日通知の識別子です。1つの契約・1つの年月につき1件になります。
+    static func loanPayment(clientID: String, periodKey: Int) -> String {
+        "\(NotificationNamespace.loan.prefix)\(clientID)-\(periodKey)"
+    }
+
     /// その名前空間で、もう予約しておく必要がなくなった識別子を返します。
     static func obsolete(
         pending: [String],
@@ -55,10 +65,7 @@ enum NotificationIdentifier {
     /// 1つの費目に紐づく識別子を、名前空間をまたいで集めます。
     /// 費目を削除したときに、更新日通知とリマインドの両方を取り消すために使います。
     static func all(pending: [String], clientID: String) -> [String] {
-        let prefixes = [
-            "\(NotificationNamespace.renewal.prefix)\(clientID)-",
-            "\(NotificationNamespace.reminder.prefix)\(clientID)-"
-        ]
+        let prefixes = NotificationNamespace.allCases.map { "\($0.prefix)\(clientID)-" }
         return pending.filter { identifier in
             prefixes.contains { identifier.hasPrefix($0) }
         }

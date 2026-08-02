@@ -24,6 +24,74 @@ final class NotificationIdentifierTests: XCTestCase {
         XCTAssertFalse(NotificationNamespace.renewal.contains(reminder))
     }
 
+    /// **ここが本丸。** ローンの識別子も接頭辞 `subsc-` で始まるため、
+    /// 更新日通知の名前空間から明示的に除外しないと、**再スケジュールのたびに全部消えます。**
+    func testLoanIdentifiersAreNotSweptAwayByRenewals() {
+        let loan = NotificationIdentifier.loanPayment(clientID: clientID, periodKey: 202607)
+
+        XCTAssertTrue(NotificationNamespace.loan.contains(loan))
+        XCTAssertFalse(NotificationNamespace.renewal.contains(loan))
+        XCTAssertFalse(NotificationNamespace.reminder.contains(loan))
+    }
+
+    func testRescheduledRenewalsDoNotSweepAwayLoanPayments() {
+        let loan = NotificationIdentifier.loanPayment(clientID: clientID, periodKey: 202607)
+        let staleRenewal = NotificationIdentifier.renewal(
+            clientID: clientID,
+            cycleKey: "2026-06-25T09:00:00",
+            suffix: "day-1"
+        )
+
+        let obsolete = NotificationIdentifier.obsolete(
+            pending: [loan, staleRenewal],
+            desired: [],
+            in: .renewal
+        )
+
+        XCTAssertEqual(obsolete, [staleRenewal])
+    }
+
+    func testRescheduledLoanPaymentsDoNotSweepAwayRenewalsOrReminders() {
+        let renewal = NotificationIdentifier.renewal(
+            clientID: clientID,
+            cycleKey: "2026-07-25T09:00:00",
+            suffix: "day-1"
+        )
+        let reminder = NotificationIdentifier.reminder(clientID: clientID, periodKey: 202607)
+        let staleLoan = NotificationIdentifier.loanPayment(clientID: clientID, periodKey: 202606)
+
+        let obsolete = NotificationIdentifier.obsolete(
+            pending: [renewal, reminder, staleLoan],
+            desired: [],
+            in: .loan
+        )
+
+        XCTAssertEqual(obsolete, [staleLoan])
+    }
+
+    /// 契約を消したときに、その契約ぶんの通知だけを取り消せること。
+    func testAllCollectsLoanIdentifiersForTheSameClient() {
+        let loan = NotificationIdentifier.loanPayment(clientID: clientID, periodKey: 202607)
+        let other = NotificationIdentifier.loanPayment(clientID: "other", periodKey: 202607)
+
+        let collected = NotificationIdentifier.all(pending: [loan, other], clientID: clientID)
+
+        XCTAssertEqual(collected, [loan])
+    }
+
+    func testEveryNamespaceClaimsOnlyItsOwnIdentifiers() {
+        let identifiers = [
+            NotificationIdentifier.renewal(clientID: clientID, cycleKey: "k", suffix: "day-1"),
+            NotificationIdentifier.reminder(clientID: clientID, periodKey: 202607),
+            NotificationIdentifier.loanPayment(clientID: clientID, periodKey: 202607)
+        ]
+
+        for identifier in identifiers {
+            let owners = NotificationNamespace.allCases.filter { $0.contains(identifier) }
+            XCTAssertEqual(owners.count, 1, "\(identifier) を持つ名前空間が1つではありません")
+        }
+    }
+
     func testRescheduledRenewalsDoNotSweepAwayReminders() {
         let reminder = NotificationIdentifier.reminder(clientID: clientID, periodKey: 202607)
         let staleRenewal = NotificationIdentifier.renewal(
