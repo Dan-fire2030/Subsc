@@ -26,6 +26,8 @@ enum BubbleLayout {
         /// 配置は円が接するように詰めるため、そのまま描くと**漂うアニメーションで
         /// 隣同士が食い込みます**。一律に縮めれば面積比も非重複も保ったまま隙間ができます。
         static let renderRadiusRatio: CGFloat = 0.93
+        /// 余白を詰める繰り返しの上限です。収束が速いので、これだけあれば余白は1%を切ります。
+        static let spreadPassCount = 6
     }
 
     private struct IndexedEntry {
@@ -147,30 +149,111 @@ enum BubbleLayout {
         return candidate.y < current.y
     }
 
-    private static func fitted(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
-        let minimumX = nodes.map { $0.center.x - $0.radius }.min() ?? 0
-        let maximumX = nodes.map { $0.center.x + $0.radius }.max() ?? 0
-        let minimumY = nodes.map { $0.center.y - $0.radius }.min() ?? 0
-        let maximumY = nodes.map { $0.center.y + $0.radius }.max() ?? 0
-        let contentWidth = maximumX - minimumX
-        let contentHeight = maximumY - minimumY
-        guard contentWidth > 0, contentHeight > 0 else { return [] }
+    /// 円をすべて含む外接矩形です。半径ぶんまで含めて測ります。
+    private struct Bounds {
+        let minimumX: CGFloat
+        let maximumX: CGFloat
+        let minimumY: CGFloat
+        let maximumY: CGFloat
 
-        let scale = min(size.width / contentWidth, size.height / contentHeight)
-        let contentCenter = CGPoint(
-            x: (minimumX + maximumX) / 2,
-            y: (minimumY + maximumY) / 2
+        var width: CGFloat { maximumX - minimumX }
+        var height: CGFloat { maximumY - minimumY }
+        var center: CGPoint {
+            CGPoint(x: (minimumX + maximumX) / 2, y: (minimumY + maximumY) / 2)
+        }
+    }
+
+    private static func bounds(of nodes: [BubbleNode]) -> Bounds? {
+        guard
+            let minimumX = nodes.map({ $0.center.x - $0.radius }).min(),
+            let maximumX = nodes.map({ $0.center.x + $0.radius }).max(),
+            let minimumY = nodes.map({ $0.center.y - $0.radius }).min(),
+            let maximumY = nodes.map({ $0.center.y + $0.radius }).max()
+        else { return nil }
+        return Bounds(
+            minimumX: minimumX,
+            maximumX: maximumX,
+            minimumY: minimumY,
+            maximumY: maximumY
         )
-        let targetCenter = CGPoint(x: size.width / 2, y: size.height / 2)
+    }
+
+    private static func fitted(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
+        guard let box = bounds(of: nodes), box.width > 0, box.height > 0 else { return [] }
+
+        let scale = min(size.width / box.width, size.height / box.height)
+        let scaled = nodes.map { node in
+            BubbleNode(
+                id: node.id,
+                center: CGPoint(
+                    x: (node.center.x - box.center.x) * scale,
+                    y: (node.center.y - box.center.y) * scale
+                ),
+                radius: node.radius * scale * Constants.renderRadiusRatio
+            )
+        }
+
+        return centered(spread(scaled, in: size), in: size)
+    }
+
+    /// 余白が無くなるまで `spread` を繰り返します。
+    ///
+    /// 1回では埋まりません。**半径は広がらないので、外接矩形は掛けた倍率どおりには伸びない**
+    /// ためです（実測で残り約5%）。残りに対して同じ操作を繰り返せば急速に収束します。
+    /// 毎回1以上の倍率しか掛けないので、繰り返しても円が近づくことはありません。
+    private static func spread(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
+        var spread = nodes
+        for _ in 0..<Constants.spreadPassCount {
+            let next = spreadOnce(spread, in: size)
+            if next == spread { break }
+            spread = next
+        }
+        return spread
+    }
+
+    /// 等方縮小のあとに残る余白を、**中心の間隔だけを広げて**埋めます。
+    ///
+    /// 等方縮小は縦横のうち厳しいほうの軸に合わせるため、もう一方には必ず余白が残ります
+    /// （実機の枠では横に約2割空いていました）。半径を変えずに中心どうしを離せば、
+    /// **面積比はそのまま、円同士の距離は縮まないので重なりも増えません。**
+    ///
+    /// 半径は広がらないぶん外接矩形は倍率どおりには伸びず、領域をわずかに残して収まります。
+    /// **はみ出す側へは決して動かないので、これは安全側のズレです。**
+    private static func spreadOnce(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
+        guard nodes.count > 1, let box = bounds(of: nodes), box.width > 0, box.height > 0 else {
+            return nodes
+        }
+
+        let horizontal = max(1, size.width / box.width)
+        let vertical = max(1, size.height / box.height)
+        guard horizontal > 1 || vertical > 1 else { return nodes }
 
         return nodes.map { node in
             BubbleNode(
                 id: node.id,
                 center: CGPoint(
-                    x: (node.center.x - contentCenter.x) * scale + targetCenter.x,
-                    y: (node.center.y - contentCenter.y) * scale + targetCenter.y
+                    x: box.center.x + (node.center.x - box.center.x) * horizontal,
+                    y: box.center.y + (node.center.y - box.center.y) * vertical
                 ),
-                radius: node.radius * scale * Constants.renderRadiusRatio
+                radius: node.radius
+            )
+        }
+    }
+
+    private static func centered(_ nodes: [BubbleNode], in size: CGSize) -> [BubbleNode] {
+        guard let box = bounds(of: nodes) else { return nodes }
+
+        let horizontalShift = size.width / 2 - box.center.x
+        let verticalShift = size.height / 2 - box.center.y
+
+        return nodes.map { node in
+            BubbleNode(
+                id: node.id,
+                center: CGPoint(
+                    x: node.center.x + horizontalShift,
+                    y: node.center.y + verticalShift
+                ),
+                radius: node.radius
             )
         }
     }

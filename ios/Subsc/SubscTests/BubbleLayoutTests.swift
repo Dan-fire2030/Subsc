@@ -4,6 +4,9 @@ import XCTest
 final class BubbleLayoutTests: XCTestCase {
     private enum TestLayout {
         static let size = CGSize(width: 320, height: 180)
+        /// 実機のグラフ枠に近い縦横比です。カード幅から余白を引くと約289×128ptになり、
+        /// `size` の1.78よりずっと横長（約2.3）になります。
+        static let wideSize = CGSize(width: 300, height: 130)
         static let geometryTolerance: CGFloat = 0.001
         static let ratioTolerance = 0.001
     }
@@ -53,6 +56,36 @@ final class BubbleLayoutTests: XCTestCase {
             0.8,
             "縦方向が埋まっていません"
         )
+    }
+
+    /// **実機の枠は `size` よりさらに横長で、等方縮小だけでは横に約2割の余白が残ります。**
+    /// 詰め上がったクラスタの縦横比は領域の縦横比と一致しないため、
+    /// 縮小を厳しいほうの軸に合わせる限り、もう一方は必ず余ります。
+    func testWideRectangleIsFilledOnBothAxes() throws {
+        let entries = (0..<9).map { entry(id: "item-\($0)", amount: Double(9 - $0) * 500) }
+        let nodes = BubbleLayout.layout(entries: entries, in: TestLayout.wideSize)
+
+        let minimumX = try XCTUnwrap(nodes.map { $0.center.x - $0.radius }.min())
+        let maximumX = try XCTUnwrap(nodes.map { $0.center.x + $0.radius }.max())
+        let minimumY = try XCTUnwrap(nodes.map { $0.center.y - $0.radius }.min())
+        let maximumY = try XCTUnwrap(nodes.map { $0.center.y + $0.radius }.max())
+
+        XCTAssertGreaterThanOrEqual(
+            (maximumX - minimumX) / TestLayout.wideSize.width,
+            0.95,
+            "横方向に余白が残っています"
+        )
+        XCTAssertGreaterThanOrEqual(
+            (maximumY - minimumY) / TestLayout.wideSize.height,
+            0.95,
+            "縦方向に余白が残っています"
+        )
+    }
+
+    func testWideRectangleGeometryStaysValid() {
+        let entries = (0..<9).map { entry(id: "item-\($0)", amount: Double(9 - $0) * 500) }
+
+        assertValidGeometry(for: entries, in: TestLayout.wideSize)
     }
 
     func testCirclesDoNotOverlap() {
@@ -118,10 +151,11 @@ final class BubbleLayoutTests: XCTestCase {
 
     private func assertValidGeometry(
         for entries: [ReportChartItem],
+        in size: CGSize = TestLayout.size,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        let nodes = BubbleLayout.layout(entries: entries, in: TestLayout.size)
+        let nodes = BubbleLayout.layout(entries: entries, in: size)
 
         XCTAssertEqual(nodes.count, entries.count, file: file, line: line)
         for (index, first) in nodes.enumerated() {
@@ -140,13 +174,13 @@ final class BubbleLayoutTests: XCTestCase {
             )
             XCTAssertLessThanOrEqual(
                 first.center.x + first.radius,
-                TestLayout.size.width + TestLayout.geometryTolerance,
+                size.width + TestLayout.geometryTolerance,
                 file: file,
                 line: line
             )
             XCTAssertLessThanOrEqual(
                 first.center.y + first.radius,
-                TestLayout.size.height + TestLayout.geometryTolerance,
+                size.height + TestLayout.geometryTolerance,
                 file: file,
                 line: line
             )
