@@ -148,13 +148,11 @@ struct DashboardView: View {
                     Section(listSectionTitle) {
                         if visibleItems.isEmpty {
                             ContentUnavailableView(
-                                query.isEmpty ? "対象の費目はありません" : "見つかりませんでした",
-                                systemImage: query.isEmpty ? "line.3.horizontal.decrease.circle" : "magnifyingglass",
-                                description: Text(
-                                    query.isEmpty
-                                        ? "別の絞り込みを選択してください。"
-                                        : "検索条件や絞り込みを変更してください。"
-                                )
+                                query.isEmpty ? filter.emptyStateTitle : "見つかりませんでした",
+                                systemImage: query.isEmpty
+                                    ? "line.3.horizontal.decrease.circle"
+                                    : "magnifyingglass",
+                                description: Text(emptyStateDescription)
                             )
                             .glassListRow()
                         } else {
@@ -336,6 +334,18 @@ struct DashboardView: View {
             Label("追加", systemImage: "plus")
         }
         .accessibilityIdentifier("add-menu")
+    }
+
+    /// 該当が無いときの説明です。
+    ///
+    /// 検索中は検索の話を優先します。**種別で絞り込んでいることを見落として
+    /// 「無くなった」と思われる**ことがあるため、絞り込み中はその旨を必ず添えます。
+    private var emptyStateDescription: String {
+        let base = query.isEmpty
+            ? filter.emptyStateDescription
+            : "検索条件を変えてみてください。"
+        guard costTypeFilter.isNarrowed else { return base }
+        return "\(base)\nいまは「\(costTypeFilter.title)」で絞り込んでいます。"
     }
 
     /// 一覧の見出しです。種別で絞り込んでいるときは、何を見ているかを見出しで示します。

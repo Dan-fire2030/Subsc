@@ -10,6 +10,36 @@ enum SubscriptionFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+extension SubscriptionFilter {
+    /// 該当が1件も無いときの見出しです。
+    var emptyStateTitle: String {
+        switch self {
+        case .all: "表示できるものがありません"
+        case .active: "利用中のものがありません"
+        case .paused: "停止中の費目はありません"
+        case .history: "履歴はまだありません"
+        }
+    }
+
+    /// 該当が1件も無いときの説明です。
+    ///
+    /// **「別の絞り込みを選択してください」では何も分かりません。**
+    /// この絞り込みに何が入るのかを書き、条件を満たす操作まで示します。
+    /// 借入と費目で条件が違うため、両方に触れます。
+    var emptyStateDescription: String {
+        switch self {
+        case .all:
+            "右上の「＋」から費目や借入・ローンを追加してください。"
+        case .active:
+            "利用中の費目と、返済中の借入がここに並びます。"
+        case .paused:
+            "費目を左へスワイプすると停止できます。借入・ローンに停止はありません。"
+        case .history:
+            "終了日を過ぎた費目と、完済した借入・ローンがここに入ります。"
+        }
+    }
+}
+
 /// 種別での絞り込み条件です。
 ///
 /// 一覧とレポートの**両方に効く1つの条件**として使います。同じ絞り込みを画面内に

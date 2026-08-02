@@ -113,6 +113,7 @@
 		AA0001150000000000000115 /* LoanBorrowingSimulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001150000000000000115 /* LoanBorrowingSimulatorView.swift */; };
 		AA0001160000000000000116 /* LoanSimulatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001160000000000000116 /* LoanSimulatorTests.swift */; };
 		AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */; };
+		AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +245,7 @@
 		BB0001150000000000000115 /* LoanBorrowingSimulatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanBorrowingSimulatorView.swift; sourceTree = "<group>"; };
 		BB0001160000000000000116 /* LoanSimulatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSimulatorTests.swift; sourceTree = "<group>"; };
 		BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorLoanTests.swift; sourceTree = "<group>"; };
+		BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFilterEmptyStateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -432,6 +434,7 @@
 		DD0000100000000000000010 /* SubscTests */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
 				BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */,
 				BB0001160000000000000116 /* LoanSimulatorTests.swift */,
 				BB0001010000000000000101 /* DashboardListItemTests.swift */,
@@ -716,6 +719,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
 				AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */,
 				AA0001160000000000000116 /* LoanSimulatorTests.swift in Sources */,
 				AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */,
