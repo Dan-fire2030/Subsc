@@ -115,6 +115,7 @@
 		AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */; };
 		AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */; };
 		AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */; };
+		AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001200000000000000120 /* LoanDueDateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +249,7 @@
 		BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorLoanTests.swift; sourceTree = "<group>"; };
 		BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFilterEmptyStateTests.swift; sourceTree = "<group>"; };
 		BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorPausedTests.swift; sourceTree = "<group>"; };
+		BB0001200000000000000120 /* LoanDueDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanDueDateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -436,6 +438,7 @@
 		DD0000100000000000000010 /* SubscTests */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
 				BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */,
@@ -722,6 +725,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
 				AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */,

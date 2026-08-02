@@ -28,6 +28,14 @@ enum LoanNotificationPlanner {
     /// 何ヶ月先まで予約しておくか。長くすると予約枠を食い、更新日通知を圧迫します。
     static let monthsAhead = 3
 
+    /// 通知を出す時刻です。
+    ///
+    /// **返済日は年月日しか持たないため、そのまま使うと0時に鳴ります。**
+    /// 深夜の通知は気づかれないか、寝ているところを起こすだけです。
+    /// 費目の通知の既定値（9時）と揃えています。
+    /// 契約ごとに選べるようにするとCloudKitのフィールドが増えるため、いまは固定にしています。
+    static let notificationHour = 9
+
     static func plannedPayments(
         loans: [Loan],
         now: Date,
@@ -40,7 +48,7 @@ enum LoanNotificationPlanner {
             .filter { !$0.isClosed }
             .flatMap { loan in
                 upcomingPayments(on: loan, now: now, calendar: calendar).compactMap {
-                    notification(for: loan, payment: $0)
+                    notification(for: loan, payment: $0, calendar: calendar)
                 }
             }
 
@@ -67,9 +75,19 @@ enum LoanNotificationPlanner {
 
     private static func notification(
         for loan: Loan,
-        payment: LoanPayment
+        payment: LoanPayment,
+        calendar: Calendar
     ) -> NotificationService.PlannedNotification? {
-        guard let dueOn = payment.dueOn else { return nil }
+        guard
+            let dueOn = payment.dueOn,
+            // 返済日は0時なので、通知を出す時刻まで進めます。
+            let firesAt = calendar.date(
+                bySettingHour: notificationHour,
+                minute: 0,
+                second: 0,
+                of: dueOn
+            )
+        else { return nil }
         let amount = payment.scheduledAmount
             .formatted(.currency(code: "JPY").precision(.fractionLength(0)))
 
@@ -79,7 +97,7 @@ enum LoanNotificationPlanner {
                 clientID: loan.clientID,
                 periodKey: payment.periodKey
             ),
-            date: dueOn,
+            date: firesAt,
             title: "\(loan.name)の返済日です",
             body: "\(amount)の返済予定です。返済できたか教えてください。",
             categoryIdentifier: LoanNotificationAction.categoryIdentifier

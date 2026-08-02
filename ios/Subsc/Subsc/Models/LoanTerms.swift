@@ -73,6 +73,13 @@ struct LoanTerms: Equatable {
     var method: RepaymentMethod
     /// 次回の返済日です。ここを1回目として月ごとに進めます。
     var firstDueDate: Date
+    /// 毎月の返済日（1〜31）です。
+    ///
+    /// **`firstDueDate` を月ごとに進めるだけでは足りません。** 起点が短い月に丸められていると
+    /// （31日指定で2月起点なら28日）、以降ずっとその日で固定されてしまいます。
+    /// 各回でこの日へ丸め直すために、意図した日を別に持ちます。
+    /// 試算のように日付そのものに意味がない場合は nil で構いません。
+    var paymentDay: Int?
     /// ボーナス返済月（1〜12）。該当月は `bonusAmount` を上乗せし、**全額を元金へ充当**します。
     var bonusMonths: [Int]
     var bonusAmount: Double
@@ -86,6 +93,7 @@ struct LoanTerms: Equatable {
         installmentCount: Int,
         method: RepaymentMethod = .equalPayment,
         firstDueDate: Date,
+        paymentDay: Int? = nil,
         bonusMonths: [Int] = [],
         bonusAmount: Double = 0,
         revolvingTiers: [RevolvingTier] = []
@@ -97,9 +105,30 @@ struct LoanTerms: Equatable {
         self.installmentCount = installmentCount
         self.method = method
         self.firstDueDate = firstDueDate
+        self.paymentDay = paymentDay
         self.bonusMonths = bonusMonths
         self.bonusAmount = bonusAmount
         self.revolvingTiers = revolvingTiers
+    }
+}
+
+extension Calendar {
+    /// その月の指定日です。**月末が短い月は末日へ丸めます。**
+    ///
+    /// `date(from:)` は存在しない日付を翌月へ送ります（2026年2月31日 → 3月3日）。
+    /// そのまま使うと、返済日を31日にした契約の日付が3日へずれ、以降ずっとそのままになります。
+    /// 日本のローンの実務でも、短い月は末日に寄せます。
+    func dueDate(inMonthOf base: Date, day: Int) -> Date? {
+        var components = dateComponents([.year, .month], from: base)
+        components.day = 1
+        guard
+            let monthStart = date(from: components),
+            let range = range(of: .day, in: .month, for: monthStart)
+        else {
+            return nil
+        }
+        components.day = min(max(day, 1), range.count)
+        return date(from: components)
     }
 }
 

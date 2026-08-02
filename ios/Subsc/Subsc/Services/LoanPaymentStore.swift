@@ -189,9 +189,7 @@ enum LoanPaymentStore {
             base = nextMonth
         }
 
-        var components = calendar.dateComponents([.year, .month], from: base)
-        components.day = loan.paymentDay
-        guard let dueDate = calendar.date(from: components) else {
+        guard let dueDate = calendar.dueDate(inMonthOf: base, day: loan.paymentDay) else {
             throw LoanTermsError.scheduleDoesNotTerminate
         }
         return dueDate

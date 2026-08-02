@@ -42,13 +42,16 @@ struct LoanScheduleCalculator {
         var installments: [LoanInstallment] = []
         var balance = terms.principal
         var period = 1
+        /// 実際に返済した回数です。**滞納した月は数えません。**
+        /// 契約の回数に達したかどうかを、ずれた期間ではなくこの数で判断します。
+        var settledCount = 0
 
         while balance > Limit.settlement {
             guard period <= Limit.maximumPeriods else {
                 throw LoanTermsError.scheduleDoesNotTerminate
             }
 
-            let dueDate = try dueDate(for: period, from: terms.firstDueDate)
+            let dueDate = try dueDate(for: period, terms: terms)
             let rate = monthlyRate(annualRatePercent: annualRatePercent(at: dueDate, terms: terms))
             let interest = balance * rate
 
@@ -74,14 +77,24 @@ struct LoanScheduleCalculator {
             let scheduled = try basePayment(for: terms, balance: balance, monthlyRate: rate)
             let extra = extraPayment(for: dueDate, period: period, terms: terms, prepayments: prepayments)
 
+            // 契約の最後の回かどうか。リボ払いは回数を持たないため対象外です。
+            //
+            // **毎月の返済額は円未満を丸めているので、端数が必ず残ります。**
+            // 残高で判定するだけだと、切り捨てられたぶんが最後に数円残り、
+            // 契約より1回多い返済が生まれます（3回払いのはずが4回目に1円）。
+            // 回数に達したら、残っている元金をその回へ寄せて必ず終わらせます。
+            let isFinalInstallment = terms.method != .revolving
+                && settledCount + 1 >= terms.installmentCount
+
             var principal = scheduled - interest + extra
             var amount = scheduled + extra
-            if principal >= balance {
+            if principal >= balance || isFinalInstallment {
                 // 最終回。端数を元金へ寄せ、残高をちょうど0にします。
                 principal = balance
                 amount = principal + interest
             }
             balance -= principal
+            settledCount += 1
 
             installments.append(
                 LoanInstallment(
@@ -182,11 +195,24 @@ struct LoanScheduleCalculator {
 
     // MARK: - 日付
 
-    private func dueDate(for period: Int, from firstDueDate: Date) throws -> Date {
-        guard let date = calendar.date(byAdding: .month, value: period - 1, to: firstDueDate) else {
+    /// その回の返済日です。
+    ///
+    /// 月を進めたあと、**毎回あらためて返済日へ丸め直します。**
+    /// 進めるだけだと、起点が短い月に丸められていた場合（31日指定で2月起点なら28日）、
+    /// 以降ずっとその日で固定されてしまいます。
+    private func dueDate(for period: Int, terms: LoanTerms) throws -> Date {
+        guard let date = calendar.date(
+            byAdding: .month,
+            value: period - 1,
+            to: terms.firstDueDate
+        ) else {
             throw LoanTermsError.scheduleDoesNotTerminate
         }
-        return date
+        guard let paymentDay = terms.paymentDay else { return date }
+        guard let adjusted = calendar.dueDate(inMonthOf: date, day: paymentDay) else {
+            throw LoanTermsError.scheduleDoesNotTerminate
+        }
+        return adjusted
     }
 
     // MARK: - 入力検証

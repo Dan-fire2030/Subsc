@@ -158,6 +158,7 @@ final class Loan {
             installmentCount: usesCurrentBalance ? startingInstallments : totalInstallments,
             method: method,
             firstDueDate: nextDueDate,
+            paymentDay: paymentDay,
             bonusMonths: bonusMonths,
             bonusAmount: bonusAmount,
             revolvingTiers: slidingTiers

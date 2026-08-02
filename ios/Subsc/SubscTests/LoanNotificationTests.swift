@@ -27,7 +27,17 @@ final class LoanNotificationTests: XCTestCase {
 
         // 3ヶ月先まで＝1月27日・2月27日・3月27日の3件。
         XCTAssertEqual(planned.count, 3)
-        XCTAssertEqual(planned.first?.date, date(2026, 1, 27))
+        // **返済日そのもの（0時）ではなく、通知を出す時刻まで進めた日時になります。**
+        // 0時のままだと深夜に鳴ります。
+        XCTAssertEqual(
+            planned.first?.date,
+            Fixture.calendar.date(
+                bySettingHour: LoanNotificationPlanner.notificationHour,
+                minute: 0,
+                second: 0,
+                of: date(2026, 1, 27)
+            )
+        )
     }
 
     func testNotificationsCarryTheActionCategory() throws {
