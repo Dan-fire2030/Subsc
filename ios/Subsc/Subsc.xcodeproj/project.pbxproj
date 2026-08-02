@@ -97,6 +97,14 @@
 		AA000099000000000000099 /* LoanSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000099000000000000099 /* LoanSummaryTests.swift */; };
 		AA0001000000000000000100 /* LoanFormInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001000000000000000100 /* LoanFormInputTests.swift */; };
 		AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001010000000000000101 /* DashboardListItemTests.swift */; };
+		AA0001020000000000000102 /* LoanRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001020000000000000102 /* LoanRow.swift */; };
+		AA0001030000000000000103 /* LoanFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001030000000000000103 /* LoanFormView.swift */; };
+		AA0001040000000000000104 /* LoanFormView+Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001040000000000000104 /* LoanFormView+Sections.swift */; };
+		AA0001050000000000000105 /* LoanFormView+Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001050000000000000105 /* LoanFormView+Save.swift */; };
+		AA0001060000000000000106 /* LoanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001060000000000000106 /* LoanDetailView.swift */; };
+		AA0001070000000000000107 /* LoanScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001070000000000000107 /* LoanScheduleView.swift */; };
+		AA0001080000000000000108 /* LoanHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001080000000000000108 /* LoanHistoryView.swift */; };
+		AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001090000000000000109 /* LoanPaymentEditorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -212,6 +220,14 @@
 		BB000099000000000000099 /* LoanSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSummaryTests.swift; sourceTree = "<group>"; };
 		BB0001000000000000000100 /* LoanFormInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormInputTests.swift; sourceTree = "<group>"; };
 		BB0001010000000000000101 /* DashboardListItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListItemTests.swift; sourceTree = "<group>"; };
+		BB0001020000000000000102 /* LoanRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanRow.swift; sourceTree = "<group>"; };
+		BB0001030000000000000103 /* LoanFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormView.swift; sourceTree = "<group>"; };
+		BB0001040000000000000104 /* LoanFormView+Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoanFormView+Sections.swift"; sourceTree = "<group>"; };
+		BB0001050000000000000105 /* LoanFormView+Save.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoanFormView+Save.swift"; sourceTree = "<group>"; };
+		BB0001060000000000000106 /* LoanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanDetailView.swift; sourceTree = "<group>"; };
+		BB0001070000000000000107 /* LoanScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanScheduleView.swift; sourceTree = "<group>"; };
+		BB0001080000000000000108 /* LoanHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanHistoryView.swift; sourceTree = "<group>"; };
+		BB0001090000000000000109 /* LoanPaymentEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPaymentEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -311,6 +327,14 @@
 		DD0000200000000000000020 /* Loans */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001090000000000000109 /* LoanPaymentEditorView.swift */,
+				BB0001080000000000000108 /* LoanHistoryView.swift */,
+				BB0001070000000000000107 /* LoanScheduleView.swift */,
+				BB0001060000000000000106 /* LoanDetailView.swift */,
+				BB0001050000000000000105 /* LoanFormView+Save.swift */,
+				BB0001040000000000000104 /* LoanFormView+Sections.swift */,
+				BB0001030000000000000103 /* LoanFormView.swift */,
+				BB0001020000000000000102 /* LoanRow.swift */,
 				BB000097000000000000097 /* LoanFormInput.swift */,
 				BB000096000000000000096 /* LoanSummary.swift */,
 				BB0000860000000000000086 /* LoanScheduleCalculator.swift */,
@@ -577,6 +601,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */,
+				AA0001080000000000000108 /* LoanHistoryView.swift in Sources */,
+				AA0001070000000000000107 /* LoanScheduleView.swift in Sources */,
+				AA0001060000000000000106 /* LoanDetailView.swift in Sources */,
+				AA0001050000000000000105 /* LoanFormView+Save.swift in Sources */,
+				AA0001040000000000000104 /* LoanFormView+Sections.swift in Sources */,
+				AA0001030000000000000103 /* LoanFormView.swift in Sources */,
+				AA0001020000000000000102 /* LoanRow.swift in Sources */,
 				AA000098000000000000098 /* DashboardListItem.swift in Sources */,
 				AA000097000000000000097 /* LoanFormInput.swift in Sources */,
 				AA000096000000000000096 /* LoanSummary.swift in Sources */,

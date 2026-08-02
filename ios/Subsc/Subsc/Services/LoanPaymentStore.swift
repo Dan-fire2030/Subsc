@@ -121,6 +121,25 @@ enum LoanPaymentStore {
         return try synchronize(loan: loan, calendar: calendar)
     }
 
+    /// その回の記録を取り消し、予定へ戻します。
+    ///
+    /// **通知のボタンは押し間違えます。** 「滞納」を誤って選ぶと以降の予定が丸ごと後ろへずれるため、
+    /// 取り消せる道が要ります。取り消すと予定表は計算しなおされ、ずれも元に戻ります。
+    @discardableResult
+    static func clearRecord(
+        period: Int,
+        on loan: Loan,
+        calendar: Calendar = .current
+    ) throws -> SynchronizationResult {
+        for row in sortedPayments(on: loan) where row.period == period {
+            row.status = .scheduled
+            // nil は「予定どおり」の意味です。0（実績として0円）と混ぜません。
+            row.actualAmount = nil
+            row.recordedAt = nil
+        }
+        return try synchronize(loan: loan, calendar: calendar)
+    }
+
     /// 返済日を過ぎた回を、返済済みとして扱います。
     ///
     /// **何もしなければ予定どおり返済されたものとします。** 毎月の入力を求めると続かないためです。

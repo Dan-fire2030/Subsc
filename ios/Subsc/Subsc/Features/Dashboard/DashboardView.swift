@@ -6,10 +6,12 @@ struct DashboardView: View {
     @Environment(\.dismissSearch) private var dismissSearch
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Subscription.renewalDate) private var subscriptions: [Subscription]
+    @Query(sort: \Loan.createdAt) private var loans: [Loan]
     @State private var query = ""
     @State private var filter: SubscriptionFilter = .all
     @State private var costTypeFilter: CostTypeFilter = .all
     @State private var editor: SubscriptionEditor?
+    @State private var loanEditor: LoanEditor?
     @State private var operationError: String?
     @State private var pendingDeletion: Subscription?
 
@@ -18,24 +20,21 @@ struct DashboardView: View {
         subscriptions.filter { costTypeFilter.matches($0) }
     }
 
-    private var visibleSubscriptions: [Subscription] {
-        subscriptionsInSelectedTypes.filter { subscription in
-            let isHistory = subscription.endDate.map {
-                $0 < Calendar.current.startOfDay(for: .now)
-            } ?? false
-            let matchesFilter = switch filter {
-            case .all: true
-            case .active: subscription.state == .active && !isHistory
-            case .paused: subscription.state == .paused && !isHistory
-            case .history: isHistory
-            }
-            let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            let matchesQuery = normalizedQuery.isEmpty ||
-                subscription.name.localizedCaseInsensitiveContains(normalizedQuery) ||
-                subscription.category.localizedCaseInsensitiveContains(normalizedQuery) ||
-                subscription.notes.localizedCaseInsensitiveContains(normalizedQuery)
-            return matchesFilter && matchesQuery
-        }
+    /// 一覧に並べる要素です。**費目と借入を「次の期日」で1本に混ぜます。**
+    /// 並び順と絞り込みの条件は `DashboardListBuilder` に閉じています。
+    private var visibleItems: [DashboardListItem] {
+        DashboardListBuilder.items(
+            subscriptions: subscriptions,
+            loans: loans,
+            stateFilter: filter,
+            costTypeFilter: costTypeFilter,
+            query: query
+        )
+    }
+
+    /// 登録が1件も無いか。空の案内を出すかどうかの判断に使います。
+    private var hasNoRegistrations: Bool {
+        subscriptions.isEmpty && loans.isEmpty
     }
 
     private var searchSuggestions: [Subscription] {
@@ -68,7 +67,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             List {
-                if subscriptions.isEmpty {
+                if hasNoRegistrations {
                     Section {
                         DashboardEmptyState {
                             editor = SubscriptionEditor(subscription: nil)
@@ -143,7 +142,7 @@ struct DashboardView: View {
                     }
 
                     Section(listSectionTitle) {
-                        if visibleSubscriptions.isEmpty {
+                        if visibleItems.isEmpty {
                             ContentUnavailableView(
                                 query.isEmpty ? "対象の費目はありません" : "見つかりませんでした",
                                 systemImage: query.isEmpty ? "line.3.horizontal.decrease.circle" : "magnifyingglass",
@@ -155,38 +154,13 @@ struct DashboardView: View {
                             )
                             .glassListRow()
                         } else {
-                            ForEach(visibleSubscriptions) { subscription in
-                                NavigationLink {
-                                    SubscriptionDetailView(subscription: subscription)
-                                } label: {
-                                    SubscriptionRow(subscription: subscription)
+                            ForEach(visibleItems) { item in
+                                switch item {
+                                case .subscription(let subscription):
+                                    subscriptionRow(subscription)
+                                case .loan(let loan, let summary):
+                                    loanRow(loan, summary: summary)
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        pendingDeletion = subscription
-                                    } label: {
-                                        Label("削除", systemImage: "trash")
-                                    }
-                                }
-                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                    Button {
-                                        toggleState(of: subscription)
-                                    } label: {
-                                        Label(
-                                            subscription.state == .active ? "停止" : "再開",
-                                            systemImage: subscription.state == .active ? "pause.fill" : "play.fill"
-                                        )
-                                    }
-                                    .tint(subscription.state == .active ? .orange : .green)
-                                }
-                                .contextMenu {
-                                    Button {
-                                        editor = SubscriptionEditor(subscription: subscription)
-                                    } label: {
-                                        Label("編集", systemImage: "pencil")
-                                    }
-                                }
-                                .glassListRow()
                             }
                         }
                     }
@@ -224,22 +198,20 @@ struct DashboardView: View {
                 }
             }
             .toolbar {
-                if !subscriptions.isEmpty {
+                if !hasNoRegistrations {
                     ToolbarItem(placement: .topBarLeading) {
                         costTypeFilterMenu
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        editor = SubscriptionEditor(subscription: nil)
-                    } label: {
-                        Label("費目を追加", systemImage: "plus")
-                    }
-                    .accessibilityIdentifier("add-subscription-button")
+                    addMenu
                 }
             }
             .sheet(item: $editor) { editor in
                 SubscriptionFormView(subscription: editor.subscription)
+            }
+            .sheet(item: $loanEditor) { editor in
+                LoanFormView(loan: editor.loan)
             }
             .task(id: usdSubscriptionIDs) {
                 await refreshUsdExchangeRate()
@@ -275,6 +247,83 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+
+    /// 費目の1行です。スワイプでの削除・停止と、長押しでの編集を持ちます。
+    private func subscriptionRow(_ subscription: Subscription) -> some View {
+        NavigationLink {
+            SubscriptionDetailView(subscription: subscription)
+        } label: {
+            SubscriptionRow(subscription: subscription)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                pendingDeletion = subscription
+            } label: {
+                Label("削除", systemImage: "trash")
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            Button {
+                toggleState(of: subscription)
+            } label: {
+                Label(
+                    subscription.state == .active ? "停止" : "再開",
+                    systemImage: subscription.state == .active ? "pause.fill" : "play.fill"
+                )
+            }
+            .tint(subscription.state == .active ? .orange : .green)
+        }
+        .contextMenu {
+            Button {
+                editor = SubscriptionEditor(subscription: subscription)
+            } label: {
+                Label("編集", systemImage: "pencil")
+            }
+        }
+        .glassListRow()
+    }
+
+    /// 借入の1行です。
+    ///
+    /// **スワイプでの削除は付けていません。** 返済の記録がまとめて消えるため、
+    /// 確認を挟める詳細画面からだけ消せるようにしています。
+    private func loanRow(_ loan: Loan, summary: LoanSummary) -> some View {
+        NavigationLink {
+            LoanDetailView(loan: loan)
+        } label: {
+            LoanRow(loan: loan, summary: summary)
+        }
+        .contextMenu {
+            Button {
+                loanEditor = LoanEditor(loan: loan)
+            } label: {
+                Label("編集", systemImage: "pencil")
+            }
+        }
+        .glassListRow()
+    }
+
+    /// 追加の入口です。費目と借入は別のモデルなので、押した時点でどちらかを選んでもらいます。
+    private var addMenu: some View {
+        Menu {
+            Button {
+                editor = SubscriptionEditor(subscription: nil)
+            } label: {
+                Label("費目を追加", systemImage: CostType.subscription.systemImage)
+            }
+            .accessibilityIdentifier("add-subscription-button")
+
+            Button {
+                loanEditor = LoanEditor(loan: nil)
+            } label: {
+                Label("借入・ローンを追加", systemImage: CostType.loan.systemImage)
+            }
+            .accessibilityIdentifier("add-loan-button")
+        } label: {
+            Label("追加", systemImage: "plus")
+        }
+        .accessibilityIdentifier("add-menu")
     }
 
     /// 一覧の見出しです。種別で絞り込んでいるときは、何を見ているかを見出しで示します。
@@ -378,4 +427,9 @@ struct DashboardView: View {
 private struct SubscriptionEditor: Identifiable {
     let id = UUID()
     let subscription: Subscription?
+}
+
+private struct LoanEditor: Identifiable {
+    let id = UUID()
+    let loan: Loan?
 }

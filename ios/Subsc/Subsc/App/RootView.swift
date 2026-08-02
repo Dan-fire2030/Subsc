@@ -22,8 +22,21 @@ struct RootView: View {
         .joined(separator: "|")
     }
 
+    /// 借入の変化も合図に含めます。**含めないと、借入を登録しても返済日の通知が予約されません。**
+    /// 費目側が変わるまで再同期が起きないためです。
+    private var loanFingerprint: String {
+        loans.map {
+            [
+                $0.clientID,
+                $0.updatedAt.timeIntervalSince1970.description,
+                $0.isClosed.description
+            ].joined(separator: ":")
+        }
+        .joined(separator: "|")
+    }
+
     private var notificationSyncID: String {
-        "\(scenePhase == .active):\(notificationFingerprint)"
+        "\(scenePhase == .active):\(notificationFingerprint):\(loanFingerprint)"
     }
 
     var body: some View {

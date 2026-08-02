@@ -199,6 +199,48 @@ final class LoanPaymentStoreTests: XCTestCase {
 
     // MARK: - 補助
 
+    // MARK: - 記録の取り消し
+
+    /// **滞納は押し間違えます。** 取り消したら完済予定日も元に戻らなければ、記録を直す意味がありません。
+    func testClearingAMissedRecordRestoresTheOriginalSchedule() throws {
+        let loan = makeLoan()
+        let original = try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+        let originalCompletion = original.payments.last?.dueOn
+        let originalCount = original.payments.count
+
+        try LoanPaymentStore.markMissed(period: 1, on: loan, calendar: Fixture.calendar)
+        XCTAssertGreaterThan(LoanPaymentStore.sortedPayments(on: loan).count, originalCount)
+
+        let restored = try LoanPaymentStore.clearRecord(
+            period: 1,
+            on: loan,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(restored.payments.count, originalCount)
+        XCTAssertEqual(restored.payments.last?.dueOn, originalCompletion)
+        XCTAssertEqual(restored.payments.first?.status, .scheduled)
+    }
+
+    /// 取り消した回の実績は nil へ戻します。0のままだと「実績として0円」と読めてしまいます。
+    func testClearingARecordRemovesTheActualAmount() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+        try LoanPaymentStore.recordPayment(
+            amount: 200_000,
+            period: 1,
+            on: loan,
+            calendar: Fixture.calendar
+        )
+
+        try LoanPaymentStore.clearRecord(period: 1, on: loan, calendar: Fixture.calendar)
+        let first = try XCTUnwrap(LoanPaymentStore.sortedPayments(on: loan).first)
+
+        XCTAssertNil(first.actualAmount)
+        XCTAssertNil(first.recordedAt)
+        XCTAssertEqual(first.status, .scheduled)
+    }
+
     private func makeLoan() -> Loan {
         Loan(
             name: "テストローン",

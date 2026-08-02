@@ -21,7 +21,7 @@ extension SubscriptionFormView {
     var serviceSection: some View {
         Section("費目") {
             Picker("種別", selection: $costType) {
-                ForEach(CostType.allCases) { type in
+                ForEach(CostType.subscriptionSelectable) { type in
                     Label(type.title, systemImage: type.systemImage).tag(type)
                 }
             }

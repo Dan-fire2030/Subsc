@@ -52,6 +52,14 @@ enum CostType: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    /// 費目（`Subscription`）のフォームで選べる種別です。
+    ///
+    /// **借入・ローンは含めません。** 借入は元本と利息を持つ別のモデル（`Loan`）で扱うため、
+    /// ここで選べてしまうと「返済予定表の無い借入」ができてしまいます。
+    static var subscriptionSelectable: [CostType] {
+        allCases.filter { $0 != .loan }
+    }
+
     /// 金額が毎月変わることが多い種別かどうかです。
     /// 登録時のトグルの初期値を決めるだけで、実際に変動費かどうかは費目ごとに指定します。
     var suggestsVariableAmount: Bool {
