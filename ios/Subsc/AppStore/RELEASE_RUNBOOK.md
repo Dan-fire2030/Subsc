@@ -35,12 +35,11 @@
 |---|---|
 | Container | `iCloud.com.tonaria.subsc` |
 | Database | ユーザーごとのPrivate Database |
-| Productionスキーマ | 2026-08-01反映済み |
-| Record Type（Production） | `CD_Subscription` / `CD_AmountEntry` |
-| Fields（Production） | `CD_Subscription` 32 / `CD_AmountEntry` 15 |
-| Indexes | 54 |
-| Record Type（Development） | `CD_Subscription` / `CD_AmountEntry` |
-| Fields（Development） | `CD_Subscription` 32 / `CD_AmountEntry` 15 |
+| Productionスキーマ | 2026-08-02反映済み（ローン機能ぶんを追加） |
+| Record Type（Production） | `CD_Subscription` / `CD_AmountEntry` / `CD_Loan` / `CD_LoanPayment` |
+| Fields（Production） | `CD_Subscription` 32 / `CD_AmountEntry` 15 / `CD_Loan` 28 / `CD_LoanPayment` 20 |
+| Record Type（Development） | Productionと同一 |
+| Fields（Development） | Productionと同一 |
 
 ### 固定費機能で追加したスキーマ（2026-08-01にProductionへ反映済み）
 
@@ -51,6 +50,34 @@
 - `CD_Subscription` への追加フィールド
   - `CD_costTypeRaw` / `CD_hasVariableAmount` / `CD_paymentMethodRaw` / `CD_paymentMethodNote`
   - `CD_endDate`（既存の`endDate`ぶん。**終了日を設定したレコードが一度も保存されておらず、フィールドが生成されていませんでした**。Optionalのプロパティは値が保存されるまでフィールド化されないため、代表データを保存して生成させました）
+
+### ローン機能で追加したスキーマ（2026-08-02にProductionへ反映済み）
+
+`feat/loan-repayment` で追加した項目です。**エージェントが代行して反映しました**（差分を提示し、`AskUserQuestion` で承認を得てからDeploy）。
+
+- 新規Record Type：`CD_Loan`（22フィールド＋メタデータ6）
+  - `CD_clientID` / `CD_name` / `CD_note` / `CD_repaymentMethodRaw` / `CD_interestTypeRaw` / `CD_originRaw`
+  - `CD_annualRatePercent` / `CD_rateHistoryCSV` / `CD_slidingTiersCSV`
+  - `CD_originalPrincipal` / `CD_borrowedOn` / `CD_totalInstallments`
+  - `CD_startingBalance` / `CD_startingInstallments` / `CD_startedTrackingOn`
+  - `CD_paymentDay` / `CD_bonusMonthsCSV` / `CD_bonusAmount` / `CD_isClosed`
+  - `CD_createdAt` / `CD_updatedAt` / `CD_entityName`
+- 新規Record Type：`CD_LoanPayment`（14フィールド＋メタデータ6）
+  - `CD_clientID` / `CD_year` / `CD_month` / `CD_period` / `CD_dueOn`
+  - `CD_scheduledAmount` / `CD_actualAmount` / `CD_principalPortion` / `CD_interestPortion`
+  - `CD_balanceAfter` / `CD_statusRaw` / `CD_recordedAt` / `CD_loan` / `CD_entityName`
+- インデックス：`CD_Loan` に54個、`CD_LoanPayment` に32個
+- Security Role：`_world` / `_icloud` / `_creator` を変更
+
+**Optionalなプロパティを取りこぼさないよう、代表データを2件に分けて保存しました。**
+`borrowedOn` と `startedTrackingOn` は登録方式で排他になるため、1件では両方を生成できません。
+
+- 「借りたときの条件から」の借入1件 → `CD_borrowedOn`
+- 「今の残高から」の借入1件 → `CD_startedTrackingOn`
+- 返済を1回記録 → `CD_actualAmount` / `CD_recordedAt`
+- 予定表の全回 → `CD_dueOn`
+
+反映後にProduction側のフィールドを1件ずつ読み、モデルの保存プロパティと一致することを確認済みです。
 
 Developmentで作成したテストレコードはProductionへコピーされません。TestFlight版とApp Store版はProductionを使用するため、同じBundle ID、CloudKit Container、互換スキーマ、Apple Accountを維持する限り、TestFlight中のユーザーデータは正式版へ引き継がれます。
 

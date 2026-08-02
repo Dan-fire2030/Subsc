@@ -111,16 +111,16 @@ SPEC：`.spec/SPEC.md`（借金・ローンの返済管理／2026-08-02 確定�
 
 ### フェーズ7：CloudKit スキーマの反映（不可逆）
 
-> **保留中。** 「まだ審査には提出しない」というharutoさんの判断（2026-08-02）。
-> Production反映は不可逆なので、提出の意思が固まってから着手する。
-> **指示があるまでエージェントは進めない。**
+> **完了（2026-08-02）。** 詳細は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md` の
+> 「ローン機能で追加したスキーマ」を参照。
 
-- [ ] Development署名のアプリで、**全プロパティに値を入れた**代表データを保存する
-- [ ] CloudKit Console で `CD_Loan` / `CD_LoanPayment` のフィールドを1件ずつ突き合わせる
-      **Optionalな `borrowedOn` `startedTrackingOn` `actualAmount` `recordedAt` `dueOn` は
-      値を保存するまでフィールドが作られない。前回 `CD_endDate` でこの事故を起こしている**
-- [ ] **Production へ Deploy**（不可逆）。**2026-08-02よりエージェントが代行する。**
-      Claude in Chrome で Console を開き、**差分を一覧で提示して承認を得てから**押す
+- [x] Development署名のアプリで、**全プロパティに値を入れた**代表データを保存する
+      **借入2件に分けた。** `borrowedOn` と `startedTrackingOn` は登録方式で排他になるため、
+      1件では両方を生成できない
+- [x] CloudKit Console で `CD_Loan` / `CD_LoanPayment` のフィールドを1件ずつ突き合わせる
+      Optionalな5項目すべての生成を確認。前回 `CD_endDate` で起こした取りこぼしはなし
+- [x] **Production へ Deploy**（不可逆）。差分を提示して承認を得たうえでエージェントが実行
+      1回目は `XHR request failure` で失敗し、再試行で成功した
 
 ### フェーズ8：検証とリリース準備
 
