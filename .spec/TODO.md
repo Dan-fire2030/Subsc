@@ -102,7 +102,8 @@ SPEC：`.spec/SPEC.md`（借金・ローンの返済管理／2026-08-02 確定�
 - [ ] CloudKit Console で `CD_Loan` / `CD_LoanPayment` のフィールドを1件ずつ突き合わせる
       **Optionalな `borrowedOn` `startedTrackingOn` `actualAmount` `recordedAt` `dueOn` は
       値を保存するまでフィールドが作られない。前回 `CD_endDate` でこの事故を起こしている**
-- [ ] **Production へ Deploy**（不可逆・haruto さんの操作）
+- [ ] **Production へ Deploy**（不可逆）。**2026-08-02よりエージェントが代行する。**
+      Claude in Chrome で Console を開き、**差分を一覧で提示して承認を得てから**押す
 
 ### フェーズ8：検証とリリース準備
 

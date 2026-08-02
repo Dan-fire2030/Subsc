@@ -63,6 +63,10 @@ CloudKitのプライベートDBへミラーリングするため、`@Model` の�
 - **配列や辞書を直に保存しない**。`leadDaysCSV` / `leadHoursCSV` のようにCSV文字列で保存し、`[Int]` は computed property で出し入れする
 - enumは直接保存せず `~Raw: String` として保存し、computed property（getter/setter）で型付きの値を扱う
 - **Productionへ反映済みの Record Type / Field は削除前提で設計しない**。項目を追加したら、Development署名のアプリで代表データを保存し、CloudKit Consoleで差分を確認してからProductionへ反映する
+- **CloudKit Console での Production 反映はエージェントが代行してよい**（2026-08-02に方針変更。それ以前は「harutoさんの操作」だった）。Claude in Chrome で操作する。ただし条件がある
+  - **Deploy を押す前に、反映される Record Type とフィールドの差分を一覧で提示し、`AskUserQuestion` で承認を得る**
+  - **不可逆である**（反映済みの Record Type / Field は削除できない）ことを承認時に明示する
+  - Optionalなプロパティは値を保存するまでフィールドが作られない。**モデルの保存プロパティとConsoleのフィールドを1件ずつ突き合わせてから**承認を求める
 - テスト実行時はCloudKitへミラーリングしない（`App/StorageMode.swift`）。署名なしのテストホストでCloudKitコンテナを要求するとCore Dataが起動途中で停止し、かつ実行者本人のiCloudへ書き込んでしまうため。**保存方式の判定ロジックを変更する際は、テストが署名を要求し始めないか必ず確認する**
 
 ## TestFlight / リリース運用
