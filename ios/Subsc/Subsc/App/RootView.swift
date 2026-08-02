@@ -6,6 +6,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
+    @Query(sort: \Loan.updatedAt) private var loans: [Loan]
     @State private var selectedTab = 0
     @State private var operationError: String?
 
@@ -71,7 +72,15 @@ struct RootView: View {
             }
         }
 
-        let result = await NotificationService.reconcile(subscriptions: subscriptions)
+        // 返済日を過ぎた回は、何もしなければ予定どおり返済されたものとして進めます。
+        for loan in loans {
+            LoanPaymentStore.settlePastDue(on: loan)
+        }
+
+        let result = await NotificationService.reconcile(
+            subscriptions: subscriptions,
+            loans: loans
+        )
         if result.failed > 0 {
             operationError = "\(result.failed)件の通知を設定できませんでした。通知設定を確認してください。"
         }

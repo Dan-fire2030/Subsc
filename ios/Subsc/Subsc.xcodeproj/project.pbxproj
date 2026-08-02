@@ -24,6 +24,9 @@
 		AA0000900000000000000090 /* LoanModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000900000000000000090 /* LoanModelTests.swift */; };
 		AA0000910000000000000091 /* LoanPaymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000910000000000000091 /* LoanPaymentStore.swift */; };
 		AA0000920000000000000092 /* LoanPaymentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000920000000000000092 /* LoanPaymentStoreTests.swift */; };
+		AA0000930000000000000093 /* LoanNotificationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000930000000000000093 /* LoanNotificationPlanner.swift */; };
+		AA0000940000000000000094 /* LoanNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000940000000000000094 /* LoanNotificationTests.swift */; };
+		AA0000950000000000000095 /* LoanNotificationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000950000000000000095 /* LoanNotificationResponder.swift */; };
 		AA0000450000000000000045 /* CostType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000450000000000000045 /* CostType.swift */; };
 		AA0000250000000000000025 /* CategoryCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000250000000000000025 /* CategoryCatalog.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
@@ -125,6 +128,9 @@
 		BB0000900000000000000090 /* LoanModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanModelTests.swift; sourceTree = "<group>"; };
 		BB0000910000000000000091 /* LoanPaymentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPaymentStore.swift; sourceTree = "<group>"; };
 		BB0000920000000000000092 /* LoanPaymentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPaymentStoreTests.swift; sourceTree = "<group>"; };
+		BB0000930000000000000093 /* LoanNotificationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationPlanner.swift; sourceTree = "<group>"; };
+		BB0000940000000000000094 /* LoanNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationTests.swift; sourceTree = "<group>"; };
+		BB0000950000000000000095 /* LoanNotificationResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationResponder.swift; sourceTree = "<group>"; };
 		BB0000450000000000000045 /* CostType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostType.swift; sourceTree = "<group>"; };
 		BB0000250000000000000025 /* CategoryCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalog.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
@@ -294,6 +300,8 @@
 			isa = PBXGroup;
 			children = (
 				BB0000860000000000000086 /* LoanScheduleCalculator.swift */,
+				BB0000930000000000000093 /* LoanNotificationPlanner.swift */,
+				BB0000950000000000000095 /* LoanNotificationResponder.swift */,
 			);
 			path = Loans;
 			sourceTree = "<group>";
@@ -373,6 +381,7 @@
 				BB0000490000000000000049 /* MonthlyAmountTests.swift */,
 				BB0000480000000000000048 /* CostTypeTests.swift */,
 				BB0000440000000000000044 /* NotificationPermissionTests.swift */,
+				BB0000940000000000000094 /* LoanNotificationTests.swift */,
 				BB0000920000000000000092 /* LoanPaymentStoreTests.swift */,
 				BB0000900000000000000090 /* LoanModelTests.swift */,
 				BB0000870000000000000087 /* LoanScheduleCalculatorTests.swift */,
@@ -563,6 +572,8 @@
 				AA0000470000000000000047 /* AmountEntry.swift in Sources */,
 				AA0000460000000000000046 /* PaymentMethod.swift in Sources */,
 				AA0000450000000000000045 /* CostType.swift in Sources */,
+				AA0000950000000000000095 /* LoanNotificationResponder.swift in Sources */,
+				AA0000930000000000000093 /* LoanNotificationPlanner.swift in Sources */,
 				AA0000910000000000000091 /* LoanPaymentStore.swift in Sources */,
 				AA0000880000000000000088 /* Loan.swift in Sources */,
 				AA0000890000000000000089 /* LoanPayment.swift in Sources */,
@@ -632,6 +643,7 @@
 				AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */,
 				AA0000480000000000000048 /* CostTypeTests.swift in Sources */,
 				AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */,
+				AA0000940000000000000094 /* LoanNotificationTests.swift in Sources */,
 				AA0000920000000000000092 /* LoanPaymentStoreTests.swift in Sources */,
 				AA0000900000000000000090 /* LoanModelTests.swift in Sources */,
 				AA0000870000000000000087 /* LoanScheduleCalculatorTests.swift in Sources */,

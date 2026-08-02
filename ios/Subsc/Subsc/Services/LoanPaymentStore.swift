@@ -121,6 +121,23 @@ enum LoanPaymentStore {
         return try synchronize(loan: loan, calendar: calendar)
     }
 
+    /// 返済日を過ぎた回を、返済済みとして扱います。
+    ///
+    /// **何もしなければ予定どおり返済されたものとします。** 毎月の入力を求めると続かないためです。
+    /// `actualAmount` は nil のままにし、「実績0円」と区別できる状態を保ちます。
+    /// 滞納・繰上返済として記録済みの回には触れません。
+    @discardableResult
+    static func settlePastDue(on loan: Loan, now: Date = .now) -> [LoanPayment] {
+        let settled = sortedPayments(on: loan).filter { payment in
+            guard payment.status == .scheduled, let dueOn = payment.dueOn else { return false }
+            return dueOn <= now
+        }
+        for payment in settled {
+            payment.status = .paid
+        }
+        return settled
+    }
+
     /// 予定表の1回目の返済日です。
     ///
     /// 「今の残高から」なら記録を始めた月、そうでなければ借入日の翌月を起点にし、

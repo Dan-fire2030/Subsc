@@ -20,6 +20,41 @@ enum NotificationService {
         let date: Date
         let title: String
         let body: String
+        /// 通知に並べるボタンの組です。既定の nil はボタンなしを意味します。
+        let categoryIdentifier: String?
+
+        init(
+            clientID: String,
+            identifier: String,
+            date: Date,
+            title: String,
+            body: String,
+            categoryIdentifier: String? = nil
+        ) {
+            self.clientID = clientID
+            self.identifier = identifier
+            self.date = date
+            self.title = title
+            self.body = body
+            self.categoryIdentifier = categoryIdentifier
+        }
+    }
+
+    /// ローンの返済日通知に割り当てる予約枠です。
+    private static let loanBudget = 12
+
+    /// 通知に並べるボタンを登録します。**予約より先に済ませないとボタンが出ません。**
+    static func registerCategories() {
+        let actions = LoanNotificationAction.allCases.map {
+            UNNotificationAction(identifier: $0.rawValue, title: $0.title, options: [])
+        }
+        let category = UNNotificationCategory(
+            identifier: LoanNotificationAction.categoryIdentifier,
+            actions: actions,
+            intentIdentifiers: [],
+            options: []
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 
     static func requestAuthorization() async -> Bool {
@@ -67,6 +102,7 @@ enum NotificationService {
 
     static func reconcile(
         subscriptions: [Subscription],
+        loans: [Loan] = [],
         now: Date = .now
     ) async -> SyncResult {
         guard !Task.isCancelled else {
@@ -83,12 +119,17 @@ enum NotificationService {
             now: now,
             limit: reminderBudget
         )
+        let loanPayments = LoanNotificationPlanner.plannedPayments(
+            loans: loans,
+            now: now,
+            limit: loanBudget
+        )
         let renewals = plannedNotifications(
             subscriptions: subscriptions,
             now: now,
-            limit: maximumPendingRequests - reminders.count
+            limit: maximumPendingRequests - reminders.count - loanPayments.count
         )
-        let result = await add(notifications: renewals + reminders)
+        let result = await add(notifications: renewals + reminders + loanPayments)
         guard !Task.isCancelled, result.failed == 0 else { return result }
 
         let pendingIdentifiers = pending.map(\.identifier)
@@ -102,6 +143,10 @@ enum NotificationService {
             pending: pendingIdentifiers,
             desired: Set(reminders.map(\.identifier)),
             in: .reminder
+        ) + NotificationIdentifier.obsolete(
+            pending: pendingIdentifiers,
+            desired: Set(loanPayments.map(\.identifier)),
+            in: .loan
         )
         center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
         return result
@@ -216,6 +261,9 @@ enum NotificationService {
             content.title = notification.title
             content.body = notification.body
             content.sound = .default
+            if let categoryIdentifier = notification.categoryIdentifier {
+                content.categoryIdentifier = categoryIdentifier
+            }
             let trigger = UNCalendarNotificationTrigger(
                 dateMatching: Calendar.current.dateComponents(
                     [.year, .month, .day, .hour, .minute],
