@@ -20,6 +20,11 @@ struct DashboardView: View {
         subscriptions.filter { costTypeFilter.matches($0) }
     }
 
+    /// 種別で絞り込んだ借入です。借入の種別は常に `.loan` なので、丸ごと通すか外すかの二択です。
+    private var loansInSelectedTypes: [Loan] {
+        costTypeFilter.matches(.loan) ? loans : []
+    }
+
     /// 一覧に並べる要素です。**費目と借入を「次の期日」で1本に混ぜます。**
     /// 並び順と絞り込みの条件は `DashboardListBuilder` に閉じています。
     private var visibleItems: [DashboardListItem] {
@@ -80,6 +85,7 @@ struct DashboardView: View {
                     Section {
                         ReportCard(
                             subscriptions: subscriptionsInSelectedTypes,
+                            loans: loansInSelectedTypes,
                             costTypeFilter: costTypeFilter
                         )
                             .listRowInsets(EdgeInsets())

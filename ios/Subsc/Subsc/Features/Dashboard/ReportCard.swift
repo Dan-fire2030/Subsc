@@ -4,6 +4,8 @@ import SwiftUI
 /// 集計期間（月／年）とカーソル日をここで持ち、表示は `ReportPager` 以下へ委ねます。
 struct ReportCard: View {
     let subscriptions: [Subscription]
+    /// 返済額もレポートに含めます。**種別の絞り込みは呼び出し側で適用済み**です。
+    let loans: [Loan]
     /// グラフの集計単位と色を絞り込み状態に合わせるため、文字列ではなく条件自体を渡します。
     let costTypeFilter: CostTypeFilter
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -95,6 +97,7 @@ struct ReportCard: View {
     private func report(at date: Date) -> PaymentReport {
         ReportCalculator.report(
             subscriptions: subscriptions,
+            loans: loans,
             period: period,
             cursor: date
         )

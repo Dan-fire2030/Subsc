@@ -23,8 +23,13 @@ enum ReportPeriod: String, CaseIterable, Identifiable {
 }
 
 enum ReportCalculator {
+    /// 表示中の期間のレポートです。
+    ///
+    /// 借入（`loans`）は既定で空にしています。**呼び出し側が渡さなければ従来どおり**動き、
+    /// 費目だけの集計を期待している既存の呼び出しを壊しません。
     static func report(
         subscriptions: [Subscription],
+        loans: [Loan] = [],
         period: ReportPeriod,
         cursor: Date,
         calendar: Calendar = .current
@@ -40,6 +45,10 @@ enum ReportCalculator {
                 return false
             }
             return true
+        }
+
+        let loanEntries = loans.compactMap {
+            loanEntry(for: $0, period: period, cursor: cursor, calendar: calendar)
         }
 
         let entries = active.map { subscription in
@@ -58,12 +67,45 @@ enum ReportCalculator {
                 isEstimated: resolved.source == .estimated
             )
         }
-        .filter { $0.amount > 0 }
-        .sorted { $0.amount > $1.amount }
+
+        let combined = (entries + loanEntries)
+            .filter { $0.amount > 0 }
+            .sorted { $0.amount > $1.amount }
 
         return PaymentReport(
-            total: entries.reduce(0) { $0 + $1.amount },
-            entries: entries
+            total: combined.reduce(0) { $0 + $1.amount },
+            entries: combined
+        )
+    }
+
+    /// その期間に返済する額（元金＋利息）を1件のレポート項目にします。
+    ///
+    /// **滞納した月は0**になり、金額0の項目として落ちます。繰上返済した月は実績の額で計上されます。
+    /// 借入には利用者が選ぶ色が無いため、種別の色をそのまま使います。
+    private static func loanEntry(
+        for loan: Loan,
+        period: ReportPeriod,
+        cursor: Date,
+        calendar: Calendar
+    ) -> ReportEntry? {
+        let components = calendar.dateComponents([.year, .month], from: cursor)
+        let year = components.year ?? 0
+        let periodKey = year * 100 + (components.month ?? 0)
+
+        let matching = LoanPaymentStore.sortedPayments(on: loan).filter { payment in
+            period == .month ? payment.periodKey == periodKey : payment.year == year
+        }
+        guard !matching.isEmpty else { return nil }
+
+        return ReportEntry(
+            // 費目と `clientID` が衝突しても別項目として扱えるよう、接頭辞を付けます。
+            id: "loan-\(loan.clientID)",
+            name: loan.name,
+            amount: matching.reduce(0) { $0 + $1.effectiveAmount },
+            colorHex: CostType.loan.colorHex,
+            costType: .loan,
+            // **見込み扱いにしません。** 返済額は予定表から確定的に決まります（SPEC 7節）。
+            isEstimated: false
         )
     }
 
