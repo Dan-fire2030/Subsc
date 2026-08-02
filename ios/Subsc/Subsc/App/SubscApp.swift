@@ -17,8 +17,10 @@ struct SubscApp: App {
         )
 
         do {
+            // **モデルはすべて明示します。** リレーション経由で暗黙に引き込まれることに頼ると、
+            // 参照を外した瞬間にスキーマから静かに消え、保存できなくなります。
             modelContainer = try ModelContainer(
-                for: Subscription.self,
+                for: Subscription.self, AmountEntry.self, Loan.self, LoanPayment.self,
                 configurations: configuration
             )
             startupError = nil
@@ -26,7 +28,7 @@ struct SubscApp: App {
             do {
                 let recoveryConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
                 modelContainer = try ModelContainer(
-                    for: Subscription.self, AmountEntry.self,
+                    for: Subscription.self, AmountEntry.self, Loan.self, LoanPayment.self,
                     configurations: recoveryConfiguration
                 )
                 startupError = error.localizedDescription

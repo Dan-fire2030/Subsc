@@ -46,15 +46,15 @@ SPEC：`.spec/SPEC.md`（借金・ローンの返済管理／2026-08-02 確定�
 
 **CloudKitミラーリングの制約を必ず守る**（既定値かOptional、一意制約なし、配列はCSV、enumはRaw）。
 
-- [ ] `Loan` を追加する（`final class` / 全プロパティに既定値かOptional）
-- [ ] `rateHistoryCSV` と `slidingTiersCSV` を computed property で出し入れする
+- [x] `Loan` を追加する（`final class` / 全プロパティに既定値かOptional）
+- [x] `rateHistoryCSV` と `slidingTiersCSV` を computed property で出し入れする
       （`leadDaysCSV` と同じ流儀。**配列を直接保存しない**）
-- [ ] `LoanPayment` を追加する（`Loan` へのリレーション）
-- [ ] `RepaymentMethod` / `InterestType` / `LoanOrigin` / `LoanPaymentStatus` を
+- [x] `LoanPayment` を追加する（`Loan` へのリレーション）
+- [x] `RepaymentMethod` / `InterestType` / `LoanOrigin` / `LoanPaymentStatus` を
       `String` rawValue の enum で追加し、**表示名は型側の `var title: String` に置く**
-- [ ] **unknown rawValue でクラッシュせずフォールバックすること**をテストする
-- [ ] `CostType` に `.loan`（借入・ローン）を追加する
-- [ ] **`SubscApp.swift` の `ModelContainer` に `Loan` と `LoanPayment` を明示する**
+- [x] **unknown rawValue でクラッシュせずフォールバックすること**をテストする
+- [x] `CostType` に `.loan`（借入・ローン）を追加する
+- [x] **`SubscApp.swift` の `ModelContainer` に `Loan` と `LoanPayment` を明示する**
       （リレーション経由の暗黙の引き込みに頼らない。既存の `AmountEntry` が同じ問題を抱えている）
 
 ### フェーズ3：返済実績と通知

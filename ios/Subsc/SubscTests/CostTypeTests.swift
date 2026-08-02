@@ -11,7 +11,8 @@ final class CostTypeTests: XCTestCase {
         XCTAssertEqual(CostType.communication.rawValue, "communication")
         XCTAssertEqual(CostType.utility.rawValue, "utility")
         XCTAssertEqual(CostType.fixed.rawValue, "fixed")
-        XCTAssertEqual(CostType.allCases.count, 4)
+        XCTAssertEqual(CostType.loan.rawValue, "loan")
+        XCTAssertEqual(CostType.allCases.count, 5)
     }
 
     func testTitlesAreShownInJapanese() {
@@ -19,6 +20,7 @@ final class CostTypeTests: XCTestCase {
         XCTAssertEqual(CostType.communication.title, "通信費")
         XCTAssertEqual(CostType.utility.title, "光熱費")
         XCTAssertEqual(CostType.fixed.title, "その他固定費")
+        XCTAssertEqual(CostType.loan.title, "借入・ローン")
     }
 
     func testOnlyUtilitySuggestsVariableAmountByDefault() {
@@ -26,13 +28,14 @@ final class CostTypeTests: XCTestCase {
         XCTAssertFalse(CostType.subscription.suggestsVariableAmount)
         XCTAssertFalse(CostType.communication.suggestsVariableAmount)
         XCTAssertFalse(CostType.fixed.suggestsVariableAmount)
+        XCTAssertFalse(CostType.loan.suggestsVariableAmount)
     }
 
     func testColorHexValuesArePresentAndUniqueForEveryCostType() {
         let colorHexValues = CostType.allCases.map(\.colorHex)
 
-        XCTAssertEqual(colorHexValues.count, 4)
-        XCTAssertEqual(Set(colorHexValues).count, 4)
+        XCTAssertEqual(colorHexValues.count, 5)
+        XCTAssertEqual(Set(colorHexValues).count, 5)
         XCTAssertFalse(colorHexValues.contains(where: \.isEmpty))
     }
 
