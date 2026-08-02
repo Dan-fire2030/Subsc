@@ -47,9 +47,15 @@ enum CostTypeFilter: Hashable, Identifiable, CaseIterable {
     var isNarrowed: Bool { self != .all }
 
     func matches(_ subscription: Subscription) -> Bool {
+        matches(subscription.costType)
+    }
+
+    /// 種別だけで判定します。借入（`Loan`）は `Subscription` ではないため、
+    /// **モデルではなく種別を受け取る口**が要ります。
+    func matches(_ costType: CostType) -> Bool {
         switch self {
         case .all: true
-        case .only(let type): subscription.costType == type
+        case .only(let type): costType == type
         }
     }
 }
