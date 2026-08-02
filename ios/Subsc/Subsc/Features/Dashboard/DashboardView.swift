@@ -42,16 +42,14 @@ struct DashboardView: View {
         subscriptions.isEmpty && loans.isEmpty
     }
 
-    private var searchSuggestions: [Subscription] {
-        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedQuery.isEmpty else { return [] }
-        return subscriptionsInSelectedTypes.filter {
-            $0.name.localizedCaseInsensitiveContains(normalizedQuery) ||
-                $0.category.localizedCaseInsensitiveContains(normalizedQuery) ||
-                $0.notes.localizedCaseInsensitiveContains(normalizedQuery)
-        }
-        .prefix(6)
-        .map { $0 }
+    /// 検索候補です。**費目と借入の両方**が出ます。
+    private var searchSuggestions: [DashboardListItem] {
+        DashboardListBuilder.suggestions(
+            subscriptions: subscriptions,
+            loans: loans,
+            costTypeFilter: costTypeFilter,
+            query: query
+        )
     }
 
     private var nextRenewal: Subscription? {
@@ -183,21 +181,21 @@ struct DashboardView: View {
             )
             .modifier(MinimizableSearchToolbarModifier())
             .searchSuggestions {
-                ForEach(searchSuggestions) { subscription in
+                ForEach(searchSuggestions) { item in
                     Button {
-                        query = subscription.name
+                        query = item.name
                         dismissSearch()
                     } label: {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(subscription.name)
-                                Text(subscription.category)
+                                Text(item.name)
+                                Text(item.searchSubtitle)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         } icon: {
                             Circle()
-                                .fill(subscription.color)
+                                .fill(suggestionColor(for: item))
                                 .frame(width: 12, height: 12)
                         }
                     }
@@ -252,6 +250,14 @@ struct DashboardView: View {
                     Text("「\(pendingDeletion.name)」の登録情報を削除します。この操作は取り消せません。")
                 }
             }
+        }
+    }
+
+    /// 検索候補の色です。費目は利用者が選んだ色、借入は種別の色を使います。
+    private func suggestionColor(for item: DashboardListItem) -> Color {
+        switch item {
+        case .subscription(let subscription): subscription.color
+        case .loan: ColorHex.color(from: CostType.loan.colorHex)
         }
     }
 

@@ -41,6 +41,14 @@ enum DashboardListItem: Identifiable {
         case .loan(_, let summary): summary.nextDueDate
         }
     }
+
+    /// 検索候補で名前の下に出す補足です。費目はカテゴリ、借入は返済方式を指します。
+    var searchSubtitle: String {
+        switch self {
+        case .subscription(let subscription): subscription.category
+        case .loan(let loan, _): loan.method.title
+        }
+    }
 }
 
 /// 一覧に並べる要素を組み立てます。
@@ -73,6 +81,35 @@ enum DashboardListBuilder {
             .map(DashboardListItem.loan)
 
         return sorted(subscriptionItems + loanItems)
+    }
+
+    /// 検索フィールドに出す候補です。
+    ///
+    /// **費目と借入の両方を対象にします。** 片方しか出さないと、打っている最中に
+    /// 「見つからない」と受け取られます（借入を追加した当初がこの状態でした）。
+    /// 利用中・停止中の絞り込みは効かせません。候補は現在の表示状態と関係なく探せるほうが速いためです。
+    static func suggestions(
+        subscriptions: [Subscription],
+        loans: [Loan],
+        costTypeFilter: CostTypeFilter,
+        query: String,
+        limit: Int = 6,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> [DashboardListItem] {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [] }
+        return Array(
+            items(
+                subscriptions: subscriptions,
+                loans: loans,
+                stateFilter: .all,
+                costTypeFilter: costTypeFilter,
+                query: query,
+                now: now,
+                calendar: calendar
+            )
+            .prefix(limit)
+        )
     }
 
     /// 期日の昇順に並べ、**期日が無いものは末尾**へ送ります。

@@ -234,6 +234,104 @@ final class DashboardListItemTests: XCTestCase {
         XCTAssertEqual(Set(items.map(\.id)).count, 2)
     }
 
+    // MARK: - 検索候補
+
+    /// **候補に借入も出ること。** 費目しか出さないと、打っている最中に「見つからない」と受け取られます。
+    func testSuggestionsIncludeLoans() throws {
+        let subscription = makeSubscription(name: "ローン契約メモ", renewalOn: date(2026, 2, 10))
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: [subscription],
+            loans: [loan],
+            costTypeFilter: .all,
+            query: "ローン",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(suggestions.map(\.name), ["自動車ローン", "ローン契約メモ"])
+    }
+
+    func testSuggestionsAreEmptyWithoutAQuery() throws {
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: [],
+            loans: [loan],
+            costTypeFilter: .all,
+            query: "   ",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertTrue(suggestions.isEmpty)
+    }
+
+    /// 候補は件数を絞ります。多すぎると検索欄が画面を覆います。
+    func testSuggestionsAreLimited() {
+        let subscriptions = (1...10).map {
+            makeSubscription(name: "動画\($0)", renewalOn: date(2026, 2, $0))
+        }
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: subscriptions,
+            loans: [],
+            costTypeFilter: .all,
+            query: "動画",
+            limit: 6,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(suggestions.count, 6)
+    }
+
+    /// **候補には停止中の費目も出します。** 表示状態と関係なく探せるほうが速いためです。
+    func testSuggestionsIgnoreTheStateFilter() {
+        let paused = makeSubscription(name: "停止中の動画", renewalOn: date(2026, 2, 10))
+        paused.state = .paused
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: [paused],
+            loans: [],
+            costTypeFilter: .all,
+            query: "動画",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(suggestions.map(\.name), ["停止中の動画"])
+    }
+
+    func testSuggestionSubtitleDescribesTheKind() throws {
+        let subscription = makeSubscription(name: "動画", renewalOn: date(2026, 2, 10))
+        subscription.category = "エンタメ"
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: [subscription],
+            loans: [loan],
+            costTypeFilter: .all,
+            query: "",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+        XCTAssertTrue(suggestions.isEmpty, "空の検索語では候補を出しません。")
+
+        let items = DashboardListBuilder.items(
+            subscriptions: [subscription],
+            loans: [loan],
+            stateFilter: .all,
+            costTypeFilter: .all,
+            query: "",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(items.map(\.searchSubtitle), ["元利均等", "エンタメ"])
+    }
+
     // MARK: - 補助
 
     private func makeSubscription(name: String, renewalOn renewalDate: Date) -> Subscription {
