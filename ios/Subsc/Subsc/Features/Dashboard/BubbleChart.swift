@@ -26,6 +26,12 @@ struct BubbleChart: View {
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
     let reduceMotion: Bool
+    /// 拡大しているあいだ真になります。**親のページ送りを止めてもらうため**に外へ出します。
+    ///
+    /// ジェスチャーの優先度指定では解決しません。ページ送りの横スクロールが内部で使う
+    /// パン認識器はSwiftUIのジェスチャーとは別枠で、`highPriorityGesture` にしても
+    /// タッチを先に掴みます。**競合を消すには、そもそもスクロールを止めるしかありません。**
+    @Binding var blocksPaging: Bool
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showsAllEntries = false
@@ -75,10 +81,8 @@ struct BubbleChart: View {
                 .clipped()
                 .simultaneousGesture(magnifyGesture(in: layoutSize))
                 // 等倍ではDragGesture自体を外し、親のReportPagerへ横ドラッグを渡します。
-                //
-                // ズーム中は `highPriorityGesture` にします。`gesture` だと**親のスクロールビューの
-                // 方が優先度が高く、指を離すまで座標が反映されません**（追従せず最後に飛ぶ）。
-                .highPriorityGesture(isZoomed ? panGesture(in: layoutSize) : nil)
+                // ズーム中は親のスクロールが止まっているので、こちらだけがドラッグを受け取ります。
+                .gesture(isZoomed ? panGesture(in: layoutSize) : nil)
                 // ダブルタップを先に宣言し、単タップの詳細表示と共存させます。
                 .onTapGesture(count: 2) {
                     resetTransform()
@@ -90,6 +94,19 @@ struct BubbleChart: View {
                 }
         }
         .animation(reduceMotion ? nil : .smooth(duration: 0.38), value: items)
+        // 拡大の開始・終了に合わせて、親のページ送りを止める・戻すを切り替えます。
+        //
+        // **`initial:` は付けません。** ページャは前後のページも作るため、
+        // 表示のたびに false を書くと、拡大中のページの指定を隣のページが打ち消します。
+        .onChange(of: isZoomed) { _, zoomed in
+            blocksPaging = zoomed
+        }
+        .onDisappear {
+            // 画面から外れたまま止めっぱなしにすると、ページ送りが二度と効かなくなります。
+            // 拡大中はスクロールが止まっていて隣のページは作り直されないので、
+            // ここで隣のページが誤って解除してしまうことはありません。
+            blocksPaging = false
+        }
         .sheet(isPresented: $showsAllEntries) {
             ReportBreakdownSheet(entries: entries)
                 .presentationDetents([.medium, .large])

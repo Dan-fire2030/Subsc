@@ -44,6 +44,13 @@ struct ReportPager: View {
     @AppStorage("hasUsedReportPaging") private var hasUsedReportPaging = false
     @State private var selectedStep: Int? = 0
     @State private var feedbackTrigger = 0
+    /// グラフを拡大して見ているあいだ真になります。真のあいだページ送りを止めます。
+    ///
+    /// **ジェスチャーの優先度では解決できません。** 横スクロールが内部で使うパン認識器は
+    /// SwiftUIのジェスチャーより先にタッチを掴むため、`highPriorityGesture` にしても
+    /// グラフ側のドラッグは指を離すまで解決されず、そのままページが送られてしまいます。
+    /// スクロール自体を止めれば競合が消え、ドラッグはグラフだけが受け取ります。
+    @State private var blocksPaging = false
 
     private var currentStep: Int { selectedStep ?? 0 }
 
@@ -61,7 +68,8 @@ struct ReportPager: View {
                             periodLabel: page.periodLabel,
                             reduceMotion: reduceMotion,
                             costTypeFilter: costTypeFilter,
-                            period: period
+                            period: period,
+                            blocksPaging: $blocksPaging
                         )
                         .containerRelativeFrame(.horizontal)
                         .id(step)
@@ -74,7 +82,12 @@ struct ReportPager: View {
             // limitBehavior の既定（.automatic）は1回のスワイプを1ページに制限してしまい、
             // 勢いよく弾いても隣で止まる。慣性を活かすため制限を外します。
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .scrollDisabled(blocksPaging)
             .scrollIndicators(.hidden)
+            // 期間の単位や絞り込みが変わるとグラフは作り直されます。
+            // 止めたままになる事故を防ぐため、ここで必ず解除します。
+            .onChange(of: period) { blocksPaging = false }
+            .onChange(of: costTypeFilter) { blocksPaging = false }
             .frame(height: pageHeight)
             .clipped()
             .onChange(of: currentStep) {

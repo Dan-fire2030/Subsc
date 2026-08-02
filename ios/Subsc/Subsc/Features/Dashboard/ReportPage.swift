@@ -8,6 +8,8 @@ struct ReportPage: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
+    /// グラフが操作中でページ送りを止めてほしいあいだ真になります。バブルの拡大中だけ使います。
+    @Binding var blocksPaging: Bool
     @Environment(ThemeStore.self) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -130,7 +132,8 @@ struct ReportPage: View {
                 entries: report.entries,
                 costTypeFilter: costTypeFilter,
                 period: period,
-                reduceMotion: reduceMotion
+                reduceMotion: reduceMotion,
+                blocksPaging: $blocksPaging
             )
         case .column:
             ColumnChart(
