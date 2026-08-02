@@ -5,12 +5,45 @@ import UserNotifications
 
 struct SettingsView: View {
     @Environment(ThemeStore.self) private var theme
+    @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationPermission = NotificationPermission.checking
     @State private var iCloudStatus = "確認中…"
     @State private var notificationError: String?
     @State private var showsThemeResetConfirmation = false
+
+    /// 返済日通知の設定です。
+    ///
+    /// **契約ごとではなくアプリ全体の設定にしています。** `Loan` へ項目を足すと
+    /// CloudKitのフィールドが増え、Productionへの不可逆な反映がもう一度必要になるためです。
+    private var loanNotificationSection: some View {
+        @Bindable var settings = loanNotificationSettings
+
+        return Section {
+            Picker("知らせるタイミング", selection: $settings.lead) {
+                ForEach(LoanNotificationLead.allCases) { lead in
+                    Text(lead.title).tag(lead)
+                }
+            }
+            .accessibilityIdentifier("loan-notification-lead-picker")
+
+            Picker("知らせる時刻", selection: $settings.hour) {
+                ForEach(0..<24, id: \.self) { hour in
+                    Text("\(hour)時").tag(hour)
+                }
+            }
+        } header: {
+            Text("借入・ローンの返済日")
+        } footer: {
+            Text(
+                settings.lead == .sameDay
+                    ? "返済日の当日に知らせます。口座への入金が要る場合は、何日か前に寄せておくと間に合います。"
+                    : "返済日の\(settings.lead.title)に知らせます。"
+            )
+        }
+        .glassListRow()
+    }
 
     var body: some View {
         NavigationStack {
@@ -64,6 +97,8 @@ struct SettingsView: View {
                     }
                 }
                 .glassListRow()
+
+                loanNotificationSection
 
                 Section("テーマ") {
                     NavigationLink {

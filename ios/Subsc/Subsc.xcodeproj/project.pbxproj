@@ -116,6 +116,8 @@
 		AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */; };
 		AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */; };
 		AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001200000000000000120 /* LoanDueDateTests.swift */; };
+		AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001210000000000000121 /* LoanNotificationSettings.swift */; };
+		AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001220000000000000122 /* LoanNotificationLeadTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -250,6 +252,8 @@
 		BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFilterEmptyStateTests.swift; sourceTree = "<group>"; };
 		BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorPausedTests.swift; sourceTree = "<group>"; };
 		BB0001200000000000000120 /* LoanDueDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanDueDateTests.swift; sourceTree = "<group>"; };
+		BB0001210000000000000121 /* LoanNotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationSettings.swift; sourceTree = "<group>"; };
+		BB0001220000000000000122 /* LoanNotificationLeadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationLeadTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -315,6 +319,7 @@
 		DD0000050000000000000005 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001210000000000000121 /* LoanNotificationSettings.swift */,
 				BB0000030000000000000003 /* Subscription.swift */,
 				BB0000240000000000000024 /* ColorHex.swift */,
 				BB0000600000000000000060 /* ThemeColorPreset.swift */,
@@ -438,6 +443,7 @@
 		DD0000100000000000000010 /* SubscTests */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
@@ -642,6 +648,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */,
 				AA0001150000000000000115 /* LoanBorrowingSimulatorView.swift in Sources */,
 				AA0001140000000000000114 /* LoanRateChangeSimulationView.swift in Sources */,
 				AA0001130000000000000113 /* LoanPrepaymentSimulationView.swift in Sources */,
@@ -725,6 +732,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,

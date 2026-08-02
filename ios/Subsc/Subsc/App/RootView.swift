@@ -3,6 +3,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(ThemeStore.self) private var theme
+    @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
@@ -35,8 +36,15 @@ struct RootView: View {
         .joined(separator: "|")
     }
 
+    /// 通知設定を変えたら予約し直す必要があるため、合図に含めます。
     private var notificationSyncID: String {
-        "\(scenePhase == .active):\(notificationFingerprint):\(loanFingerprint)"
+        [
+            "\(scenePhase == .active)",
+            notificationFingerprint,
+            loanFingerprint,
+            "\(loanNotificationSettings.lead.rawValue)",
+            "\(loanNotificationSettings.hour)"
+        ].joined(separator: ":")
     }
 
     var body: some View {
@@ -92,7 +100,9 @@ struct RootView: View {
 
         let result = await NotificationService.reconcile(
             subscriptions: subscriptions,
-            loans: loans
+            loans: loans,
+            loanLead: loanNotificationSettings.lead,
+            loanHour: loanNotificationSettings.hour
         )
         if result.failed > 0 {
             operationError = "\(result.failed)件の通知を設定できませんでした。通知設定を確認してください。"

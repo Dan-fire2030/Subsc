@@ -103,6 +103,8 @@ enum NotificationService {
     static func reconcile(
         subscriptions: [Subscription],
         loans: [Loan] = [],
+        loanLead: LoanNotificationLead = LoanNotificationSettings.Defaults.lead,
+        loanHour: Int = LoanNotificationSettings.Defaults.hour,
         now: Date = .now
     ) async -> SyncResult {
         guard !Task.isCancelled else {
@@ -122,7 +124,9 @@ enum NotificationService {
         let loanPayments = LoanNotificationPlanner.plannedPayments(
             loans: loans,
             now: now,
-            limit: loanBudget
+            limit: loanBudget,
+            lead: loanLead,
+            hour: loanHour
         )
         let renewals = plannedNotifications(
             subscriptions: subscriptions,

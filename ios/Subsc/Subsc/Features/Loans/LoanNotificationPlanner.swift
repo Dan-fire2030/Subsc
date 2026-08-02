@@ -28,18 +28,18 @@ enum LoanNotificationPlanner {
     /// 何ヶ月先まで予約しておくか。長くすると予約枠を食い、更新日通知を圧迫します。
     static let monthsAhead = 3
 
-    /// 通知を出す時刻です。
+    /// 通知を出す時刻の既定値です。設定が渡されないときに使います。
     ///
     /// **返済日は年月日しか持たないため、そのまま使うと0時に鳴ります。**
     /// 深夜の通知は気づかれないか、寝ているところを起こすだけです。
-    /// 費目の通知の既定値（9時）と揃えています。
-    /// 契約ごとに選べるようにするとCloudKitのフィールドが増えるため、いまは固定にしています。
-    static let notificationHour = 9
+    static let notificationHour = LoanNotificationSettings.Defaults.hour
 
     static func plannedPayments(
         loans: [Loan],
         now: Date,
         limit: Int,
+        lead: LoanNotificationLead = LoanNotificationSettings.Defaults.lead,
+        hour: Int = LoanNotificationSettings.Defaults.hour,
         calendar: Calendar = .current
     ) -> [NotificationService.PlannedNotification] {
         guard limit > 0 else { return [] }
@@ -48,7 +48,14 @@ enum LoanNotificationPlanner {
             .filter { !$0.isClosed }
             .flatMap { loan in
                 upcomingPayments(on: loan, now: now, calendar: calendar).compactMap {
-                    notification(for: loan, payment: $0, calendar: calendar)
+                    notification(
+                        for: loan,
+                        payment: $0,
+                        now: now,
+                        lead: lead,
+                        hour: hour,
+                        calendar: calendar
+                    )
                 }
             }
 
@@ -69,27 +76,42 @@ enum LoanNotificationPlanner {
         }
         return LoanPaymentStore.sortedPayments(on: loan).filter { payment in
             guard payment.status == .scheduled, let dueOn = payment.dueOn else { return false }
-            return dueOn > now && dueOn <= horizon
+            // **ここで「返済日が今より後か」を見てはいけません。**
+            // 返済日は0時なので、当日の0〜9時に開くと当日ぶんが「もう過ぎた」と判定され、
+            // その日の通知が予約されませんでした。過去かどうかは、返済日ではなく
+            // 実際に鳴る時刻で判断する必要があるため、通知を組み立てる側へ寄せています。
+            return dueOn <= horizon
         }
     }
 
     private static func notification(
         for loan: Loan,
         payment: LoanPayment,
+        now: Date,
+        lead: LoanNotificationLead,
+        hour: Int,
         calendar: Calendar
     ) -> NotificationService.PlannedNotification? {
         guard
             let dueOn = payment.dueOn,
+            let leadDate = calendar.date(byAdding: .day, value: -lead.rawValue, to: dueOn),
             // 返済日は0時なので、通知を出す時刻まで進めます。
-            let firesAt = calendar.date(
-                bySettingHour: notificationHour,
-                minute: 0,
-                second: 0,
-                of: dueOn
-            )
+            let firesAt = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: leadDate)
         else { return nil }
+
+        // **何日前に寄せると、通知の時刻がもう過ぎていることがあります。**
+        // 返済日そのものではなく、実際に鳴る時刻で判断しないと、
+        // 過去日時の通知を予約して黙って捨てられます。
+        guard firesAt > now else { return nil }
+
         let amount = payment.scheduledAmount
             .formatted(.currency(code: "JPY").precision(.fractionLength(0)))
+        let title = lead == .sameDay
+            ? "\(loan.name)の返済日です"
+            : "\(loan.name)の返済日が近づいています"
+        let body = lead == .sameDay
+            ? "\(amount)の返済予定です。返済できたか教えてください。"
+            : "\(dueOn.formatted(.dateTime.month().day()))に\(amount)の返済予定です。"
 
         return NotificationService.PlannedNotification(
             clientID: loan.clientID,
@@ -98,8 +120,8 @@ enum LoanNotificationPlanner {
                 periodKey: payment.periodKey
             ),
             date: firesAt,
-            title: "\(loan.name)の返済日です",
-            body: "\(amount)の返済予定です。返済できたか教えてください。",
+            title: title,
+            body: body,
             categoryIdentifier: LoanNotificationAction.categoryIdentifier
         )
     }
