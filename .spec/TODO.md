@@ -9,7 +9,9 @@ SPEC：`.spec/SPEC.md`（借金・ローンの返済管理／2026-08-02 確定�
 ## 前サイクルからの繰り越し
 
 - [ ] App Store Connect へ掲載名・サブタイトル・概要・キーワードを入力
-      **ローン機能を1.0.0に含める決定により、掲載文の作り直しが必要**
+      **掲載文の作り直しは完了**（`AppStore/Metadata-ja.md`、2026-08-02）。
+      掲載名22字／サブタイトル17字／キーワード93バイトを実測で確認済み。
+      **入力の代行はスクリーンショットと公開URLが揃ってから**（`/ios-appstore-submit`）
 
 ---
 
@@ -126,7 +128,9 @@ SPEC：`.spec/SPEC.md`（借金・ローンの返済管理／2026-08-02 確定�
       → `AppStore/PrivacyPolicy-ja.md` とアプリ内の `PrivacyPolicyView` の**両方**を更新した。
       保存する情報を4分類で列挙し、「返済額の計算は端末内で完結し外部へ送らない」を明記した。
       **サポート用メールアドレスの記載は未了**（公開URLと同じくharutoさん待ち）
-- [ ] App Store の掲載文・スクリーンショットの作り直し（`AppStore/Metadata-ja.md`）
+- [x] App Store の掲載文の作り直し（`AppStore/Metadata-ja.md`）
+- [ ] App Store用スクリーンショットの撮り直し（**借入の画面を含める**。
+      実画面をharutoさんが撮り、Codexが加工する）
 - [ ] TestFlight ビルド9の配布（`/ios-testflight-release`）
 - [ ] 審査提出の準備（`/ios-appstore-submit`）
 
