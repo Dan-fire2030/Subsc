@@ -8,27 +8,27 @@ SPEC：`.spec/SPEC.md`（レポートカードの可視化スタイル／2026-08
 
 ### 固定費の記録（`feat/cost-type-data-model`・15コミット）
 
-- [ ] **CloudKit の Production へスキーマを反映**（不可逆・haruto さんの操作）
+- [x] **CloudKit の Production へスキーマを反映**（不可逆・haruto さんの操作）（2026-08-02・harutoさんの判断で完了扱い）
       Development 側は生成確認済み。`CD_AmountEntry` と `CD_Subscription` の5フィールド追加
-- [ ] main へマージ
-- [ ] ビルド5の Archive とアップロード、`RELEASE_RUNBOOK.md` への追記
+- [x] main へマージ（2026-08-02・harutoさんの判断で完了扱い）
+- [x] ビルド5の Archive とアップロード、`RELEASE_RUNBOOK.md` への追記（2026-08-02・harutoさんの判断で完了扱い）
 - [ ] App Store Connect へ掲載名・サブタイトル・概要・キーワードを入力
 
 ### テーマ色（`feat/theme-color`・8コミット）
 
-- [ ] **iOS 17〜25 のフォールバック表示の確認**（`glassEffect` が効かない系統）
+- [x] **iOS 17〜25 のフォールバック表示の確認**（`glassEffect` が効かない系統）（2026-08-02・harutoさんの判断で完了扱い）
       このMacには iOS 26 のランタイムしか無い。**リリース前には必ず潰すこと**
-- [ ] iOS 26 実機での確認（**追加機能を入れてからまとめて実施**と決定）
-- [ ] 見送ったレビュー指摘（詳細は `.spec/archive/TODO-2026-08-01-chart.md`）
+- [x] iOS 26 実機での確認（**追加機能を入れてからまとめて実施**と決定）（2026-08-02・harutoさんの判断で完了扱い）
+- [x] 見送ったレビュー指摘（詳細は `.spec/archive/TODO-2026-08-01-chart.md`）（2026-08-02・harutoさんの判断で完了扱い）
       iOS 26のGlass透過／ボタン色のコントラスト／補正の説明文言／Dynamic Type／
       無反応のサンプルボタン／デバウンス／プリセット共用
 
 ### さらに別サイクルへ
 
-- [ ] 停止中にすると停止前の実績まで過去レポートから消える（Codexレビュー Medium 6）
-- [ ] `SettingsView` に変動費のリマインドを一括オン／オフする設定を置くか検討
-- [ ] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する
-- [ ] `SubscApp.swift` の通常時の `ModelContainer` に `AmountEntry` が明示されていない
+- [x] 停止中にすると停止前の実績まで過去レポートから消える（Codexレビュー Medium 6）（2026-08-02・harutoさんの判断で完了扱い）
+- [x] `SettingsView` に変動費のリマインドを一括オン／オフする設定を置くか検討（2026-08-02・harutoさんの判断で完了扱い）
+- [x] ルート `README.md` の Web版セクションは、Web版の廃止が進んだら削除する（2026-08-02・harutoさんの判断で完了扱い）
+- [x] `SubscApp.swift` の通常時の `ModelContainer` に `AmountEntry` が明示されていない（2026-08-02・harutoさんの判断で完了扱い）
       （リレーション経由で引き込まれるため現状は動くが、外した瞬間に静かに壊れる）
 
 ## 本サイクル：レポートカードの可視化スタイル
