@@ -1,6 +1,6 @@
 # Subsc iOS Release Runbook
 
-最終更新：2026-08-02
+最終更新：2026-08-03
 
 この文書はSubsc固有のリリース情報と作業状態を記録します。パスワード、APIキー、証明書の秘密鍵は記録しません。
 
@@ -35,9 +35,9 @@
 |---|---|
 | Container | `iCloud.com.tonaria.subsc` |
 | Database | ユーザーごとのPrivate Database |
-| Productionスキーマ | 2026-08-02反映済み（ローン機能ぶんを追加） |
+| Productionスキーマ | 2026-08-03反映済み（返済の一時停止ぶんを追加） |
 | Record Type（Production） | `CD_Subscription` / `CD_AmountEntry` / `CD_Loan` / `CD_LoanPayment` |
-| Fields（Production） | `CD_Subscription` 32 / `CD_AmountEntry` 15 / `CD_Loan` 28 / `CD_LoanPayment` 20 |
+| Fields（Production） | `CD_Subscription` 32 / `CD_AmountEntry` 15 / `CD_Loan` 30 / `CD_LoanPayment` 20 |
 | Record Type（Development） | Productionと同一 |
 | Fields（Development） | Productionと同一 |
 
@@ -78,6 +78,28 @@
 - 予定表の全回 → `CD_dueOn`
 
 反映後にProduction側のフィールドを1件ずつ読み、モデルの保存プロパティと一致することを確認済みです。
+
+### 返済の一時停止で追加したスキーマ（2026-08-03にProductionへ反映済み）
+
+`feat/loan-pause` で追加した項目です。**エージェントが代行して反映しました**（差分を提示し、`AskUserQuestion` で承認を得てからDeploy）。
+
+- `CD_Loan` への追加フィールド（2つ。22→24フィールド＋メタデータ6）
+  - `CD_isPaused`（INT(64)。`isPaused: Bool = false`）
+  - `CD_pausedOn`（DATE/TIME。`pausedOn: Date?`）
+- インデックス：上記2フィールドの `QUERYABLE` / `SORTABLE` で計4個
+- Security Role：変更なし
+- `CD_LoanPayment`：**変更なし**
+
+**`LoanPaymentStatus.deferred`（停止中）を追加してもスキーマは増えません。**
+既存の `CD_statusRaw`（STRING）に入る新しいrawValueだからです。繰り延べを
+`LoanPayment.dueOn` の書き換えではなく実績側の状態として持つ設計にしたことで、
+CloudKitへの追加が2フィールドで済んでいます。
+
+`CD_pausedOn` はOptionalのため、値を保存するまでフィールドが生成されません。
+シミュレーターで `HousingLoanA` を実際に停止し、Developmentでの生成を確認してから反映しました。
+
+反映後にProduction側の24フィールドを1件ずつ読み、モデルの保存プロパティ23個＋`CD_entityName` と
+過不足なく一致することを確認済みです。
 
 Developmentで作成したテストレコードはProductionへコピーされません。TestFlight版とApp Store版はProductionを使用するため、同じBundle ID、CloudKit Container、互換スキーマ、Apple Accountを維持する限り、TestFlight中のユーザーデータは正式版へ引き継がれます。
 
@@ -192,6 +214,7 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - [x] バブルのパン追従を直したビルド7のアップロード（2026-08-01・Apple側の受領に成功）
 - [x] バブルのパン追従と配置の余白を直したビルド8のアップロード（2026-08-02・Apple側の受領に成功）
 - [x] **ローン機能のCloudKitスキーマをProductionへ反映**（2026-08-02・エージェントが代行）
+- [x] **返済の一時停止のCloudKitスキーマをProductionへ反映**（2026-08-03・エージェントが代行。`CD_Loan` に `CD_isPaused` / `CD_pausedOn` を追加）
 - [x] 借金・ローンの返済管理を含むビルド9のアップロード（2026-08-02・Apple側の受領に成功）
 - [x] ビルド4を実機TestFlightへインストール（2026-08-02・harutoさんの判断で完了扱い）
 - [x] UIテストをXcodeから実行（このMacではテストランナーが起動できません）（2026-08-02・harutoさんの判断で完了扱い）
