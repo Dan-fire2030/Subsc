@@ -3,6 +3,9 @@ import SwiftUI
 
 struct DashboardView: View {
     @Environment(ThemeStore.self) private var theme
+    /// 停止・再開のあとで通知を組み直すのに使います。
+    /// **既定値で `reconcile` を呼ぶと、利用者が選んだ「何日前」が無視されます。**
+    @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
     @Environment(\.dismissSearch) private var dismissSearch
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Subscription.renewalDate) private var subscriptions: [Subscription]
@@ -321,6 +324,22 @@ struct DashboardView: View {
         } label: {
             LoanRow(loan: loan, summary: summary)
         }
+        // **leading に置きます。** 費目の行と操作方向を揃えるためで、
+        // ローンの行に削除スワイプは無いので、どちらとも取り違えません。
+        // 完済した借入には止める返済が残っていないので出しません。
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            if !loan.isClosed {
+                Button {
+                    togglePause(of: loan)
+                } label: {
+                    Label(
+                        loan.isPaused ? "再開" : "停止",
+                        systemImage: loan.isPaused ? "play.fill" : "pause.fill"
+                    )
+                }
+                .tint(loan.isPaused ? .green : .orange)
+            }
+        }
         .contextMenu {
             Button {
                 loanEditor = LoanEditor(loan: loan)
@@ -429,6 +448,38 @@ struct DashboardView: View {
         }
         Task {
             await NotificationService.reschedule(for: subscription)
+        }
+    }
+
+    /// 借入の返済を止める・再開します。
+    ///
+    /// 再開では予定表を組み直すため失敗しうります。**失敗したら状態も戻します**
+    /// （`rollback` が停止フラグごと巻き戻します）。中途半端に止まったままにしません。
+    private func togglePause(of loan: Loan) {
+        do {
+            if loan.isPaused {
+                let result = try LoanPaymentStore.resume(loan: loan)
+                for removed in result.removed {
+                    modelContext.delete(removed)
+                }
+            } else {
+                try LoanPaymentStore.pause(loan: loan)
+            }
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            operationError = (error as? LocalizedError)?.errorDescription
+                ?? "返済の停止状態を保存できませんでした。"
+            return
+        }
+        // 停止したぶんの予約は、計画から消えることで `reconcile` が取り消します。
+        Task {
+            await NotificationService.reconcile(
+                subscriptions: subscriptions,
+                loans: loans,
+                loanLead: loanNotificationSettings.lead,
+                loanHour: loanNotificationSettings.hour
+            )
         }
     }
 

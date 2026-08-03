@@ -5,6 +5,12 @@ import SwiftUI
 struct LoanDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    /// 停止・再開のあとで通知を組み直すのに使います。
+    /// **既定値で `reconcile` を呼ぶと、利用者が選んだ「何日前」が無視されます。**
+    @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
+    /// 通知の再計画は全件を見て行います。1件だけ消すと、再開したときに予約し直せません。
+    @Query private var allSubscriptions: [Subscription]
+    @Query private var allLoans: [Loan]
     let loan: Loan
     @State private var isEditing = false
     @State private var showsDeleteConfirmation = false
@@ -26,6 +32,7 @@ struct LoanDetailView: View {
             termsSection
             navigationSection
             simulationSection
+            pauseSection
 
             if !loan.note.isEmpty {
                 Section("メモ") {
@@ -69,6 +76,37 @@ struct LoanDetailView: View {
             Button("閉じる", role: .cancel) {}
         } message: {
             Text(operationError ?? "")
+        }
+    }
+
+    /// 返済の一時停止です。
+    ///
+    /// **完済した借入には出しません。** 止める返済が残っていないためで、
+    /// 一覧のスワイプでも同じ条件にしています。
+    @ViewBuilder
+    private var pauseSection: some View {
+        if !summary.isCompleted {
+            Section {
+                Button {
+                    togglePause()
+                } label: {
+                    Label(
+                        loan.isPaused ? "返済を再開する" : "返済を一時停止する",
+                        systemImage: loan.isPaused ? "play.fill" : "pause.fill"
+                    )
+                }
+            } header: {
+                Text("返済の停止")
+            } footer: {
+                // **何が起きるかを止める前に伝えます。** 完済日がずれるのは戻せない話ではないものの、
+                // 黙ってずらすと「勝手に予定が変わった」と受け取られます。
+                if loan.isPaused, let pausedOn = loan.pausedOn {
+                    Text("\(pausedOn.formatted(.dateTime.year().month().day()))から停止しています。停止しているあいだの返済日は飛ばされ、完済予定はそのぶん後ろへずれます。利息は増えません。")
+                } else {
+                    Text("停止しているあいだの返済日は飛ばされ、完済予定はそのぶん後ろへずれます。利息は増えず、残高も変わりません。")
+                }
+            }
+            .glassListRow()
         }
     }
 
@@ -223,6 +261,39 @@ struct LoanDetailView: View {
         let repaid = summary.repaidPrincipal
             .formatted(.currency(code: "JPY").precision(.fractionLength(0)))
         return "元金の\(percent.formatted(.number.precision(.fractionLength(0))))％（\(repaid)）を返済しました"
+    }
+
+    /// 返済を止める・再開します。
+    ///
+    /// 再開では予定表を組み直すため失敗しうります。**失敗したら停止フラグごと巻き戻します。**
+    /// 中途半端に止まったままにしません。
+    private func togglePause() {
+        do {
+            if loan.isPaused {
+                let result = try LoanPaymentStore.resume(loan: loan)
+                for removed in result.removed {
+                    modelContext.delete(removed)
+                }
+            } else {
+                try LoanPaymentStore.pause(loan: loan)
+            }
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            operationError = (error as? LocalizedError)?.errorDescription
+                ?? "返済の停止状態を保存できませんでした。"
+            return
+        }
+        // 停止したぶんの予約は、計画から消えることで `reconcile` が取り消します。
+        // 再開したぶんはここで予約し直されます。
+        Task {
+            await NotificationService.reconcile(
+                subscriptions: allSubscriptions,
+                loans: allLoans,
+                loanLead: loanNotificationSettings.lead,
+                loanHour: loanNotificationSettings.hour
+            )
+        }
     }
 
     private func delete() {

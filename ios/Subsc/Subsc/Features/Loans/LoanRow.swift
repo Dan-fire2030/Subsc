@@ -41,6 +41,8 @@ struct LoanRow: View {
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     if summary.isCompleted {
                         StatusBadge(title: "完済")
+                    } else if loan.isPaused {
+                        StatusBadge(title: "停止中")
                     } else if summary.missedCount > 0 {
                         StatusBadge(title: "滞納\(summary.missedCount)回")
                     }
@@ -48,7 +50,11 @@ struct LoanRow: View {
 
                 metadataLayout {
                     LoanMethodBadge(title: loan.method.title, color: accentColor)
-                    if let nextDueDate = summary.nextDueDate {
+                    // **停止中は次回の返済日を出しません。** 止めているあいだも日付が見えていると、
+                    // その日に引き落とされるように読めてしまいます。
+                    if loan.isPaused {
+                        EmptyView()
+                    } else if let nextDueDate = summary.nextDueDate {
                         Text("\(nextDueDate.formatted(.dateTime.month().day()))返済")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -85,7 +91,8 @@ struct LoanRow: View {
             }
         }
         .padding(.vertical, 3)
-        .opacity(summary.isCompleted ? 0.62 : 1)
+        // 停止中も完済と同じ薄さにします。費目行の停止中とも同じ値です。
+        .opacity(summary.isCompleted || loan.isPaused ? 0.62 : 1)
         .accessibilityElement(children: .combine)
     }
 }

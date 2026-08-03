@@ -99,8 +99,8 @@ final class DashboardListItemTests: XCTestCase {
 
     // MARK: - 状態の絞り込み
 
-    /// 借入に「停止中」はありません。停止中で絞ったら消えるのが正しい挙動です。
-    func testLoansNeverAppearUnderThePausedFilter() throws {
+    /// 止めていない借入は「停止中」の絞り込みに出ません。
+    func testRepayingLoansDoNotAppearUnderThePausedFilter() throws {
         let loan = try makeSynchronizedLoan(name: "自動車ローン")
 
         let items = DashboardListBuilder.items(
@@ -114,6 +114,59 @@ final class DashboardListItemTests: XCTestCase {
         )
 
         XCTAssertTrue(items.isEmpty)
+    }
+
+    /// **停止した借入は「停止中」で絞り込むと出ます。**
+    /// ここに出ないと、止めたものを探す手段が無くなります。
+    func testPausedLoanAppearsUnderThePausedFilter() throws {
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+        try LoanPaymentStore.pause(loan: loan, on: Fixture.now, calendar: Fixture.calendar)
+
+        let items = DashboardListBuilder.items(
+            subscriptions: [],
+            loans: [loan],
+            stateFilter: .paused,
+            costTypeFilter: .all,
+            query: "",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(items.map(\.name), ["自動車ローン"])
+    }
+
+    /// 停止した借入は「利用中」からは消えます。費目の停止中と同じ扱いです。
+    func testPausedLoanDisappearsFromTheActiveFilter() throws {
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+        try LoanPaymentStore.pause(loan: loan, on: Fixture.now, calendar: Fixture.calendar)
+
+        let items = DashboardListBuilder.items(
+            subscriptions: [],
+            loans: [loan],
+            stateFilter: .active,
+            costTypeFilter: .all,
+            query: "",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertTrue(items.isEmpty)
+    }
+
+    /// 停止した借入は「次の支払い」にも出ません。止めているのに次の予定が出ると矛盾します。
+    func testPausedLoanIsNotTheNextDue() throws {
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+        try LoanPaymentStore.pause(loan: loan, on: Fixture.now, calendar: Fixture.calendar)
+
+        let next = DashboardListBuilder.nextDue(
+            subscriptions: [],
+            loans: [loan],
+            costTypeFilter: .all,
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertNil(next)
     }
 
     /// 完済した借入は「履歴」へ移り、「利用中」からは消えます。

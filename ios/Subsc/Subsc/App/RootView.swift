@@ -94,8 +94,16 @@ struct RootView: View {
         }
 
         // 返済日を過ぎた回は、何もしなければ予定どおり返済されたものとして進めます。
+        // **停止中の借入は繰り延べへ回します。** 止めているあいだに返済済みが積み上がると、
+        // 一時停止が無意味になります。
         for loan in loans {
-            LoanPaymentStore.settlePastDue(on: loan)
+            if loan.isPaused {
+                // 予定表を組み直せなくても、他の借入の処理は続けます。
+                // 開くたびに呼ばれるので、次の起動でやり直せます。
+                try? LoanPaymentStore.deferPastDue(on: loan)
+            } else {
+                LoanPaymentStore.settlePastDue(on: loan)
+            }
         }
 
         let result = await NotificationService.reconcile(

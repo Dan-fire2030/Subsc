@@ -76,7 +76,7 @@ enum DashboardListBuilder {
         // 借入の種別は常に `.loan` なので、1件ずつではなく最初に一度だけ判定します。
         let loanItems = (costTypeFilter.matches(.loan) ? loans : [])
             .map { ($0, LoanSummary.make(for: $0)) }
-            .filter { matchesState(summary: $0.1, filter: stateFilter) }
+            .filter { matchesState(loan: $0.0, summary: $0.1, filter: stateFilter) }
             .filter { matchesQuery($0.0, query: normalizedQuery) }
             .map(DashboardListItem.loan)
 
@@ -185,12 +185,19 @@ enum DashboardListBuilder {
 
     // MARK: - 借入
 
-    /// **借入に「停止中」はありません。** 完済していれば履歴、そうでなければ利用中として扱います。
-    private static func matchesState(summary: LoanSummary, filter: SubscriptionFilter) -> Bool {
+    /// 完済していれば履歴、返済を止めていれば停止中、それ以外は利用中として扱います。
+    ///
+    /// **完済を停止より先に見ます。** 完済した借入は止められないため両方が立つことはありませんが、
+    /// 過去に止めたまま完済したデータが残っていても、履歴として1箇所に出ます。
+    private static func matchesState(
+        loan: Loan,
+        summary: LoanSummary,
+        filter: SubscriptionFilter
+    ) -> Bool {
         switch filter {
         case .all: return true
-        case .active: return !summary.isCompleted
-        case .paused: return false
+        case .active: return !summary.isCompleted && !loan.isPaused
+        case .paused: return !summary.isCompleted && loan.isPaused
         case .history: return summary.isCompleted
         }
     }
