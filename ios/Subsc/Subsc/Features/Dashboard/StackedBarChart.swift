@@ -88,15 +88,14 @@ struct StackedBarChart: View {
 
         return HStack(spacing: spacing) {
             ForEach(Array(zip(items, lengths)), id: \.0.id) { item, length in
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(ReportChartPalette.color(for: item))
+                ReportChartGlassShape(
+                    shape: RoundedRectangle(cornerRadius: 8, style: .continuous),
+                    color: ReportChartPalette.color(for: item),
+                    glossHeight: 2.5,
+                    // 帯は横に細長いので、光沢を比で入れると端まで届いて線に見えます。
+                    glossInsetRatio: 0.08
+                )
                     .frame(width: length, height: Layout.segmentHeight)
-                    .overlay(alignment: .top) {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(.white.opacity(0.24))
-                            .frame(height: 2)
-                            .padding(.horizontal, 2)
-                    }
                     .accessibilityElement()
                     .accessibilityLabel(accessibilityLabel(for: item))
                     .accessibilityValue(accessibilityValue(for: item))
