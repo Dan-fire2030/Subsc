@@ -85,6 +85,37 @@ final class LoanNotificationTests: XCTestCase {
         XCTAssertTrue(planned.isEmpty)
     }
 
+    /// 停止中は返済日が来ても払わないので、通知しません。
+    func testPausedLoansAreNotNotified() throws {
+        let loan = try makeSynchronizedLoan()
+        try LoanPaymentStore.pause(loan: loan, on: date(2026, 1, 1), calendar: Fixture.calendar)
+
+        let planned = LoanNotificationPlanner.plannedPayments(
+            loans: [loan],
+            now: date(2026, 1, 1),
+            limit: 20,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertTrue(planned.isEmpty)
+    }
+
+    /// 再開したら予約し直されます。**止めたきり二度と通知が来ないと、返済を忘れます。**
+    func testResumedLoansAreNotifiedAgain() throws {
+        let loan = try makeSynchronizedLoan()
+        try LoanPaymentStore.pause(loan: loan, on: date(2026, 1, 1), calendar: Fixture.calendar)
+        try LoanPaymentStore.resume(loan: loan, on: date(2026, 3, 1), calendar: Fixture.calendar)
+
+        let planned = LoanNotificationPlanner.plannedPayments(
+            loans: [loan],
+            now: date(2026, 3, 1),
+            limit: 20,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertFalse(planned.isEmpty)
+    }
+
     func testPastDueDatesAreNotNotified() throws {
         let loan = try makeSynchronizedLoan()
 

@@ -170,6 +170,46 @@ final class ReportCalculatorLoanTests: XCTestCase {
         XCTAssertFalse(slice.isEstimated)
     }
 
+    // MARK: - 一時停止
+
+    /// 停止中の借入は、**これからの期間**の集計から外れます。
+    func testPausedLoanIsExcludedFromTheCurrentPeriod() throws {
+        let loan = try makeSynchronizedLoan()
+        try LoanPaymentStore.pause(loan: loan, on: date(2026, 1, 5), calendar: Fixture.calendar)
+
+        let report = ReportCalculator.report(
+            subscriptions: [],
+            loans: [loan],
+            period: .month,
+            cursor: date(2026, 1, 15),
+            now: date(2026, 1, 15),
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertTrue(report.entries.isEmpty)
+    }
+
+    /// **停止しても、過ぎ去った期間の実績は残ります。**
+    ///
+    /// 前サイクルで費目側に同じ不具合があり（Codexレビュー Medium 6）、
+    /// 停止した瞬間に過去の月の合計まで変わってしまいました。同じ穴を借入で繰り返しません。
+    func testPausedLoanStillCountsInPastPeriods() throws {
+        let loan = try makeSynchronizedLoan()
+        try LoanPaymentStore.pause(loan: loan, on: date(2026, 5, 5), calendar: Fixture.calendar)
+
+        let report = ReportCalculator.report(
+            subscriptions: [],
+            loans: [loan],
+            period: .month,
+            cursor: date(2026, 1, 15),
+            now: date(2026, 5, 5),
+            calendar: Fixture.calendar
+        )
+        let entry = try XCTUnwrap(report.entries.first)
+
+        XCTAssertEqual(entry.amount, 84_694, accuracy: 0.5)
+    }
+
     // MARK: - 補助
 
     private func makeSynchronizedLoan() throws -> Loan {

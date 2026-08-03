@@ -45,7 +45,9 @@ enum LoanNotificationPlanner {
         guard limit > 0 else { return [] }
 
         let planned = loans
-            .filter { !$0.isClosed }
+            // 停止中は返済日が来ても払わないので、通知しません。
+            // 再開すると予定表が組み直され、次の計画で予約し直されます。
+            .filter { !$0.isClosed && !$0.isPaused }
             .flatMap { loan in
                 upcomingPayments(on: loan, now: now, calendar: calendar).compactMap {
                     notification(
