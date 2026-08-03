@@ -10,6 +10,11 @@ enum LoanPaymentStatus: String, CaseIterable, Identifiable {
     case missed
     /// 繰上返済。上乗せぶんは全額が元金へ充当されます。
     case prepaid
+    /// 一時停止で飛ばした月です。**滞納と違い、利息は発生しません**（SPEC A-2）。
+    ///
+    /// 繰り延べをここに記録するのは、予定表が常に計算結果で、実績だけが入力だからです。
+    /// `LoanPayment.dueOn` を直接書き換えても、次の `synchronize` で作り直されて消えます。
+    case deferred
 
     var id: String { rawValue }
 
@@ -19,6 +24,7 @@ enum LoanPaymentStatus: String, CaseIterable, Identifiable {
         case .paid: "返済済み"
         case .missed: "滞納"
         case .prepaid: "繰上返済"
+        case .deferred: "停止中"
         }
     }
 }
@@ -81,9 +87,10 @@ final class LoanPayment {
         set { statusRaw = newValue.rawValue }
     }
 
-    /// レポートへ計上する金額です。滞納した月は0、実績があればその額、無ければ予定額です。
+    /// レポートへ計上する金額です。
+    /// **滞納した月と停止中の月は0**、実績があればその額、無ければ予定額です。
     var effectiveAmount: Double {
-        if status == .missed { return 0 }
+        if status == .missed || status == .deferred { return 0 }
         return actualAmount ?? scheduledAmount
     }
 

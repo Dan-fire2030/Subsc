@@ -34,6 +34,7 @@ enum LoanPaymentStore {
         let schedule = try LoanScheduleCalculator(calendar: calendar).schedule(
             for: loan.terms(nextDueDate: try firstDueDate(for: loan, calendar: calendar)),
             missedPeriods: missedPeriods(in: existing),
+            deferredPeriods: deferredPeriods(in: existing),
             prepayments: prepayments(in: existing)
         )
 
@@ -55,7 +56,7 @@ enum LoanPaymentStore {
                         principalPortion: installment.principal,
                         interestPortion: installment.interest,
                         balanceAfter: installment.balanceAfter,
-                        status: installment.isMissed ? .missed : .scheduled
+                        status: Self.status(for: installment)
                     )
                 )
                 continue
@@ -143,13 +144,85 @@ enum LoanPaymentStore {
         return try synchronize(loan: loan, calendar: calendar)
     }
 
+    // MARK: - 一時停止
+
+    /// 返済を一時的に止めます。
+    ///
+    /// **滞納として記録するのではありません。** 停止中の月は利息を発生させず、
+    /// 期日を後ろへずらすだけです（SPEC A-2）。実際の繰り延べは、返済日を跨ぐたびに
+    /// `deferPastDue` が1回ぶんずつ記録します。
+    static func pause(loan: Loan, on date: Date = .now, calendar: Calendar = .current) throws {
+        // **完済したローンは止められません。** 止める返済が残っていないためです。
+        guard !loan.isClosed else { throw LoanPauseError.loanIsClosed }
+        guard !loan.isPaused else { return }
+
+        loan.isPaused = true
+        loan.pausedOn = date
+        loan.updatedAt = .now
+    }
+
+    /// 返済を再開します。
+    ///
+    /// 停止中に跨いだ返済日を繰り延べとして記録してから、予定表を組み直します。
+    /// **順序を逆にしてはいけません。** 先に停止を解除すると、跨いだ月が
+    /// `settlePastDue` によって「返済済み」になってしまいます。
+    @discardableResult
+    static func resume(
+        loan: Loan,
+        on date: Date = .now,
+        calendar: Calendar = .current
+    ) throws -> SynchronizationResult {
+        let result = try deferPastDue(on: loan, now: date, calendar: calendar)
+        // **両方を同時に消します。** 片方だけ残ると「停止中なのに開始日が無い」状態になります。
+        loan.isPaused = false
+        loan.pausedOn = nil
+        loan.updatedAt = .now
+        return result
+    }
+
+    /// 停止中に返済日を過ぎた回を、繰り延べとして記録します。
+    ///
+    /// `settlePastDue` の停止中版です。同じ「過ぎた回を処理する」形にすることで、
+    /// 停止したまま何ヶ月も放置されても、開くたびに正しい回数ぶんが繰り延べられます。
+    ///
+    /// **停止した日より前に返済日が来ていた回は対象外です。** 止める前に期限が来ていた返済まで
+    /// 遡って繰り延べると、停止が過去へ効いてしまいます。それらは停止していない期間の
+    /// 未処理分なので、`settlePastDue` の担当です。
+    @discardableResult
+    static func deferPastDue(
+        on loan: Loan,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) throws -> SynchronizationResult {
+        guard loan.isPaused, let pausedOn = loan.pausedOn else {
+            return try synchronize(loan: loan, calendar: calendar)
+        }
+
+        let passed = sortedPayments(on: loan).filter { payment in
+            guard payment.status == .scheduled, let dueOn = payment.dueOn else { return false }
+            return dueOn >= pausedOn && dueOn <= now
+        }
+        for payment in passed {
+            payment.status = .deferred
+            // 予定どおり返したわけではないので、実績は残しません。
+            payment.actualAmount = nil
+        }
+        // 繰り延べた回は元金を返さないため、**予定表の末尾が延びます。** 組み直して反映します。
+        return try synchronize(loan: loan, calendar: calendar)
+    }
+
     /// 返済日を過ぎた回を、返済済みとして扱います。
     ///
     /// **何もしなければ予定どおり返済されたものとします。** 毎月の入力を求めると続かないためです。
     /// `actualAmount` は nil のままにし、「実績0円」と区別できる状態を保ちます。
     /// 滞納・繰上返済として記録済みの回には触れません。
+    ///
+    /// **停止中は何もしません。** 進めてしまうと、止めているあいだに返済済みが積み上がり、
+    /// 一時停止が無意味になります。停止中の繰り延べは `deferPastDue` が担います。
     @discardableResult
     static func settlePastDue(on loan: Loan, now: Date = .now) -> [LoanPayment] {
+        guard !loan.isPaused else { return [] }
+
         let settled = sortedPayments(on: loan).filter { payment in
             guard payment.status == .scheduled, let dueOn = payment.dueOn else { return false }
             return dueOn <= now
@@ -167,9 +240,14 @@ enum LoanPaymentStore {
     ///
     /// **判定はこの1箇所に閉じます。** 完済かどうかを画面ごとに数え直すと、
     /// 記録を取り消したときに戻し忘れが起きます。
+    ///
+    /// **停止中の回が残っているあいだは完済にしません。** 繰り延べを記録した直後は
+    /// 予定を組み直すまで `scheduled` が一時的に0件になり得るため、
+    /// これが無いと止めた瞬間に完済扱いへ倒れます。
     private static func updateClosedState(of loan: Loan) {
         let payments = sortedPayments(on: loan)
-        loan.isClosed = !payments.isEmpty && payments.allSatisfy { $0.status != .scheduled }
+        loan.isClosed = !payments.isEmpty
+            && payments.allSatisfy { $0.status != .scheduled && $0.status != .deferred }
     }
 
     /// 予定表の1回目の返済日です。
@@ -203,6 +281,18 @@ enum LoanPaymentStore {
 
     private static func missedPeriods(in payments: [LoanPayment]) -> Set<Int> {
         Set(payments.filter { $0.status == .missed }.map(\.period))
+    }
+
+    private static func deferredPeriods(in payments: [LoanPayment]) -> Set<Int> {
+        Set(payments.filter { $0.status == .deferred }.map(\.period))
+    }
+
+    /// 新しく作る回の状態です。**計算結果から素直に決まる分だけ**を扱います。
+    /// 既存の回の状態は上書きしません（利用者が記録した事実が優先されます）。
+    private static func status(for installment: LoanInstallment) -> LoanPaymentStatus {
+        if installment.isMissed { return .missed }
+        if installment.isDeferred { return .deferred }
+        return .scheduled
     }
 
     /// 予定額を超えて支払った差額を、繰上返済の上乗せとして取り出します。

@@ -31,10 +31,13 @@ struct LoanScheduleCalculator {
     ///
     /// - Parameters:
     ///   - missedPeriods: 滞納した月。1回目の返済日から数えた通し番号で指定します。
+    ///   - deferredPeriods: 一時停止で飛ばした月。**滞納と違い、利息を発生させません。**
+    ///     残高も総利息も変えず、以降の返済日を1ヶ月ぶん後ろへ送るだけです（SPEC A-2）。
     ///   - prepayments: 繰上返済。通し番号と金額の対。**全額を元金へ充当**します（期間短縮型）。
     func schedule(
         for terms: LoanTerms,
         missedPeriods: Set<Int> = [],
+        deferredPeriods: Set<Int> = [],
         prepayments: [Int: Double] = [:]
     ) throws -> LoanSchedule {
         try validate(terms)
@@ -54,6 +57,26 @@ struct LoanScheduleCalculator {
             let dueDate = try dueDate(for: period, terms: terms)
             let rate = monthlyRate(annualRatePercent: annualRatePercent(at: dueDate, terms: terms))
             let interest = balance * rate
+
+            if deferredPeriods.contains(period) {
+                // 一時停止。**残高も総利息も変わりません。** この月を空けることで、
+                // 以降の返済日が1ヶ月ぶん後ろへ送られます。
+                //
+                // **滞納（下の分岐）と同じにしてはいけません。** 滞納は利息を残高へ繰り入れます。
+                installments.append(
+                    LoanInstallment(
+                        period: period,
+                        dueDate: dueDate,
+                        amount: 0,
+                        principal: 0,
+                        interest: 0,
+                        balanceAfter: balance,
+                        isDeferred: true
+                    )
+                )
+                period += 1
+                continue
+            }
 
             if missedPeriods.contains(period) {
                 // **返済せず、残高も減りません。** その月に発生した利息は残高へ繰り入れ、

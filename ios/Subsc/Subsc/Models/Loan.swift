@@ -26,6 +26,19 @@ enum LoanOrigin: String, CaseIterable, Identifiable {
 /// CloudKitミラーリングの制約に合わせ、**すべての保存プロパティに既定値かOptionalを持たせ、
 /// 一意制約は使っていません**。配列は `AmountEntry` と同じくCSV文字列で保存し、
 /// computed property で出し入れします。
+/// 一時停止の操作が成り立たない場合です。
+enum LoanPauseError: LocalizedError, Equatable {
+    /// 完済したローンは止められません。止める返済が残っていないためです。
+    case loanIsClosed
+
+    var errorDescription: String? {
+        switch self {
+        case .loanIsClosed:
+            return "完済した借入は一時停止できません。"
+        }
+    }
+}
+
 @Model
 final class Loan {
     var clientID: String = UUID().uuidString
@@ -56,6 +69,15 @@ final class Loan {
     var bonusMonthsCSV: String = ""
     var bonusAmount: Double = 0
     var isClosed: Bool = false
+    /// 返済を一時的に止めているかどうかです。
+    ///
+    /// **滞納とは別物です。** 滞納はその月の利息が残高へ繰り入れられて総利息が増えますが、
+    /// 一時停止は利息を発生させず、**期日を後ろへずらすだけ**です（SPEC A-2）。
+    var isPaused: Bool = false
+    /// いつ停止したかです。再開時に、繰り延べる月数をここから数えます。
+    ///
+    /// **`isPaused` が真のときは必ず値が入ります。** 停止・再開では両方を同時に書き換えます。
+    var pausedOn: Date?
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 

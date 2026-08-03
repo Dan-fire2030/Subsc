@@ -39,7 +39,8 @@ final class LoanModelTests: XCTestCase {
         XCTAssertEqual(LoanPaymentStatus.paid.rawValue, "paid")
         XCTAssertEqual(LoanPaymentStatus.missed.rawValue, "missed")
         XCTAssertEqual(LoanPaymentStatus.prepaid.rawValue, "prepaid")
-        XCTAssertEqual(LoanPaymentStatus.allCases.count, 4)
+        XCTAssertEqual(LoanPaymentStatus.deferred.rawValue, "deferred")
+        XCTAssertEqual(LoanPaymentStatus.allCases.count, 5)
     }
 
     func testTitlesAreShownInJapanese() {

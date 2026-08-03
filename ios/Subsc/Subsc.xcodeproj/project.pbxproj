@@ -118,6 +118,7 @@
 		AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001200000000000000120 /* LoanDueDateTests.swift */; };
 		AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001210000000000000121 /* LoanNotificationSettings.swift */; };
 		AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001220000000000000122 /* LoanNotificationLeadTests.swift */; };
+		AA00011230000000000000123 /* LoanPauseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011230000000000000123 /* LoanPauseTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -254,6 +255,7 @@
 		BB0001200000000000000120 /* LoanDueDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanDueDateTests.swift; sourceTree = "<group>"; };
 		BB0001210000000000000121 /* LoanNotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationSettings.swift; sourceTree = "<group>"; };
 		BB0001220000000000000122 /* LoanNotificationLeadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationLeadTests.swift; sourceTree = "<group>"; };
+		BB00011230000000000000123 /* LoanPauseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPauseTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -444,6 +446,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
+				BB00011230000000000000123 /* LoanPauseTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
@@ -733,6 +736,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,
+				AA00011230000000000000123 /* LoanPauseTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
