@@ -117,16 +117,19 @@ struct BubbleChart: View {
 
     private func bubbleCanvas(nodes: [BubbleNode], size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
-            ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
-                if let item = items.first(where: { $0.id == node.id }) {
-                    BubbleNodeView(
-                        item: item,
-                        node: node,
-                        total: total,
-                        showsLabel: node.radius * scale >= minimumLabelRadius,
-                        driftIndex: index,
-                        reduceMotion: reduceMotion
-                    )
+            // ガラスの取り込みをまとめます。円ごとに個別へ当てると件数ぶん走ります。
+            ReportChartGlassContainer {
+                ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
+                    if let item = items.first(where: { $0.id == node.id }) {
+                        BubbleNodeView(
+                            item: item,
+                            node: node,
+                            total: total,
+                            showsLabel: node.radius * scale >= minimumLabelRadius,
+                            driftIndex: index,
+                            reduceMotion: reduceMotion
+                        )
+                    }
                 }
             }
 
@@ -270,40 +273,62 @@ private struct BubbleNodeView: View {
     let driftIndex: Int
     let reduceMotion: Bool
 
-    @State private var isDrifting = false
+    @State private var isDriftingVertically = false
+    @State private var isDriftingHorizontally = false
     @State private var hasAppeared = false
 
     private enum Layout {
-        static let highlightOpacity = 0.24
-        static let highlightHeightRatio: CGFloat = 0.16
-        static let highlightHorizontalInsetRatio: CGFloat = 0.42
-        static let highlightTopInsetRatio: CGFloat = 0.13
+        static let highlightOpacity = 0.34
+        static let highlightHeightRatio: CGFloat = 0.18
+        static let highlightHorizontalInsetRatio: CGFloat = 0.4
+        static let highlightTopInsetRatio: CGFloat = 0.12
         static let minimumHighlightHeight: CGFloat = 1
         static let labelSpacing: CGFloat = 1
         static let labelPadding: CGFloat = 5
         static let minimumLabelScale: CGFloat = 0.55
         /// 漂う幅は半径に対する比で決めます。円同士の間隔より小さく保ち、重なって見せません。
-        static let driftRatio: CGFloat = 0.07
-        static let maximumDrift: CGFloat = 3
-        static let baseDriftDuration = 2.6
+        static let driftRatio: CGFloat = 0.09
+        static let maximumDrift: CGFloat = 4.5
+        /// 左右は上下より控えめにします。同じ幅で動かすと、斜めに滑って見えます。
+        static let horizontalDriftScale: CGFloat = 0.62
+        static let baseDriftDuration = 2.9
         static let driftDurationStep = 0.23
+        /// **上下と左右で周期をずらします。** 同じ周期だと往復が直線になり、
+        /// 8の字にならず「斜めに行ったり来たり」に見えます。
+        static let horizontalDurationRatio = 1.45
+        /// 浮いて見せる落ち影です。半径に対する比で決め、小さい円で影が勝たないようにします。
+        static let shadowRadiusRatio: CGFloat = 0.22
+        static let shadowOffsetRatio: CGFloat = 0.14
     }
 
-    /// 円ごとにずらした上下の振れ幅です。
-    private var driftOffset: CGFloat {
-        guard isDrifting else { return 0 }
-        let magnitude = min(node.radius * Layout.driftRatio, Layout.maximumDrift)
+    /// 円ごとにずらした振れ幅です。
+    private var driftMagnitude: CGFloat {
+        min(node.radius * Layout.driftRatio, Layout.maximumDrift)
+    }
+
+    private var verticalDrift: CGFloat {
+        guard isDriftingVertically else { return 0 }
         // 交互に上下へ動かし、隣り合う円が同じ向きに揃わないようにします。
-        return driftIndex.isMultiple(of: 2) ? -magnitude : magnitude
+        return driftIndex.isMultiple(of: 2) ? -driftMagnitude : driftMagnitude
+    }
+
+    private var horizontalDrift: CGFloat {
+        guard isDriftingHorizontally else { return 0 }
+        let magnitude = driftMagnitude * Layout.horizontalDriftScale
+        // 上下とは別の周期で分けます。3つおきにすると、上下の2つおきと噛み合いません。
+        return driftIndex % 3 == 0 ? -magnitude : magnitude
     }
 
     private var driftDuration: Double {
         Layout.baseDriftDuration + Double(driftIndex % 5) * Layout.driftDurationStep
     }
 
+    private var horizontalDriftDuration: Double {
+        driftDuration * Layout.horizontalDurationRatio
+    }
+
     var body: some View {
-        Circle()
-            .fill(ReportChartPalette.color(for: item))
+        ReportChartGlassShape(shape: Circle(), color: ReportChartPalette.color(for: item))
             .overlay(alignment: .top) {
                 Circle()
                     .fill(.white.opacity(Layout.highlightOpacity))
@@ -335,7 +360,13 @@ private struct BubbleNodeView: View {
                 }
             }
             .frame(width: node.radius * 2, height: node.radius * 2)
-            .offset(y: driftOffset)
+            // **影は漂いと一緒に動かします。** 円だけ動かすと、影に貼り付いて見えます。
+            .shadow(
+                color: ReportChartGlass.shadowColor(ReportChartPalette.color(for: item)),
+                radius: node.radius * Layout.shadowRadiusRatio,
+                y: node.radius * Layout.shadowOffsetRatio
+            )
+            .offset(x: horizontalDrift, y: verticalDrift)
             .scaleEffect(hasAppeared ? 1 : 0.55)
             .opacity(hasAppeared ? 1 : 0)
             .position(node.center)
@@ -360,7 +391,15 @@ private struct BubbleNodeView: View {
                 .repeatForever(autoreverses: true)
                 .delay(Double(driftIndex % 4) * 0.18)
         ) {
-            isDrifting = true
+            isDriftingVertically = true
+        }
+        // **上下とは別に開始します。** 同時に始めると位相が揃い、往復が直線になります。
+        withAnimation(
+            .easeInOut(duration: horizontalDriftDuration)
+                .repeatForever(autoreverses: true)
+                .delay(Double(driftIndex % 3) * 0.29)
+        ) {
+            isDriftingHorizontally = true
         }
     }
 
@@ -393,10 +432,14 @@ private struct BubbleCallout: View {
         .lineLimit(1)
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
-        .background(.black.opacity(0.55), in: Capsule(style: .continuous))
+        // 円と同じ縁の光り方に揃えます。
+        //
+        // **下地の黒は薄くしません。** 文字が白なので、明るいガラスに置き換えると
+        // 背後の円の色によっては読めなくなります。質感は縁と光沢だけで合わせます。
+        .background(.black.opacity(0.5), in: Capsule(style: .continuous))
         .overlay {
             Capsule(style: .continuous)
-                .stroke(.white.opacity(0.35), lineWidth: 0.7)
+                .stroke(ReportChartGlass.rim, lineWidth: ReportChartGlass.rimWidth)
         }
         .accessibilityHidden(true)
     }

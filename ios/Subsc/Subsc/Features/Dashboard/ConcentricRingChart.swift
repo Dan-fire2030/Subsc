@@ -87,12 +87,29 @@ struct ConcentricRingChart: View {
                     .stroke(.white.opacity(0.1), lineWidth: Layout.ringWidth)
                     .padding(inset)
 
+                // リングは線なので、面を塗る `ReportChartGlassShape` は使えません。
+                // **素材だけ共有します。** 塗りのグラデーションをそのまま線幅へ当て、
+                // 上に細いリムライトを重ねて、他のスタイルと同じ光り方にします。
                 Circle()
                     .trim(from: 0, to: fraction)
                     .stroke(
-                        ReportChartPalette.color(for: item),
+                        ReportChartGlass.fill(ReportChartPalette.color(for: item)),
                         style: StrokeStyle(lineWidth: Layout.ringWidth, lineCap: .round)
                     )
+                    .overlay {
+                        Circle()
+                            .trim(from: 0, to: fraction)
+                            .stroke(
+                                ReportChartGlass.rim,
+                                style: StrokeStyle(
+                                    lineWidth: Layout.ringWidth * 0.3,
+                                    lineCap: .round
+                                )
+                            )
+                            // 線の中心ではなく上寄りに置き、面の光沢のように見せます。
+                            .padding(Layout.ringWidth * 0.34)
+                            .allowsHitTesting(false)
+                    }
                     .rotationEffect(.degrees(-90))
                     .padding(inset)
                     .accessibilityElement()

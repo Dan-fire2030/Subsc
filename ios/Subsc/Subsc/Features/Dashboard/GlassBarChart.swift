@@ -106,27 +106,29 @@ private struct GlassBarRow: View {
                                 .stroke(.white.opacity(0.2), lineWidth: 0.6)
                         }
 
-                    Capsule(style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    ColorHex.color(from: entry.colorHex).opacity(0.96),
-                                    ColorHex.color(from: entry.colorHex).opacity(0.62),
-                                    .white.opacity(0.72)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
+                    // 塗りだけは横方向のままにします。**伸びていく向きに意味がある**ためで、
+                    // 縦のグラデーションにすると、どこまで伸びているかが読み取りにくくなります。
+                    // 縁と光沢は他のスタイルと共通の素材を使います。
+                    ReportChartGlassShape(
+                        shape: Capsule(style: .continuous),
+                        color: ColorHex.color(from: entry.colorHex),
+                        glossHeight: 2,
+                        glossInsetRatio: 0.06,
+                        fillOverride: LinearGradient(
+                            colors: [
+                                ColorHex.color(from: entry.colorHex).opacity(0.96),
+                                ColorHex.color(from: entry.colorHex).opacity(0.62),
+                                .white.opacity(0.72)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
                         )
+                    )
                         .frame(width: proxy.size.width * fraction)
-                        .overlay(alignment: .top) {
-                            Capsule(style: .continuous)
-                                .fill(.white.opacity(0.28))
-                                .frame(height: 2)
-                                .padding(.horizontal, 3)
-                        }
                         .shadow(
-                            color: ColorHex.color(from: entry.colorHex).opacity(0.42),
+                            color: ReportChartGlass.shadowColor(
+                                ColorHex.color(from: entry.colorHex)
+                            ),
                             radius: 6,
                             y: 2
                         )
