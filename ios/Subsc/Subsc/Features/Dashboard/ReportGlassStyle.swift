@@ -175,24 +175,12 @@ struct ReportChartGlassShape<S: Shape>: View {
     }
 }
 
-/// 多数のガラス要素をまとめて描くための入れ物です。
-///
-/// **バブルは20件以上並ぶことがあります。** 1つずつ `glassEffect` を当てると
-/// 背景の取り込みが要素の数だけ走ります。iOS 26 の `GlassEffectContainer` で
-/// まとめると、その負荷を1回に寄せられます。iOS 17〜25 では素通しします。
-struct ReportChartGlassContainer<Content: View>: View {
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        if #available(iOS 26.0, *) {
-            GlassEffectContainer {
-                content
-            }
-        } else {
-            content
-        }
-    }
-}
+// **`GlassEffectContainer` はグラフでは使いません。**
+//
+// 取り込みの負荷を1回へ寄せられるため一度は導入しましたが、ガラスを1枚へまとめる際に
+// 中の非ガラス要素（バブルのラベルと上部の光沢）がガラスの下へ潜り、完全に見えなくなりました。
+// 要素の外側に `.overlay` を足しても、要素の中へ入れても同じです。
+// 数値が読めなくなる代償が大きすぎるため、グラフの要素には個別に `glassEffect` を当てます。
 
 private struct LiquidGlassCardBackground: View {
     @Environment(ThemeStore.self) private var theme

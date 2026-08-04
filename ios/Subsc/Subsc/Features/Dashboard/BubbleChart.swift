@@ -117,8 +117,11 @@ struct BubbleChart: View {
 
     private func bubbleCanvas(nodes: [BubbleNode], size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
-            // ガラスの取り込みをまとめます。円ごとに個別へ当てると件数ぶん走ります。
-            ReportChartGlassContainer {
+            // **`GlassEffectContainer` では包みません。** ガラスを1枚へまとめる際、
+            // 中に置いた非ガラスの中身（円のラベルと上部の光沢）がガラスの下へ潜り、
+            // 完全に見えなくなります。取り込みをまとめる負荷より、費目名と金額が
+            // 出ないことのほうが致命的なので、円ごとに `glassEffect` を当てます。
+            ZStack(alignment: .topLeading) {
                 ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
                     if let item = items.first(where: { $0.id == node.id }) {
                         BubbleNodeView(
@@ -132,6 +135,7 @@ struct BubbleChart: View {
                     }
                 }
             }
+            .frame(width: size.width, height: size.height)
 
             if let calloutNodeID,
                let node = nodes.first(where: { $0.id == calloutNodeID }),
