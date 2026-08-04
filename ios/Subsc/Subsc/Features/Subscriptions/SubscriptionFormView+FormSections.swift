@@ -20,6 +20,18 @@ extension SubscriptionFormView {
 
     var serviceSection: some View {
         Section("費目") {
+            // **新規登録のときだけ出します。** 編集中に出すと、名前・色・種別を
+            // まとめて上書きすることになり、直したい1項目だけを触れなくなります。
+            if subscription == nil {
+                Button {
+                    isChoosingService = true
+                } label: {
+                    Label("よく使うサービスから選ぶ", systemImage: "square.grid.2x2")
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("choose-service-button")
+            }
+
             Picker("種別", selection: $costType) {
                 ForEach(CostType.subscriptionSelectable) { type in
                     Label(type.title, systemImage: type.systemImage).tag(type)

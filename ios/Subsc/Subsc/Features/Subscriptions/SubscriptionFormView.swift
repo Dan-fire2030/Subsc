@@ -44,6 +44,8 @@ struct SubscriptionFormView: View {
     @State var leadHours: Set<Int>
     @State var validationMessage: String?
     @State var isAddingCategory = false
+    /// よく使うサービスの一覧を出しているかどうかです。
+    @State var isChoosingService = false
     @State var newCategoryName = ""
     @State var categoryError: String?
     @State var isSaving = false
@@ -186,6 +188,12 @@ struct SubscriptionFormView: View {
                 Button("キャンセル", role: .cancel) { newCategoryName = "" }
             } message: {
                 Text("\(CategoryCatalog.maxNameLength)文字以内で入力してください。")
+            }
+            .sheet(isPresented: $isChoosingService) {
+                ServicePickerView { service in
+                    apply(service)
+                }
+                .adaptiveSheetBackground()
             }
             .task(id: currency) {
                 guard currency == .usd else { return }

@@ -53,6 +53,22 @@ enum ColorHex {
         return "#\(digits)"
     }
 
+    /// その色を背景にしたとき、上の文字を黒にすべきかを返します。
+    ///
+    /// **黄色の上の白文字は読めません**（DAZN・povo・chocoZAP のようなブランド色）。
+    /// 明るさは知覚に合わせた重み付けで求めます。読み取れない色では白のままにし、
+    /// 従来の見え方を変えません。
+    static func prefersDarkText(on hex: String) -> Bool {
+        guard let digits = hexDigits(from: hex),
+              let value = UInt32(digits, radix: 16) else {
+            return false
+        }
+        let red = Double((value >> 16) & 0xFF) / 255
+        let green = Double((value >> 8) & 0xFF) / 255
+        let blue = Double(value & 0xFF) / 255
+        return 0.299 * red + 0.587 * green + 0.114 * blue > 0.6
+    }
+
     /// `#` や前後の空白を取り除き、6桁の16進数だけを取り出します。
     private static func hexDigits(from hex: String) -> String? {
         let trimmed = hex.trimmingCharacters(in: .whitespacesAndNewlines)

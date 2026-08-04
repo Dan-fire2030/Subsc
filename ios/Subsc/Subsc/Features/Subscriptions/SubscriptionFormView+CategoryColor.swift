@@ -36,6 +36,19 @@ extension SubscriptionFormView {
         newCategoryName = ""
     }
 
+    /// カタログで選ばれたサービスをフォームへ流し込みます。
+    ///
+    /// **入れるのは名前・カテゴリ・色・種別だけです。** 金額と更新日は契約ごとに違うため、
+    /// カタログは持たず、利用者に入れてもらいます（`ServiceCatalog` の説明を参照）。
+    /// **保存もしません。** ここまでは下書きで、すべてこのあと編集できます。
+    func apply(_ service: CatalogService) {
+        name = service.name
+        category = service.category
+        colorHex = service.colorHex
+        costType = service.costType
+        categoryError = nil
+    }
+
     func colorName(_ hex: String) -> String {
         switch ColorHex.canonical(hex) {
         case "#007AFF": "ブルー"

@@ -52,4 +52,29 @@ final class ColorHexTests: XCTestCase {
         XCTAssertEqual(ColorHex.string(from: ColorHex.color(from: "#FFFFFF")), "#FFFFFF")
         XCTAssertEqual(ColorHex.string(from: ColorHex.color(from: "#000000")), "#000000")
     }
+
+    // MARK: - 上に置く文字の色
+
+    func testDarkBackgroundsGetWhiteText() {
+        XCTAssertFalse(ColorHex.prefersDarkText(on: "#000000"))
+        XCTAssertFalse(ColorHex.prefersDarkText(on: "#E50914"))
+        XCTAssertFalse(ColorHex.prefersDarkText(on: "#113CCF"))
+    }
+
+    func testWhiteBackgroundGetsDarkText() {
+        XCTAssertTrue(ColorHex.prefersDarkText(on: "#FFFFFF"))
+    }
+
+    /// **黄色の上に白は読めません。** DAZN・povo・chocoZAP がこれに当たります。
+    func testLightBackgroundsGetDarkText() {
+        XCTAssertTrue(ColorHex.prefersDarkText(on: "#F8F800"))
+        XCTAssertTrue(ColorHex.prefersDarkText(on: "#FFE100"))
+        XCTAssertTrue(ColorHex.prefersDarkText(on: "#FFD400"))
+        XCTAssertTrue(ColorHex.prefersDarkText(on: "#A2FA4B"))
+    }
+
+    /// 読み取れない値では、既定の白のままにします（従来の見え方を変えません）。
+    func testUnreadableColorsKeepWhiteText() {
+        XCTAssertFalse(ColorHex.prefersDarkText(on: "むり"))
+    }
 }
