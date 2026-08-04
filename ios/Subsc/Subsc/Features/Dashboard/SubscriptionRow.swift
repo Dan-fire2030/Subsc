@@ -64,10 +64,17 @@ struct SubscriptionRow: View {
                 alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing,
                 spacing: 2
             ) {
-                Text(subscription.monthlyYen, format: .currency(code: "JPY").precision(.fractionLength(0)))
-                    .font(.subheadline.weight(.semibold))
-                    .monospacedDigit()
-                Text(subscription.billingCycle == .yearly ? "月換算" : "月額")
+                // **年払いは年額をそのまま出します。** レポートも更新月に全額を立てるので、
+                // ここだけ1/12にすると、同じ費目が2つの額で見えてしまいます。
+                Text(
+                    subscription.billingCycle == .yearly
+                        ? subscription.yenAmount
+                        : subscription.monthlyYen,
+                    format: .currency(code: "JPY").precision(.fractionLength(0))
+                )
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+                Text(subscription.billingCycle == .yearly ? "年額" : "月額")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

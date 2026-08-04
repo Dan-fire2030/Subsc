@@ -171,23 +171,40 @@ final class Subscription {
         currency == .usd ? originalAmount * exchangeRate : originalAmount
     }
 
+    /// 1ヶ月あたりにならした額です。**支出そのものではなく、費目どうしを比べるための目安**です。
+    /// 実際にいつ払うかは `monthlyAmount(forPeriodKey:)` が返します。
     var monthlyYen: Double {
         billingCycle == .yearly ? yenAmount / 12 : yenAmount
     }
 
     /// その年月にいくらかかるかを、円で返します。
     ///
-    /// 定額の費目は今までどおり `monthlyYen` を返し、常に実績扱いになります。
+    /// 定額の費目は支払い周期どおりに立てます。月払いは毎月、**年払いは更新月にだけ全額**です。
     /// 変動費は月次実績から解決します（実績 → 直近の実績で見込み → 0円）。
+    ///
+    /// **年払いを1/12ずつならしません。** 年に1回しか出ていかない額を毎月に散らすと、
+    /// 月次レポートの合計がその月に実際に払う額と合わなくなります。
+    /// 更新日は次回ぶんへ繰り越されていきますが、**何年ぶんずれても月は変わらない**ので、
+    /// 判定には月だけを使います。
     ///
     /// **変動費は支払い周期で割りません。** 月ごとの実績はその月に払った額そのものだからです。
     /// そのため変動費の支払い周期は月払いに固定しています（`SubscriptionFormView` の保存時）。
     ///
     /// 換算は実績が持つ記録時のレートで行います。費目側の `exchangeRate` は最新レートで
     /// 上書きされるため、それを使うと支払い済みの月の金額が今日のレートで動いてしまいます。
-    func monthlyAmount(forPeriodKey periodKey: Int) -> MonthlyAmount {
+    func monthlyAmount(
+        forPeriodKey periodKey: Int,
+        calendar: Calendar = .current
+    ) -> MonthlyAmount {
         guard hasVariableAmount else {
-            return MonthlyAmount(amount: monthlyYen, source: .recorded)
+            guard billingCycle == .yearly else {
+                return MonthlyAmount(amount: yenAmount, source: .recorded)
+            }
+            let renewalMonth = calendar.component(.month, from: renewalDate)
+            guard AmountEntry.month(fromPeriodKey: periodKey) == renewalMonth else {
+                return .unavailable
+            }
+            return MonthlyAmount(amount: yenAmount, source: .recorded)
         }
 
         return MonthlyAmountResolver.resolve(

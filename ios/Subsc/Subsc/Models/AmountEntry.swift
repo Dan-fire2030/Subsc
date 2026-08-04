@@ -67,4 +67,9 @@ extension AmountEntry {
         let components = calendar.dateComponents([.year, .month], from: date)
         return (components.year ?? 0) * 100 + (components.month ?? 0)
     }
+
+    /// 年月キーから月だけを取り出します（例：202607 → 7）。
+    static func month(fromPeriodKey periodKey: Int) -> Int {
+        periodKey % 100
+    }
 }

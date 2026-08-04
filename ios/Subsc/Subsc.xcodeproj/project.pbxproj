@@ -119,6 +119,7 @@
 		AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001210000000000000121 /* LoanNotificationSettings.swift */; };
 		AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001220000000000000122 /* LoanNotificationLeadTests.swift */; };
 		AA00011230000000000000123 /* LoanPauseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011230000000000000123 /* LoanPauseTests.swift */; };
+		AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011240000000000000124 /* YearlyBillingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -256,6 +257,7 @@
 		BB0001210000000000000121 /* LoanNotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationSettings.swift; sourceTree = "<group>"; };
 		BB0001220000000000000122 /* LoanNotificationLeadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanNotificationLeadTests.swift; sourceTree = "<group>"; };
 		BB00011230000000000000123 /* LoanPauseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPauseTests.swift; sourceTree = "<group>"; };
+		BB00011240000000000000124 /* YearlyBillingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearlyBillingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -447,6 +449,7 @@
 			children = (
 				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
 				BB00011230000000000000123 /* LoanPauseTests.swift */,
+				BB00011240000000000000124 /* YearlyBillingTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
@@ -737,6 +740,7 @@
 			files = (
 				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,
 				AA00011230000000000000123 /* LoanPauseTests.swift in Sources */,
+				AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,

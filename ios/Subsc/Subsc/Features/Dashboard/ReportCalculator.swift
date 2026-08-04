@@ -156,7 +156,8 @@ enum ReportCalculator {
     ) -> MonthlyAmount {
         if period == .month {
             return subscription.monthlyAmount(
-                forPeriodKey: AmountEntry.periodKey(for: cursor, calendar: calendar)
+                forPeriodKey: AmountEntry.periodKey(for: cursor, calendar: calendar),
+                calendar: calendar
             )
         }
         return annualAmount(subscription, cursor: cursor, calendar: calendar)
@@ -190,7 +191,8 @@ enum ReportCalculator {
         var hasKnownMonth = false
         while monthCursor < activeEnd {
             let monthly = subscription.monthlyAmount(
-                forPeriodKey: AmountEntry.periodKey(for: monthCursor, calendar: calendar)
+                forPeriodKey: AmountEntry.periodKey(for: monthCursor, calendar: calendar),
+                calendar: calendar
             )
             total += monthly.amount
             switch monthly.source {

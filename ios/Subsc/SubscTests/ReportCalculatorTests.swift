@@ -2,7 +2,8 @@ import XCTest
 @testable import Subsc
 
 final class ReportCalculatorTests: XCTestCase {
-    func testMonthlyReportUsesMonthlyEquivalentForYearlyPlans() {
+    /// 年払いは年に1回の支払いなので、更新月にだけ全額が立ちます（1/12へならしません）。
+    func testMonthlyReportChargesYearlyPlansInTheirRenewalMonth() {
         let calendar = Calendar(identifier: .gregorian)
         let cursor = calendar.date(from: DateComponents(year: 2026, month: 7, day: 1))!
         let subscription = Subscription(
@@ -20,7 +21,7 @@ final class ReportCalculatorTests: XCTestCase {
             calendar: calendar
         )
 
-        XCTAssertEqual(report.total, 1_000, accuracy: 0.001)
+        XCTAssertEqual(report.total, 12_000, accuracy: 0.001)
     }
 
     func testPausedPlansAreExcluded() {
@@ -117,7 +118,11 @@ final class ReportCalculatorTests: XCTestCase {
         XCTAssertEqual(report.total, 1_000, accuracy: 0.001)
     }
 
-    func testAnnualReportProratesYearlyPlanByActiveMonths() {
+    /// 年の途中で始めても、年払いはその年に1回まるごと払います。
+    ///
+    /// **月数で按分しません。** 以前は1/12ずつならしていたため、7月開始だと
+    /// 6ヶ月ぶんの6,000円になっていましたが、実際に出ていくのは12,000円です。
+    func testAnnualReportCountsAYearlyChargeInFullEvenWhenSignedMidYear() {
         let calendar = Calendar(identifier: .gregorian)
         let cursor = calendar.date(from: DateComponents(year: 2026, month: 7, day: 1))!
         let startDate = calendar.date(from: DateComponents(year: 2026, month: 7, day: 15))!
@@ -136,7 +141,7 @@ final class ReportCalculatorTests: XCTestCase {
             calendar: calendar
         )
 
-        XCTAssertEqual(report.total, 6_000, accuracy: 0.001)
+        XCTAssertEqual(report.total, 12_000, accuracy: 0.001)
     }
 
     func testMonthlyReportIncludesCostStartingOnFirstDay() {

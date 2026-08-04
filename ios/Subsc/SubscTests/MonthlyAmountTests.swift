@@ -103,11 +103,23 @@ final class SubscriptionMonthlyAmountTests: XCTestCase {
         XCTAssertEqual(resolved.source, .recorded)
     }
 
-    func testYearlyFixedAmountIsStillSpreadAcrossMonths() {
+    /// 年払いは更新月にだけ全額が立ちます。ならしの詳細は `YearlyBillingTests` を参照。
+    func testYearlyFixedAmountLandsOnTheRenewalMonth() {
+        let calendar = Calendar(identifier: .gregorian)
         let subscription = makeSubscription(variable: false, amount: 12000)
         subscription.billingCycle = .yearly
+        subscription.renewalDate = calendar.date(
+            from: DateComponents(year: 2026, month: 7, day: 10)
+        )!
 
-        XCTAssertEqual(subscription.monthlyAmount(forPeriodKey: 202607).amount, 1000)
+        XCTAssertEqual(
+            subscription.monthlyAmount(forPeriodKey: 202607, calendar: calendar).amount,
+            12000
+        )
+        XCTAssertEqual(
+            subscription.monthlyAmount(forPeriodKey: 202608, calendar: calendar).amount,
+            0
+        )
     }
 
     func testVariableAmountUsesTheRecordForThatMonth() {
