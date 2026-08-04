@@ -62,6 +62,12 @@ struct SubscriptionDetailView: View {
                 }
                 LabeledContent("今月の金額") {
                     HStack(spacing: 6) {
+                        // **年払いで請求の無い月は「¥0」だけだと誤解を招きます。**
+                        // 無料になったのではなく、更新月ではないだけなので、そう書きます。
+                        if isYearlyWithoutChargeThisMonth {
+                            Text("今月は請求なし")
+                                .foregroundStyle(.secondary)
+                        }
                         if thisMonth.source == .estimated {
                             Text("見込み")
                                 .font(.caption2.weight(.semibold))
@@ -70,11 +76,13 @@ struct SubscriptionDetailView: View {
                                 .background(.orange.opacity(0.18), in: Capsule())
                                 .foregroundStyle(.orange)
                         }
-                        Text(
-                            thisMonth.amount,
-                            format: .currency(code: "JPY").precision(.fractionLength(0))
-                        )
-                        .monospacedDigit()
+                        if !isYearlyWithoutChargeThisMonth {
+                            Text(
+                                thisMonth.amount,
+                                format: .currency(code: "JPY").precision(.fractionLength(0))
+                            )
+                            .monospacedDigit()
+                        }
                     }
                 }
                 if !subscription.hasVariableAmount {
@@ -182,6 +190,13 @@ struct SubscriptionDetailView: View {
     /// 今月かかる額です。変動費は実績、無ければ直近の実績からの見込みになります。
     private var thisMonth: MonthlyAmount {
         subscription.monthlyAmount(forPeriodKey: AmountEntry.periodKey(for: .now))
+    }
+
+    /// 年払いで、今月が更新月ではない状態です。金額そのものは0ですが、意味が違います。
+    private var isYearlyWithoutChargeThisMonth: Bool {
+        !subscription.hasVariableAmount
+            && subscription.billingCycle == .yearly
+            && thisMonth.amount == 0
     }
 
     /// 支払い方法と、その補足メモをつないだ表示です。

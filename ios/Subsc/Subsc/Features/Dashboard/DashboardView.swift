@@ -64,6 +64,12 @@ struct DashboardView: View {
         )
     }
 
+    /// この先の月に来る、年払いのまとまった支払いです。
+    /// **種別の絞り込みに従います。** レポートと違う母集団を出すと、金額が合わなく見えます。
+    private var upcomingCharges: [UpcomingChargeNotice] {
+        UpcomingLargeCharge.notices(subscriptions: subscriptionsInSelectedTypes)
+    }
+
     /// 為替レートの更新は表示上の種別絞り込みと無関係なため、全費目の米ドル契約を監視します。
     private var usdSubscriptionIDs: String {
         subscriptions
@@ -96,6 +102,8 @@ struct DashboardView: View {
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     }
+
+                    UpcomingChargeSection(notices: upcomingCharges)
 
                     if let nextDue, let dueDate = nextDue.nextDueDate {
                         // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
