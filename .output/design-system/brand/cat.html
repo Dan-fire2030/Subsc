@@ -7,57 +7,59 @@
 <title>相棒の黒猫 — 6状態</title>
 <style>
   :root {
-    --bg: #FAF8F4; --surface: #FFFFFF; --border: #E4DED3;
-    --text: #16151A; --text-muted: #6B6672;
-    --cat: #16151A; --eye: #C8901F; --inner-ear: #C8901F;
+    --bg:#FAF8F4; --surface:#FFFFFF; --border:#E4DED3;
+    --text:#16151A; --text-muted:#6B6672;
+    --cat:#16151A; --eye:#C8901F; --sign:#C8901F;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0B0B0F; --surface: #14141A; --border: #262630;
-      --text: #F5F3EF; --text-muted: #9A94A2;
-      --cat: #05050A; --eye: #F2C96B; --inner-ear: #F2C96B;
+      --bg:#0B0B0F; --surface:#14141A; --border:#262630;
+      --text:#F5F3EF; --text-muted:#9A94A2;
+      --cat:#05050A; --eye:#F2C96B; --sign:#F2C96B;
     }
   }
-  * { box-sizing: border-box; }
+  * { box-sizing:border-box; }
   body { margin:0; padding:32px; background:var(--bg); color:var(--text);
          font-family:-apple-system,"Hiragino Sans",system-ui,sans-serif; line-height:1.6; }
   h1 { font-size:20px; letter-spacing:.04em; margin:0 0 4px; }
   .lede { color:var(--text-muted); font-size:14px; margin:0 0 28px; max-width:64ch; }
-  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); }
   .card { background:var(--surface); border:1px solid var(--border); border-radius:20px;
           padding:18px; text-align:center; }
-  .stage { display:flex; align-items:flex-end; justify-content:center; height:170px; }
-  svg { width:150px; height:150px; overflow:visible; }
+  .stage { display:flex; align-items:flex-end; justify-content:center; height:190px; }
+  svg { width:170px; height:170px; overflow:visible; }
   .cat-body { fill:var(--cat); }
-  .cat-inner-ear { fill:var(--inner-ear); opacity:.28; }
+  .inner-ear { fill:var(--eye); opacity:.28; }
   .eye { fill:var(--eye); }
-  .eye-stroke { stroke:var(--eye); stroke-width:7; stroke-linecap:round; fill:none; }
+  .pupil { fill:var(--cat); }
+  .eye-stroke { stroke:var(--eye); stroke-width:8; stroke-linecap:round; fill:none; }
+  .limb { stroke:var(--cat); stroke-width:14; stroke-linecap:round; fill:none; }
   .tail { stroke:var(--cat); stroke-width:13; stroke-linecap:round; fill:none; }
-  .name { font-size:15px; font-weight:700; margin-top:10px; }
+  .sign { fill:var(--sign); }
+  .name { font-size:16px; font-weight:700; margin-top:10px; }
   .trigger { font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+  .tell { font-size:12px; color:var(--text-muted); margin-top:8px; border-top:1px solid var(--border); padding-top:8px; }
   .note { font-size:12.5px; color:var(--text-muted); margin-top:28px; max-width:64ch; }
-  .dark-only { display:none; }
 </style>
 </head>
 <body>
 
 <h1>相棒の黒猫 — 6状態</h1>
-<p class="lede">円と曲線だけで組む。<strong>輪郭線を持たず、塗りのシルエットで成立させる</strong>ので、
-小さくしても潰れず、ライトでも墨の影として読める。変えるのは<strong>目・耳・尻尾</strong>の3箇所だけで、
-体は共通のまま。表情の差し替えがコードの分岐1つで済む。</p>
+<p class="lede">目と耳だけを動かす案は、並べると<strong>見分けがつかなかった</strong>。
+<strong>姿勢・体型・小物まで変える</strong>方針に変更。シルエットが違えば、指の大きさで表示しても一目で分かる。</p>
 
 <div class="grid">
 
-  <!-- 平常 -->
+  <!-- 平常：基準。ふつうに座る -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="平常の黒猫">
-        <path class="tail" d="M150,176 C184,176 190,146 172,128"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
+        <path class="tail" d="M148,178 C182,178 190,148 172,130"/>
+        <path class="cat-body" d="M52,182 C52,134 72,114 100,114 C128,114 148,134 148,182 Z"/>
         <path class="cat-body" d="M68,62 L64,20 L102,46 Z"/>
         <path class="cat-body" d="M132,62 L136,20 L98,46 Z"/>
-        <path class="cat-inner-ear" d="M74,56 L72,32 L94,47 Z"/>
-        <path class="cat-inner-ear" d="M126,56 L128,32 L106,47 Z"/>
+        <path class="inner-ear" d="M74,56 L72,32 L94,47 Z"/>
+        <path class="inner-ear" d="M126,56 L128,32 L106,47 Z"/>
         <circle class="cat-body" cx="100" cy="88" r="43"/>
         <ellipse class="eye" cx="85" cy="88" rx="6" ry="9"/>
         <ellipse class="eye" cx="115" cy="88" rx="6" ry="9"/>
@@ -65,118 +67,136 @@
     </div>
     <div class="name">平常</div>
     <div class="trigger">特筆すべきことがない</div>
+    <div class="tell">基準の姿勢。座って前を向く</div>
   </div>
 
-  <!-- 心配 -->
+  <!-- 心配：うずくまる。耳を横へ倒し、目を見開き、尻尾を体へ巻く -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="心配そうな黒猫">
-        <path class="tail" d="M150,178 C176,182 184,168 178,152"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
-        <path class="cat-body" d="M62,70 L50,34 L94,50 Z"/>
-        <path class="cat-body" d="M138,70 L150,34 L106,50 Z"/>
-        <path class="cat-inner-ear" d="M69,63 L60,44 L86,52 Z"/>
-        <path class="cat-inner-ear" d="M131,63 L140,44 L114,52 Z"/>
-        <circle class="cat-body" cx="100" cy="90" r="43"/>
-        <ellipse class="eye" cx="84" cy="92" rx="8" ry="10"/>
-        <ellipse class="eye" cx="116" cy="92" rx="8" ry="10"/>
+        <path class="cat-body" d="M34,184 C34,148 62,132 100,132 C138,132 166,148 166,184 Z"/>
+        <path class="cat-body" d="M62,108 L22,92 L68,84 Z"/>
+        <path class="cat-body" d="M138,108 L178,92 L132,84 Z"/>
+        <path class="inner-ear" d="M64,102 L36,92 L66,88 Z"/>
+        <path class="inner-ear" d="M136,102 L164,92 L134,88 Z"/>
+        <circle class="cat-body" cx="100" cy="112" r="44"/>
+        <ellipse class="eye" cx="82" cy="114" rx="12" ry="14"/>
+        <ellipse class="eye" cx="118" cy="114" rx="12" ry="14"/>
+        <ellipse class="pupil" cx="82" cy="116" rx="5" ry="7"/>
+        <ellipse class="pupil" cx="118" cy="116" rx="5" ry="7"/>
+        <path class="tail" d="M164,182 C128,196 78,194 48,182"/>
+        <path class="sign" d="M170,60 C170,60 182,80 182,88 A12,12 0 0,1 158,88 C158,80 170,60 170,60 Z" opacity=".9"/>
       </svg>
     </div>
     <div class="name">心配</div>
     <div class="trigger">今月の支出が直近の平均より多い</div>
+    <div class="tell">うずくまる・耳が真横・目を見開く・汗</div>
   </div>
 
-  <!-- ごきげん -->
+  <!-- ごきげん：胸を張る。目は閉じた弧、尻尾を高く立てて先を巻く、きらめき -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="ごきげんな黒猫">
-        <path class="tail" d="M150,176 C186,168 190,124 166,110"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
-        <path class="cat-body" d="M68,62 L64,20 L102,46 Z"/>
-        <path class="cat-body" d="M132,62 L136,20 L98,46 Z"/>
-        <path class="cat-inner-ear" d="M74,56 L72,32 L94,47 Z"/>
-        <path class="cat-inner-ear" d="M126,56 L128,32 L106,47 Z"/>
-        <circle class="cat-body" cx="100" cy="88" r="43"/>
-        <path class="eye-stroke" d="M77,92 C81,84 89,84 93,92"/>
-        <path class="eye-stroke" d="M107,92 C111,84 119,84 123,92"/>
+        <path class="tail" d="M142,168 C176,158 184,104 158,80 C150,72 138,74 136,84"/>
+        <path class="cat-body" d="M58,182 C58,126 76,104 100,104 C124,104 142,126 142,182 Z"/>
+        <path class="cat-body" d="M70,54 L66,10 L104,38 Z"/>
+        <path class="cat-body" d="M130,54 L134,10 L96,38 Z"/>
+        <path class="inner-ear" d="M76,48 L74,22 L96,39 Z"/>
+        <path class="inner-ear" d="M124,48 L126,22 L104,39 Z"/>
+        <circle class="cat-body" cx="100" cy="80" r="43"/>
+        <path class="eye-stroke" d="M76,84 C81,74 89,74 94,84"/>
+        <path class="eye-stroke" d="M106,84 C111,74 119,74 124,84"/>
+        <path class="sign" d="M40,52 L44,64 L56,68 L44,72 L40,84 L36,72 L24,68 L36,64 Z"/>
+        <path class="sign" d="M166,36 L169,45 L178,48 L169,51 L166,60 L163,51 L154,48 L163,45 Z" opacity=".75"/>
       </svg>
     </div>
     <div class="name">ごきげん</div>
     <div class="trigger">今月の支出が直近の平均より少ない</div>
+    <div class="tell">胸を張る・目を閉じて笑う・尻尾を立てる</div>
   </div>
 
-  <!-- 見張る -->
+  <!-- 見張る：背を伸ばして細く高く。瞳孔が縦に細まり、尻尾は棒のように直立 -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="見張る黒猫">
-        <path class="tail" d="M150,176 C178,172 182,132 168,104"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
-        <path class="cat-body" d="M70,58 L70,12 L104,44 Z"/>
-        <path class="cat-body" d="M130,58 L130,12 L96,44 Z"/>
-        <path class="cat-inner-ear" d="M76,52 L76,26 L96,44 Z"/>
-        <path class="cat-inner-ear" d="M124,52 L124,26 L104,44 Z"/>
-        <circle class="cat-body" cx="100" cy="88" r="43"/>
-        <circle class="eye" cx="85" cy="88" r="10"/>
-        <circle class="eye" cx="115" cy="88" r="10"/>
+        <path class="tail" d="M132,178 C160,170 172,110 168,58"/>
+        <path class="cat-body" d="M74,184 C74,108 82,88 100,88 C118,88 126,108 126,184 Z"/>
+        <path class="cat-body" d="M74,44 L72,-4 L106,28 Z"/>
+        <path class="cat-body" d="M126,44 L128,-4 L94,28 Z"/>
+        <path class="inner-ear" d="M80,38 L79,10 L98,28 Z"/>
+        <path class="inner-ear" d="M120,38 L121,10 L102,28 Z"/>
+        <circle class="cat-body" cx="100" cy="70" r="40"/>
+        <circle class="eye" cx="86" cy="70" r="12"/>
+        <circle class="eye" cx="114" cy="70" r="12"/>
+        <ellipse class="pupil" cx="86" cy="70" rx="3" ry="10"/>
+        <ellipse class="pupil" cx="114" cy="70" rx="3" ry="10"/>
       </svg>
     </div>
     <div class="name">見張る</div>
     <div class="trigger">大きな支払いが近い（支払い予告と連動）</div>
+    <div class="tell">背を伸ばす・瞳孔が縦に細まる・尻尾が直立</div>
   </div>
 
-  <!-- 催促 -->
+  <!-- 催促：後ろ足で立ち、両手を上げる。頭を傾け、金色の「！」 -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="催促する黒猫">
-        <!-- しっぽは低く抑える。上げた前足と同じ側で高く跳ねると、塊が融合して手に見えない -->
-        <path class="tail" d="M150,178 C176,182 184,168 178,154"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
-        <!-- 前足は**体から外へ伸ばす腕**として描く。塗りの塊を重ねても輪郭に出ない -->
-        <path class="tail" style="stroke-width:17" d="M134,160 C152,152 164,138 166,126"/>
-        <g transform="rotate(-9 100 96)">
-          <path class="cat-body" d="M68,62 L64,20 L102,46 Z"/>
-          <path class="cat-body" d="M132,62 L136,20 L98,46 Z"/>
-          <path class="cat-inner-ear" d="M74,56 L72,32 L94,47 Z"/>
-          <path class="cat-inner-ear" d="M126,56 L128,32 L106,47 Z"/>
-          <circle class="cat-body" cx="100" cy="88" r="43"/>
-          <ellipse class="eye" cx="85" cy="88" rx="6" ry="9"/>
-          <ellipse class="eye" cx="115" cy="88" rx="6" ry="9"/>
+        <path class="tail" d="M128,180 C158,186 170,168 164,148"/>
+        <path class="cat-body" d="M72,184 C72,124 80,110 100,110 C120,110 128,124 128,184 Z"/>
+        <!-- 頭は cx=100・r=42（x58〜142）。腕の先をこの範囲へ入れると輪郭が融合して消える -->
+        <path class="limb" d="M80,138 C60,132 46,118 40,100"/>
+        <path class="limb" d="M120,138 C140,132 154,118 160,100"/>
+        <circle class="cat-body" cx="38" cy="96" r="11"/>
+        <circle class="cat-body" cx="162" cy="96" r="11"/>
+        <g transform="rotate(-16 100 84)">
+          <path class="cat-body" d="M70,58 L66,16 L104,42 Z"/>
+          <path class="cat-body" d="M130,58 L134,16 L96,42 Z"/>
+          <path class="inner-ear" d="M76,52 L74,28 L96,43 Z"/>
+          <path class="inner-ear" d="M124,52 L126,28 L104,43 Z"/>
+          <circle class="cat-body" cx="100" cy="84" r="42"/>
+          <ellipse class="eye" cx="85" cy="84" rx="7" ry="10"/>
+          <ellipse class="eye" cx="115" cy="84" rx="7" ry="10"/>
         </g>
-        <circle class="cat-body" cx="167" cy="122" r="11"/>
+        <rect class="sign" x="168" y="30" width="9" height="30" rx="4.5"/>
+        <circle class="sign" cx="172.5" cy="70" r="5"/>
       </svg>
     </div>
     <div class="name">催促</div>
     <div class="trigger">変動費が未入力のまま月末が近い</div>
+    <div class="tell">立ち上がる・両手を上げる・頭を傾ける・「！」</div>
   </div>
 
-  <!-- 案内 -->
+  <!-- 案内：横向き。前足を伸ばして指し示し、金色の点が右へ続く -->
   <div class="card">
     <div class="stage">
       <svg viewBox="0 0 200 200" aria-label="案内する黒猫">
-        <path class="tail" d="M150,176 C176,176 188,166 196,150"/>
-        <path class="cat-body" d="M50,182 C50,132 70,112 100,112 C130,112 150,132 150,182 Z"/>
-        <path class="cat-body" d="M68,62 L64,20 L102,46 Z"/>
-        <path class="cat-body" d="M132,62 L136,20 L98,46 Z"/>
-        <path class="cat-inner-ear" d="M74,56 L72,32 L94,47 Z"/>
-        <path class="cat-inner-ear" d="M126,56 L128,32 L106,47 Z"/>
-        <circle class="cat-body" cx="100" cy="88" r="43"/>
-        <ellipse class="eye" cx="88" cy="88" rx="6" ry="9"/>
-        <ellipse class="eye" cx="118" cy="88" rx="6" ry="9"/>
-        <circle class="eye" cx="186" cy="128" r="5" opacity=".9"/>
-        <circle class="eye" cx="172" cy="140" r="3.5" opacity=".6"/>
-        <circle class="eye" cx="161" cy="150" r="2.5" opacity=".35"/>
+        <path class="tail" d="M46,178 C14,176 8,148 26,130"/>
+        <path class="cat-body" d="M40,182 C40,138 58,118 84,118 C110,118 126,138 126,182 Z"/>
+        <path class="limb" d="M112,168 C134,164 148,158 160,150"/>
+        <circle class="cat-body" cx="162" cy="149" r="9"/>
+        <path class="cat-body" d="M56,66 L52,24 L90,50 Z"/>
+        <path class="cat-body" d="M118,66 L122,24 L84,50 Z"/>
+        <path class="inner-ear" d="M62,60 L60,36 L82,51 Z"/>
+        <path class="inner-ear" d="M112,60 L114,36 L92,51 Z"/>
+        <circle class="cat-body" cx="87" cy="92" r="43"/>
+        <ellipse class="eye" cx="98" cy="92" rx="6" ry="9"/>
+        <ellipse class="eye" cx="122" cy="92" rx="6" ry="9"/>
+        <circle class="sign" cx="176" cy="126" r="6"/>
+        <circle class="sign" cx="192" cy="112" r="4" opacity=".65"/>
+        <circle class="sign" cx="204" cy="100" r="2.5" opacity=".4"/>
       </svg>
     </div>
     <div class="name">案内</div>
     <div class="trigger">費目が0件（初回起動直後）</div>
+    <div class="tell">横を向く・前足で指し示す・金の点が続く</div>
   </div>
 
 </div>
 
-<p class="note"><strong>意図的にやっていないこと。</strong>
-口・鼻・ひげを描いていない。小さく表示したときに最初に潰れるのがこの3つで、
-潰れた瞬間に「汚れた円」に見えるため。感情は<strong>目の形と耳の角度</strong>だけで出している。
-また、猫の体には金色を使わない。金は<strong>目と、予告の一点</strong>にだけ許す。</p>
+<p class="note"><strong>読み分けの根拠はシルエット。</strong>
+うずくまる（心配）／細く高い（見張る）／立ち上がる（催促）／横向き（案内）は、
+<strong>塗り潰した影だけでも区別できる</strong>。色と目の形は、その差を補強しているに過ぎない。
+口・鼻・ひげは引き続き描かない（小さくすると最初に潰れるため）。</p>
 
 </body>
 </html>
