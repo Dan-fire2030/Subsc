@@ -20,8 +20,8 @@ final class ThemeStoreTests: XCTestCase {
     func testUsesCurrentAppearanceWhenNothingIsSaved() {
         let store = ThemeStore(defaults: defaults)
 
-        XCTAssertEqual(store.buttonHex, "#1473FA")
-        XCTAssertEqual(store.cardHex, "#0D61EB")
+        XCTAssertEqual(store.buttonHex, "#D9A43C")
+        XCTAssertEqual(store.cardHex, "#D9A43C")
         XCTAssertTrue(store.isDefault)
     }
 
@@ -41,7 +41,7 @@ final class ThemeStoreTests: XCTestCase {
         let store = ThemeStore(defaults: defaults)
         store.buttonHex = "#FF375F"
 
-        XCTAssertEqual(ThemeStore(defaults: defaults).cardHex, "#0D61EB")
+        XCTAssertEqual(ThemeStore(defaults: defaults).cardHex, "#D9A43C")
     }
 
     func testChartStyleDefaultsToBar() {
@@ -106,22 +106,31 @@ final class ThemeStoreTests: XCTestCase {
     /// 大文字小文字や `#` の有無で「既定」判定が外れないことを確かめます。
     func testDefaultNameIgnoresHexFormatting() {
         let store = ThemeStore(defaults: defaults)
-        store.buttonHex = "1473fa"
+        store.buttonHex = "d9a43c"
 
         XCTAssertEqual(store.buttonColorName, "既定")
         XCTAssertTrue(store.isDefault, "表示名と「既定に戻す」の判定基準が食い違っています")
     }
 
-    /// 既定のカード色は補正の条件を満たすので、生成される1色目は指定どおりになります。
+    /// 既定のカード色（金目）は明るいため、**画面が使う色は暗く補正されます**。
+    ///
+    /// 補正は「この色を背景に白文字が読めるか」の基準で掛かります。
+    /// 金目は白文字には明るすぎるので、そのままでは使われません。
+    /// **保存値そのものは金目のまま**で、補正は表示のときだけ掛かります。
     ///
     /// **`ThemeColor` を直接呼ばず、画面が実際に使うプロパティ経由で確かめます。**
     /// 静的関数を呼んで検算すると、`cardBaseColor` から補正が消えてもテストが通ってしまいます。
-    func testDefaultCardGradientStartsFromTheStoredColor() {
+    func testDefaultCardColorIsDarkenedBeforeUse() {
         let store = ThemeStore(defaults: defaults)
 
+        XCTAssertEqual(store.cardHex, "#D9A43C", "保存値は既定のまま")
         XCTAssertEqual(store.cardGradientColors.count, 3)
-        XCTAssertEqual(ColorHex.string(from: store.cardBaseColor), "#0D61EB")
-        XCTAssertEqual(ColorHex.string(from: store.cardGradientColors[0]), "#0D61EB")
+        XCTAssertNotEqual(ColorHex.string(from: store.cardBaseColor), "#D9A43C")
+        XCTAssertEqual(
+            ColorHex.string(from: store.cardGradientColors[0]),
+            ColorHex.string(from: store.cardBaseColor),
+            "グラデーションの1色目は補正後の基準色と一致する"
+        )
     }
 
     /// 読めない色を保存しても、画面が使う色は補正後になります。

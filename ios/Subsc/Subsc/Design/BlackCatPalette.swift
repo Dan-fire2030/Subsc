@@ -72,3 +72,70 @@ enum BlackCatPalette {
         })
     }
 }
+
+extension BlackCatPalette {
+    /// 色相で寄せられない色の行き先です。無彩色や壊れた保存値がここへ来ます。
+    static let harmonizedFallbackHex = "#8FA8C4"
+
+    /// これ未満の彩度は「色が無い」とみなします。灰色を無理に色相で寄せると、
+    /// 端数の誤差でどのカテゴリ色にもなり得てしまい、再現性がありません。
+    private static let minimumSaturation: CGFloat = 0.12
+
+    /// 保存済みの費目色を、**表示のときだけ**黒猫のパレットへ寄せます。
+    ///
+    /// **保存値は書き換えません。** 利用者が選んだ色はその人のデータであり、
+    /// デザインの都合で上書きするものではないためです。表示だけ揃えることで、
+    /// 配色を元に戻したくなったときもこの関数を外すだけで済みます。
+    ///
+    /// **金目（アクセント）へは寄せません。** 金は予告や現在地といった一点のための色で、
+    /// 費目に配ると「大事な一点」の意味が薄れます。寄せ先はカテゴリの7色だけです。
+    static func harmonizedHex(from hex: String) -> String {
+        let canonical = ColorHex.canonical(hex)
+        if Category.hexes.contains(canonical) { return canonical }
+
+        guard let source = hsb(of: canonical), source.saturation >= minimumSaturation else {
+            return harmonizedFallbackHex
+        }
+
+        let nearest = Category.hueTargets.min { lhs, rhs in
+            hueDistance(source.hue, hsb(of: lhs)?.hue ?? 0)
+                < hueDistance(source.hue, hsb(of: rhs)?.hue ?? 0)
+        }
+        return nearest ?? harmonizedFallbackHex
+    }
+
+    /// 寄せたあとの色です。画面はこちらを使います。
+    static func harmonized(from hex: String) -> Color {
+        ColorHex.color(from: harmonizedHex(from: hex))
+    }
+
+    /// 色相環は一周するので、0度と359度は1度差として扱います。
+    private static func hueDistance(_ lhs: CGFloat, _ rhs: CGFloat) -> CGFloat {
+        let raw = abs(lhs - rhs)
+        return min(raw, 1 - raw)
+    }
+
+    private static func hsb(of hex: String) -> (hue: CGFloat, saturation: CGFloat)? {
+        var hue: CGFloat = 0
+        var saturation: CGFloat = 0
+        var brightness: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard UIColor(ColorHex.color(from: hex))
+            .getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
+            return nil
+        }
+        return (hue, saturation)
+    }
+}
+
+extension BlackCatPalette.Category {
+    /// カテゴリ色の一覧です。**金目（アクセント）は含みません。**
+    static let hexes = ["#7FB3D5", "#9B8FD9", "#7FC8A9", "#E0A66B", "#D98FA6", "#C4B37F", "#8FA8C4"]
+
+    /// 色相で寄せる先です。**鈍色（`#8FA8C4`）を外しています。**
+    ///
+    /// 鈍色は借入・ローンの色で、色相が青（`#007AFF`）とほとんど同じです。
+    /// 残したままにすると、青で保存された費目が借入と同じ色で並び、
+    /// **一覧で費目と借入を見分けられなくなります**。鈍色は無彩色の逃げ場としてだけ使います。
+    static let hueTargets = hexes.filter { $0 != BlackCatPalette.harmonizedFallbackHex }
+}

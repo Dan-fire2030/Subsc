@@ -213,7 +213,9 @@ final class Subscription {
         )
     }
 
-    var color: Color { ColorHex.color(from: colorHex) }
+    /// 画面に出す色です。**保存値をそのまま返さず、黒猫のパレットへ寄せます。**
+    /// 保存値（`colorHex`）は利用者が選んだデータなので書き換えません。
+    var color: Color { BlackCatPalette.harmonized(from: colorHex) }
 
     func nextRenewalDate(
         onOrAfter referenceDate: Date,

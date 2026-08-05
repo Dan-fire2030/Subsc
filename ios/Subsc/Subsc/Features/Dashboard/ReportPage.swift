@@ -8,6 +8,9 @@ struct ReportPage: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
+    /// 相棒の黒猫です。**今の期間のページにだけ**渡します。
+    /// 過去や先の月のページに出すと、いまの状況を語る猫が過去を語っているように見えます。
+    let catMood: CatMood?
     /// グラフが操作中でページ送りを止めてほしいあいだ真になります。バブルの拡大中だけ使います。
     @Binding var blocksPaging: Bool
     @Environment(ThemeStore.self) private var theme
@@ -28,6 +31,13 @@ struct ReportPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 10) {
+            HStack(alignment: .bottom, spacing: 12) {
+            if let catMood {
+                // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
+                // それぞれ勝手に置かれているように見え、状況の要約として読まれません。
+                CatCompanionView(mood: catMood)
+                    .frame(width: 72, height: 72)
+            }
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
                     .font(.subheadline)
@@ -44,6 +54,7 @@ struct ReportPage: View {
                 Text(entriesDescription)
                     .font(.caption)
                     .foregroundStyle(BlackCatPalette.textMuted)
+            }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 14 : 12)

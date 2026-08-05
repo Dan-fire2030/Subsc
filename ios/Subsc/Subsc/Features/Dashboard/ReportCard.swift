@@ -8,6 +8,8 @@ struct ReportCard: View {
     let loans: [Loan]
     /// グラフの集計単位と色を絞り込み状態に合わせるため、文字列ではなく条件自体を渡します。
     let costTypeFilter: CostTypeFilter
+    /// 相棒の黒猫です。合計金額の隣に座ります。
+    let catMood: CatMood
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var period: ReportPeriod = .month
@@ -68,6 +70,7 @@ struct ReportCard: View {
                 reduceMotion: reduceMotion,
                 costTypeFilter: costTypeFilter,
                 period: period,
+                catMood: catMood,
                 accessibilityValue: accessibilityValue(for:),
                 onReturnToCurrentPeriod: {
                     // 日付をまたいで基準が古くなっている場合に備え、戻るときに取り直します。

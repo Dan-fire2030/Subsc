@@ -41,14 +41,17 @@ enum CostType: String, CaseIterable, Codable, Identifiable {
     /// カード背景は必ず暗い色へ補正されるため、明るく高彩度な色なら背景上で見分けられます。
     /// また、利用中の緑・停止中のオレンジ・削除の赤という状態色と意味が衝突しない色を選んでいます。
     var colorHex: String {
+        // **黒猫のパレット（`BlackCatPalette.Category`）から選びます（2026-08-05）。**
+        // 種別は費目より上位の区別なので、費目の色と同じ体系から取り、
+        // 彩度だけが飛び抜けることのないようにします。
         switch self {
-        case .subscription: "#64D2FF"
-        case .communication: "#BF5AF2"
-        case .utility: "#FFD60A"
-        case .fixed: "#FF6482"
-        // 青紫。既存4色（シアン197°・紫281°・黄50°・桃348°）が空けている240°付近を使い、
-        // 利用中の緑・停止中のオレンジ・削除の赤とも意味が衝突しません。
-        case .loan: "#9D9BFF"
+        case .subscription: "#7FB3D5"
+        case .communication: "#C4B37F"
+        case .utility: "#E0A66B"
+        case .fixed: "#D98FA6"
+        // 鈍色。借入は**費目の寄せ先から外してある唯一の色**なので、
+        // 一覧で費目に紛れません（`BlackCatPalette.Category.hueTargets`）。
+        case .loan: "#8FA8C4"
         }
     }
 

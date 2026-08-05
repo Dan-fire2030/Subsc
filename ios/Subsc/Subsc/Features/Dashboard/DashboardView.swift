@@ -104,17 +104,11 @@ struct DashboardView: View {
                     }
                 } else {
                     Section {
-                        CatCompanionRow(mood: catMood)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 16))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    }
-
-                    Section {
                         ReportCard(
                             subscriptions: subscriptionsInSelectedTypes,
                             loans: loansInSelectedTypes,
-                            costTypeFilter: costTypeFilter
+                            costTypeFilter: costTypeFilter,
+                            catMood: catMood
                         )
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
@@ -135,18 +129,13 @@ struct DashboardView: View {
                                 }
                             } label: {
                                 HStack(spacing: 12) {
+                                    // **色の面で塗ったタイルをやめました（2026-08-05）。**
+                                    // 一覧の行を細い色の印へ揃えたので、ここだけ塗り面が残ると
+                                    // 画面の中でこの1行だけが浮きます。
                                     Image(systemName: nextDueSymbol(for: nextDue))
                                         .font(.title3)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(BlackCatPalette.accent)
                                         .frame(width: 36, height: 36)
-                                        .background(
-                                            theme.cardBaseColor.gradient,
-                                            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                        )
-                                        .overlay {
-                                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                .stroke(.white.opacity(0.55), lineWidth: 0.7)
-                                        }
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(nextDue.name)
                                             .font(.headline)

@@ -136,6 +136,7 @@
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
 		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
 		AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011380000000000000138 /* CatMoodContextTests.swift */; };
+		AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011410000000000000141 /* HarmonizedColorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -290,6 +291,7 @@
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
 		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
 		BB00011380000000000000138 /* CatMoodContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContextTests.swift; sourceTree = "<group>"; };
+		BB00011410000000000000141 /* HarmonizedColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarmonizedColorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -506,6 +508,7 @@
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
 				BB00011320000000000000132 /* CatMoodTests.swift */,
 				BB00011380000000000000138 /* CatMoodContextTests.swift */,
+				BB00011410000000000000141 /* HarmonizedColorTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
@@ -813,6 +816,7 @@
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
 				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
 				AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */,
+				AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,

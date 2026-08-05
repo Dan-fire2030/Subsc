@@ -37,6 +37,8 @@ struct ReportPager: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
+    /// 相棒の黒猫です。今の期間のページ（`step == 0`）にだけ渡します。
+    let catMood: CatMood
     let accessibilityValue: (ReportPageData) -> String
     let onReturnToCurrentPeriod: () -> Void
 
@@ -69,6 +71,7 @@ struct ReportPager: View {
                             reduceMotion: reduceMotion,
                             costTypeFilter: costTypeFilter,
                             period: period,
+                            catMood: step == 0 ? catMood : nil,
                             blocksPaging: $blocksPaging
                         )
                         .containerRelativeFrame(.horizontal)
@@ -153,12 +156,12 @@ struct ReportPager: View {
         } else if !hasUsedReportPaging {
             if dynamicTypeSize.isAccessibilitySize {
                 Image(systemName: "hand.draw")
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     .accessibilityHidden(true)
             } else {
                 Label("左右にスワイプ", systemImage: "hand.draw")
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     .accessibilityHidden(true)
             }
         }
@@ -179,7 +182,7 @@ struct ReportPager: View {
             .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
             .contentShape(.rect)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(BlackCatPalette.text)
         .modifier(ReportControlButtonModifier())
         .accessibilityLabel("今\(periodUnit)へ戻る")
     }
@@ -208,7 +211,7 @@ struct ReportPager: View {
                 .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
                 .contentShape(.rect)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(BlackCatPalette.text)
         .modifier(ReportControlButtonModifier())
         .accessibilityLabel(title)
         .disabled(!canShift(by: shift))

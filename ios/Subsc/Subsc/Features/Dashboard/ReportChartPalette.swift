@@ -57,7 +57,10 @@ enum ReportChartPalette {
     }
 
     static func color(for item: ReportChartItem) -> Color {
-        ColorHex.color(from: item.colorHex).opacity(item.opacity)
+        // **保存値ではなく、黒猫のパレットへ寄せた色で描きます。**
+        // 旧プリセット（iOS標準色）で保存された費目がそのままだと、
+        // 画面の主役であるグラフだけ配色が取り残されます。保存値は書き換えません。
+        BlackCatPalette.harmonized(from: item.colorHex).opacity(item.opacity)
     }
 
     static func fraction(for item: ReportChartItem, total: Double) -> Double {

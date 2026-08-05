@@ -7,12 +7,15 @@ import SwiftUI
 /// スキーマを増やさないぶん、Productionへのスキーマ反映と無関係に変更できます。
 @Observable
 final class ThemeStore {
-    /// 既定値です。**現在の画面と同じ色**にしてあり、未設定の利用者の見た目を変えません。
+    /// 既定値です。**2026-08-05のリデザインで黒猫の配色へ変えました。**
+    /// 色を選んでいない利用者の見た目も変わります（それがリデザインの目的です）。
     enum Defaults {
-        /// `RootView` の `.tint` に入っていた色です。
-        static let buttonHex = "#1473FA"
-        /// レポートカードのグラデーション1色目です。
-        static let cardHex = "#0D61EB"
+        /// タブバー・リンクの色です。**2026-08-05に金目へ変えました。**
+        /// 青のままだと、墨と金目の画面で操作部品だけがiOS標準の顔で残ります。
+        static let buttonHex = "#D9A43C"
+        /// 画面全体へうっすら掛ける光の色です。
+        /// **カードの塗りには使いません**（カードは面の表現へ変えたため）。
+        static let cardHex = "#D9A43C"
         /// これまで唯一の表示だった横棒グラフに最も近い、構成比が素直に読める表示です。
         static let chartStyle = ReportChartStyle.bar
     }
