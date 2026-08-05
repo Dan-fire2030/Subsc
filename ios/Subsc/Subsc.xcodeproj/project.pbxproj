@@ -33,6 +33,7 @@
 		AA00011260000000000000126 /* ServiceCatalogEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011260000000000000126 /* ServiceCatalogEntries.swift */; };
 		AA00011250000000000000125 /* ServiceCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011250000000000000125 /* ServiceCatalog.swift */; };
 		AA00011290000000000000129 /* UpcomingLargeCharge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011290000000000000129 /* UpcomingLargeCharge.swift */; };
+		AA00011330000000000000133 /* CatMood.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011330000000000000133 /* CatMood.swift */; };
 		AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011310000000000000131 /* UpcomingChargeSection.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
 		AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000270000000000000027 /* CategoryCatalogTests.swift */; };
@@ -127,6 +128,7 @@
 		AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011240000000000000124 /* YearlyBillingTests.swift */; };
 		AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011280000000000000128 /* ServiceCatalogTests.swift */; };
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
+		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,6 +175,7 @@
 		BB00011260000000000000126 /* ServiceCatalogEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalogEntries.swift; sourceTree = "<group>"; };
 		BB00011250000000000000125 /* ServiceCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalog.swift; sourceTree = "<group>"; };
 		BB00011290000000000000129 /* UpcomingLargeCharge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeCharge.swift; sourceTree = "<group>"; };
+		BB00011330000000000000133 /* CatMood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMood.swift; sourceTree = "<group>"; };
 		BB00011310000000000000131 /* UpcomingChargeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingChargeSection.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		BB0000270000000000000027 /* CategoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalogTests.swift; sourceTree = "<group>"; };
@@ -272,6 +275,7 @@
 		BB00011240000000000000124 /* YearlyBillingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearlyBillingTests.swift; sourceTree = "<group>"; };
 		BB00011280000000000000128 /* ServiceCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalogTests.swift; sourceTree = "<group>"; };
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
+		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -420,6 +424,7 @@
 				BB000098000000000000098 /* DashboardListItem.swift */,
 				BB0000050000000000000005 /* ReportCalculator.swift */,
 				BB00011290000000000000129 /* UpcomingLargeCharge.swift */,
+				BB00011330000000000000133 /* CatMood.swift */,
 				BB00011310000000000000131 /* UpcomingChargeSection.swift */,
 				BB0000660000000000000066 /* CostTypeBreakdown.swift */,
 				BB0000670000000000000067 /* BubbleLayout.swift */,
@@ -471,6 +476,7 @@
 				BB00011240000000000000124 /* YearlyBillingTests.swift */,
 				BB00011280000000000000128 /* ServiceCatalogTests.swift */,
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
+				BB00011320000000000000132 /* CatMoodTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
@@ -719,6 +725,7 @@
 				AA00011260000000000000126 /* ServiceCatalogEntries.swift in Sources */,
 				AA00011250000000000000125 /* ServiceCatalog.swift in Sources */,
 				AA00011290000000000000129 /* UpcomingLargeCharge.swift in Sources */,
+				AA00011330000000000000133 /* CatMood.swift in Sources */,
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
@@ -769,6 +776,7 @@
 				AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */,
 				AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */,
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
+				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
