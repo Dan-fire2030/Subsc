@@ -64,6 +64,17 @@ struct DashboardView: View {
         )
     }
 
+    /// 相棒の黒猫がいまどの姿で座るかです。
+    ///
+    /// **種別の絞り込みを掛けた母集団で判断します。** レポートと違う材料で表情を決めると、
+    /// 画面に出ている金額と猫の様子が食い違って見えます。
+    private var catMood: CatMood {
+        CatMoodContext.mood(
+            subscriptions: subscriptionsInSelectedTypes,
+            loans: loansInSelectedTypes
+        )
+    }
+
     /// この先の月に来る、年払いのまとまった支払いです。
     /// **種別の絞り込みに従います。** レポートと違う母集団を出すと、金額が合わなく見えます。
     private var upcomingCharges: [UpcomingChargeNotice] {
@@ -92,6 +103,13 @@ struct DashboardView: View {
                         .listRowSeparator(.hidden)
                     }
                 } else {
+                    Section {
+                        CatCompanionRow(mood: catMood)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 16))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
+
                     Section {
                         ReportCard(
                             subscriptions: subscriptionsInSelectedTypes,
