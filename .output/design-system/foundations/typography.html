@@ -1,0 +1,70 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>タイポグラフィと余白</title>
+<style>
+  :root { --bg:#FAF8F4; --surface:#FFFFFF; --border:#E4DED3; --text:#16151A; --muted:#6B6672; --accent:#C8901F; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0B0B0F; --surface:#14141A; --border:#262630; --text:#F5F3EF; --muted:#9A94A2; --accent:#E8B44A; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px; background:var(--bg); color:var(--text);
+         font-family:-apple-system,"Hiragino Sans",system-ui,sans-serif; line-height:1.6; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:.04em; }
+  h2 { font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+       margin:32px 0 12px; font-weight:600; }
+  .lede { color:var(--muted); font-size:14px; max-width:64ch; margin:0 0 8px; }
+  .row { display:flex; align-items:baseline; gap:16px; padding:14px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .spec { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:190px; }
+  .num { font-variant-numeric:tabular-nums; }
+  .display { font-size:40px; font-weight:700; letter-spacing:-.02em; }
+  .display .yen { font-size:22px; font-weight:600; opacity:.65; margin-right:3px; }
+  .title { font-size:20px; font-weight:700; }
+  .body { font-size:16px; }
+  .label { font-size:14px; color:var(--muted); }
+  .caption { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .scale { display:flex; gap:8px; align-items:flex-end; margin-top:8px; flex-wrap:wrap; }
+  .step { background:var(--accent); border-radius:4px; opacity:.85; }
+  .steplabel { font-size:11px; color:var(--muted); text-align:center; margin-top:6px; }
+  .note { font-size:12.5px; color:var(--muted); margin-top:10px; max-width:64ch; }
+  .box { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; margin-top:12px; }
+</style>
+</head>
+<body>
+
+<h1>タイポグラフィと余白</h1>
+<p class="lede">段は4つだけ。<strong>金額・見出し・本文・補足</strong>。段を増やすほど画面はうるさくなり、
+「どれが今いちばん大事か」が消える。金額は常に<strong>等幅の数字</strong>で、桁が揺れないようにする。</p>
+
+<h2>4つの段</h2>
+<div class="row"><div class="spec">金額 / 40・Bold・-2%字間</div><div class="display num"><span class="yen">¥</span>88,580</div></div>
+<div class="row"><div class="spec">見出し / 20・Bold</div><div class="title">今月の固定費</div></div>
+<div class="row"><div class="spec">本文 / 16・Regular</div><div class="body">Netflix スタンダード</div></div>
+<div class="row"><div class="spec">補足 / 14・Regular・弱色</div><div class="label">毎月28日に更新</div></div>
+<div class="row"><div class="spec">ラベル / 12・大文字・字間8%</div><div class="caption">Upcoming</div></div>
+
+<h2>余白の刻み（4の倍数）</h2>
+<div class="scale">
+  <div><div class="step" style="width:4px;height:28px"></div><div class="steplabel">4</div></div>
+  <div><div class="step" style="width:8px;height:36px"></div><div class="steplabel">8</div></div>
+  <div><div class="step" style="width:12px;height:44px"></div><div class="steplabel">12</div></div>
+  <div><div class="step" style="width:16px;height:52px"></div><div class="steplabel">16</div></div>
+  <div><div class="step" style="width:24px;height:60px"></div><div class="steplabel">24</div></div>
+  <div><div class="step" style="width:32px;height:68px"></div><div class="steplabel">32</div></div>
+</div>
+<p class="note">カード内側は 20、カード同士は 12、節どうしは 32。角丸はカード 20 / 行 14 / バッジ 999。</p>
+
+<h2>数字の扱い</h2>
+<div class="box">
+  <div class="num" style="font-size:15px;line-height:2">
+    ¥1,180 &nbsp;/&nbsp; ¥12,000 &nbsp;/&nbsp; ¥88,580 &nbsp;/&nbsp; ¥1,062,960
+  </div>
+  <p class="note" style="margin-top:12px">桁区切りを必ず入れ、円記号は<strong>数字より一段小さく・薄く</strong>置く。
+  記号を同じ大きさで置くと、金額の頭が重くなって桁が読みにくい。</p>
+</div>
+
+</body>
+</html>

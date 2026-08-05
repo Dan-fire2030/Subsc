@@ -1,0 +1,132 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配色トークン — 黒猫</title>
+<style>
+  :root {
+    --ink-900: #0B0B0F;
+    --ink-800: #14141A;
+    --ink-700: #1C1C24;
+    --ink-600: #262630;
+    --porcelain-50: #FAF8F4;
+    --porcelain-100: #F2EEE7;
+    --porcelain-200: #E4DED3;
+    --gold-400: #F2C96B;
+    --gold-500: #E8B44A;
+    --gold-600: #C8901F;
+
+    --bg: var(--porcelain-50);
+    --surface: #FFFFFF;
+    --surface-2: var(--porcelain-100);
+    --border: var(--porcelain-200);
+    --text: #16151A;
+    --text-muted: #6B6672;
+    --accent: var(--gold-600);
+    --cat: #16151A;
+    --cat-eye: var(--gold-600);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: var(--ink-900);
+      --surface: var(--ink-800);
+      --surface-2: var(--ink-700);
+      --border: var(--ink-600);
+      --text: #F5F3EF;
+      --text-muted: #9A94A2;
+      --accent: var(--gold-500);
+      --cat: #0E0E13;
+      --cat-eye: var(--gold-400);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Hiragino Sans", system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  h1 { font-size: 20px; letter-spacing: .04em; margin: 0 0 4px; }
+  h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--text-muted); margin: 32px 0 12px; font-weight: 600; }
+  .lede { color: var(--text-muted); font-size: 14px; margin: 0 0 8px; max-width: 60ch; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .swatch { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); }
+  .chip { height: 64px; }
+  .meta { padding: 10px 12px; }
+  .name { font-size: 13px; font-weight: 600; }
+  .hex { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .note { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .pair { display: flex; gap: 12px; flex-wrap: wrap; }
+  .demo { flex: 1 1 260px; border-radius: 18px; padding: 18px; border: 1px solid var(--border); }
+  .demo.dark { background: #0B0B0F; color: #F5F3EF; border-color: #262630; }
+  .demo.light { background: #FAF8F4; color: #16151A; border-color: #E4DED3; }
+  .amount { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .amount .yen { font-size: 16px; font-weight: 600; opacity: .7; margin-right: 2px; }
+  .demo.dark .accent { color: #E8B44A; }
+  .demo.light .accent { color: #C8901F; }
+  .cap { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+</style>
+</head>
+<body>
+
+<h1>配色トークン</h1>
+<p class="lede">墨（ink）の地に、金目（gold）を一点だけ差す。ライトでは白磁（porcelain）の地に墨の猫。
+アクセントは<strong>金額の強調と現在地の表示だけ</strong>に使い、面には塗らない。</p>
+
+<h2>墨 / Ink（ダークの地）</h2>
+<div class="grid">
+  <div class="swatch"><div class="chip" style="background:#0B0B0F"></div><div class="meta"><div class="name">ink-900</div><div class="hex">#0B0B0F</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#14141A"></div><div class="meta"><div class="name">ink-800</div><div class="hex">#14141A</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#1C1C24"></div><div class="meta"><div class="name">ink-700</div><div class="hex">#1C1C24</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#262630"></div><div class="meta"><div class="name">ink-600</div><div class="hex">#262630</div></div></div>
+</div>
+
+<h2>白磁 / Porcelain（ライトの地）</h2>
+<div class="grid">
+  <div class="swatch"><div class="chip" style="background:#FAF8F4"></div><div class="meta"><div class="name">porcelain-50</div><div class="hex">#FAF8F4</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#F2EEE7"></div><div class="meta"><div class="name">porcelain-100</div><div class="hex">#F2EEE7</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#E4DED3"></div><div class="meta"><div class="name">porcelain-200</div><div class="hex">#E4DED3</div></div></div>
+</div>
+
+<h2>金目 / Gold（アクセント）</h2>
+<div class="grid">
+  <div class="swatch"><div class="chip" style="background:#F2C96B"></div><div class="meta"><div class="name">gold-400</div><div class="hex">#F2C96B</div><div class="note">ダークの目・強調</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#E8B44A"></div><div class="meta"><div class="name">gold-500</div><div class="hex">#E8B44A</div><div class="note">ダークのアクセント</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#C8901F"></div><div class="meta"><div class="name">gold-600</div><div class="hex">#C8901F</div><div class="note">ライトのアクセント（白地でコントラストを確保）</div></div></div>
+</div>
+
+<h2>費目カテゴリ（両モード共通）</h2>
+<p class="lede">彩度を落とした宝石色。<strong>黒の上でも白磁の上でも沈まない明度</strong>に揃えてある。</p>
+<div class="grid">
+  <div class="swatch"><div class="chip" style="background:#7FB3D5"></div><div class="meta"><div class="name">見る</div><div class="hex">#7FB3D5</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#9B8FD9"></div><div class="meta"><div class="name">聴く</div><div class="hex">#9B8FD9</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#7FC8A9"></div><div class="meta"><div class="name">読む</div><div class="hex">#7FC8A9</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#E0A66B"></div><div class="meta"><div class="name">仕事・学び</div><div class="hex">#E0A66B</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#D98FA6"></div><div class="meta"><div class="name">暮らし</div><div class="hex">#D98FA6</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#C4B37F"></div><div class="meta"><div class="name">通信</div><div class="hex">#C4B37F</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#8FA8C4"></div><div class="meta"><div class="name">借入・ローン</div><div class="hex">#8FA8C4</div></div></div>
+</div>
+
+<h2>金額の見え方（両モード）</h2>
+<div class="pair">
+  <div class="demo dark">
+    <div class="cap">ダーク</div>
+    <div class="amount"><span class="yen">¥</span>88,580</div>
+    <div style="font-size:13px;opacity:.65">今月の合計</div>
+    <div style="margin-top:10px;font-size:13px" class="accent">8月28日に ¥12,000 の年払い</div>
+  </div>
+  <div class="demo light">
+    <div class="cap">ライト</div>
+    <div class="amount"><span class="yen">¥</span>88,580</div>
+    <div style="font-size:13px;opacity:.65">今月の合計</div>
+    <div style="margin-top:10px;font-size:13px" class="accent">8月28日に ¥12,000 の年払い</div>
+  </div>
+</div>
+<p class="note">金額は常に地の色そのままの文字色で置き、金目は<strong>予告や現在地といった一点</strong>に限る。
+金額そのものを金色にすると、数字の読み取りが装飾に負ける。</p>
+
+</body>
+</html>
