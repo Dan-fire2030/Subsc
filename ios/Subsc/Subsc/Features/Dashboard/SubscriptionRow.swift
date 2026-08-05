@@ -18,22 +18,23 @@ struct SubscriptionRow: View {
             : AnyLayout(HStackLayout(spacing: 12))
 
         layout {
-            Text(subscription.name.prefix(1).uppercased())
-                .font(.headline)
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(subscription.color, in: RoundedRectangle(cornerRadius: 11))
+            // **頭文字を敷いた44ptの色タイルをやめ、細い色の印にしました（2026-08-05）。**
+            // 頭文字は費目名のすぐ隣にある情報の繰り返しで、面積のわりに何も足しません。
+            // 色だけを細く残すと、行の左端が揃って一覧が静かになります。
+            Capsule(style: .continuous)
+                .fill(subscription.color)
+                .frame(width: 5, height: 34)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(subscription.name)
-                        .font(.body.weight(.semibold))
+                        .font(BlackCatType.body)
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     if subscription.state == .paused {
                         Text("停止中")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .font(BlackCatType.badge)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.quaternary, in: Capsule())
@@ -42,15 +43,15 @@ struct SubscriptionRow: View {
                 metadataLayout {
                     CategoryBadge(title: subscription.category, color: subscription.color)
                     Text("\(subscription.renewalDate.formatted(.dateTime.month().day()))更新")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(BlackCatType.label)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                         .lineLimit(1)
                 }
 
                 if !subscription.notes.isEmpty {
                     Text(subscription.notes)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(BlackCatType.label)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
@@ -72,11 +73,11 @@ struct SubscriptionRow: View {
                         : subscription.monthlyYen,
                     format: .currency(code: "JPY").precision(.fractionLength(0))
                 )
-                .font(.subheadline.weight(.semibold))
+                .font(BlackCatType.rowAmount)
                 .monospacedDigit()
                 Text(subscription.billingCycle == .yearly ? "年額" : "月額")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .font(BlackCatType.badge)
+                    .foregroundStyle(BlackCatPalette.textMuted)
             }
         }
         .padding(.vertical, 3)
@@ -102,7 +103,7 @@ private struct CategoryBadge: View {
                 .fill(color)
                 .frame(width: dotSize, height: dotSize)
             Text(title)
-                .font(.caption2.weight(.semibold))
+                .font(BlackCatType.badge)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
