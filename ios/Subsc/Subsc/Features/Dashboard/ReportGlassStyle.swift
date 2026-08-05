@@ -1,42 +1,27 @@
 import SwiftUI
 
-/// レポートカードの外枠です。iOS 26 では `glassEffect` を使い、
-/// それ以前は同系色のグラデーション＋縁取りでフォールバックします。
+/// レポートカードの外枠です。
+///
+/// **2026-08-05に、色付きガラスから「面」の表現へ変えました。**
+/// 黒猫の画面では地が墨（または白磁）で、カードはその上に置く一段明るい面です。
+/// カード自体を色付きのガラスにすると、費目の色分けと競合して
+/// **グラフの色が背景色に引きずられて見える**ためです。
+///
+/// Liquid Glass はボタン・ツールバー・検索といった**操作部品に残しています**。
+/// カードは操作部品ではなく、情報を載せる面です。
 struct ReportCardSurfaceModifier: ViewModifier {
-    @Environment(ThemeStore.self) private var theme
-
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content
-                .background {
-                    LiquidGlassCardBackground()
-                        .opacity(0.82)
-                }
-                .glassEffect(
-                    .regular.tint(theme.cardBaseColor.opacity(0.18)),
-                    in: .rect(cornerRadius: 24)
-                )
-                .shadow(color: theme.cardBaseColor.opacity(0.2), radius: 20, y: 9)
-        } else {
-            content
-                .background {
-                    LiquidGlassCardBackground()
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: [.white.opacity(0.72), .white.opacity(0.12)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.9
-                        )
-                }
-                .shadow(color: theme.cardBaseColor.opacity(0.22), radius: 22, y: 10)
-        }
+        content
+            .background(
+                BlackCatPalette.surface,
+                in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(BlackCatPalette.border, lineWidth: 0.9)
+            }
+            // 影は薄く。地との段差はすでに面の明度差が作っています。
+            .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
     }
 }
 
@@ -182,38 +167,8 @@ struct ReportChartGlassShape<S: Shape>: View {
 // 要素の外側に `.overlay` を足しても、要素の中へ入れても同じです。
 // 数値が読めなくなる代償が大きすぎるため、グラフの要素には個別に `glassEffect` を当てます。
 
-private struct LiquidGlassCardBackground: View {
-    @Environment(ThemeStore.self) private var theme
-
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    theme.cardBaseColor,
-                    theme.cardHighlightColor,
-                    theme.cardAccentColor
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            Circle()
-                .fill(theme.cardAccentColor.opacity(0.52))
-                .frame(width: 190, height: 190)
-                .blur(radius: 42)
-                .offset(x: 130, y: -145)
-
-            Circle()
-                .fill(theme.cardHighlightColor.opacity(0.4))
-                .frame(width: 170, height: 170)
-                .blur(radius: 46)
-                .offset(x: -140, y: 150)
-
-            LinearGradient(
-                colors: [.black.opacity(0.02), .black.opacity(0.16)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
-    }
-}
+// **`LiquidGlassCardBackground` は削除しました（2026-08-05）。**
+//
+// テーマ色のグラデーションでレポートカードを塗るための背景でしたが、
+// カードを「面」の表現（`BlackCatPalette.surface`）へ変えたことで使い道が無くなりました。
+// テーマ色は画面全体のうっすらとした光（`AppLiquidGlassBackground`）に残っています。

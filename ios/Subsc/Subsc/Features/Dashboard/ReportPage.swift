@@ -31,11 +31,11 @@ struct ReportPage: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(BlackCatPalette.textMuted)
 
                 Text(report.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(BlackCatPalette.text)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
@@ -43,25 +43,18 @@ struct ReportPage: View {
 
                 Text(entriesDescription)
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.84))
+                    .foregroundStyle(BlackCatPalette.textMuted)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 14 : 12)
             .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 11 : 8)
             .background(
-                .black.opacity(0.16),
+                BlackCatPalette.surfaceElevated,
                 in: RoundedRectangle(cornerRadius: 18, style: .continuous)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [.white.opacity(0.58), .white.opacity(0.12)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.8
-                    )
+                    .stroke(BlackCatPalette.border, lineWidth: 0.8)
             }
 
             Group {
@@ -81,7 +74,7 @@ struct ReportPage: View {
                         )
                         .multilineTextAlignment(.center)
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(BlackCatPalette.text)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("この期間の利用コストはありません")
@@ -92,19 +85,12 @@ struct ReportPage: View {
             .frame(maxWidth: .infinity, minHeight: chartHeight, maxHeight: chartHeight)
             .padding(dynamicTypeSize.isAccessibilitySize ? 12 : 12)
             .background(
-                .black.opacity(0.14),
+                BlackCatPalette.surfaceElevated,
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [.white.opacity(0.5), .white.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.8
-                    )
+                    .stroke(BlackCatPalette.border, lineWidth: 0.8)
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)

@@ -43,10 +43,10 @@ struct ReportCard: View {
             }
             .pickerStyle(.segmented)
             .padding(3)
-            .background(.black.opacity(0.12), in: Capsule(style: .continuous))
+            .background(BlackCatPalette.surfaceElevated, in: Capsule(style: .continuous))
             .overlay {
                 Capsule(style: .continuous)
-                    .stroke(.white.opacity(0.3), lineWidth: 0.7)
+                    .stroke(BlackCatPalette.border, lineWidth: 0.7)
             }
             .accessibilityLabel("レポート期間")
 
@@ -54,10 +54,10 @@ struct ReportCard: View {
                 let costTypeTitle = costTypeFilter.title
                 Label(costTypeTitle, systemImage: "line.3.horizontal.decrease")
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.92))
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(.white.opacity(0.16), in: Capsule())
+                    .background(BlackCatPalette.surfaceElevated, in: Capsule())
                     .accessibilityLabel("\(costTypeTitle)だけを集計しています")
             }
 
