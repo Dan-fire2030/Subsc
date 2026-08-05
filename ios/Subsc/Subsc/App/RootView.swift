@@ -124,7 +124,10 @@ struct AppLiquidGlassBackground: View {
 
     var body: some View {
         ZStack {
-            Color(uiColor: .systemGroupedBackground)
+            // **地は黒猫の墨（ダーク）／白磁（ライト）です。**
+            // OS標準のグループ背景より一段深く沈めることで、猫のシルエットと
+            // カードの面が浮きます。操作部品のLiquid Glassはこの地の上で成立します。
+            BlackCatPalette.background
 
             LinearGradient(
                 colors: [
@@ -155,7 +158,8 @@ struct AppLiquidGlassBackground: View {
 struct GlassListRowBackground: View {
     var body: some View {
         Rectangle()
-            .fill(Color(uiColor: .secondarySystemGroupedBackground))
+            // カードの面です。地との差だけで段差を作り、境界線は引きません。
+            .fill(BlackCatPalette.surface)
     }
 }
 
