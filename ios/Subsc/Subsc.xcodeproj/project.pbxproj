@@ -34,6 +34,9 @@
 		AA00011250000000000000125 /* ServiceCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011250000000000000125 /* ServiceCatalog.swift */; };
 		AA00011290000000000000129 /* UpcomingLargeCharge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011290000000000000129 /* UpcomingLargeCharge.swift */; };
 		AA00011330000000000000133 /* CatMood.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011330000000000000133 /* CatMood.swift */; };
+		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
+		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
+		AA00011360000000000000136 /* CatCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011360000000000000136 /* CatCompanionView.swift */; };
 		AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011310000000000000131 /* UpcomingChargeSection.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
 		AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000270000000000000027 /* CategoryCatalogTests.swift */; };
@@ -176,6 +179,9 @@
 		BB00011250000000000000125 /* ServiceCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalog.swift; sourceTree = "<group>"; };
 		BB00011290000000000000129 /* UpcomingLargeCharge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeCharge.swift; sourceTree = "<group>"; };
 		BB00011330000000000000133 /* CatMood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMood.swift; sourceTree = "<group>"; };
+		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
+		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
+		BB00011360000000000000136 /* CatCompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionView.swift; sourceTree = "<group>"; };
 		BB00011310000000000000131 /* UpcomingChargeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingChargeSection.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		BB0000270000000000000027 /* CategoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalogTests.swift; sourceTree = "<group>"; };
@@ -318,6 +324,7 @@
 			children = (
 				DD0000040000000000000004 /* App */,
 				DD0000050000000000000005 /* Models */,
+				DD0000220000000000000022 /* Design */,
 				DD0000060000000000000006 /* Services */,
 				DD0000070000000000000007 /* Features */,
 				BB0000130000000000000013 /* Assets.xcassets */,
@@ -336,6 +343,16 @@
 				BB0000220000000000000022 /* StorageMode.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		DD0000220000000000000022 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				BB00011340000000000000134 /* BlackCatPalette.swift */,
+				BB00011350000000000000135 /* CatArt.swift */,
+				BB00011360000000000000136 /* CatCompanionView.swift */,
+			);
+			path = Design;
 			sourceTree = "<group>";
 		};
 		DD0000050000000000000005 /* Models */ = {
@@ -726,6 +743,9 @@
 				AA00011250000000000000125 /* ServiceCatalog.swift in Sources */,
 				AA00011290000000000000129 /* UpcomingLargeCharge.swift in Sources */,
 				AA00011330000000000000133 /* CatMood.swift in Sources */,
+				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
+				AA00011350000000000000135 /* CatArt.swift in Sources */,
+				AA00011360000000000000136 /* CatCompanionView.swift in Sources */,
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
