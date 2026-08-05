@@ -2,20 +2,31 @@
 ///
 /// 保存形式の16進文字列をrawValueにすることで、UI側に色と表示名の
 /// 対応表を重複させず、将来の差し替え時に同じ定義を利用できるようにします。
+///
+/// **2026-08-05に黒猫のパレットへ入れ替えました。** iOSの標準色（`#007AFF` など）は
+/// 彩度が高く、墨と金目の画面では浮きます。ここにあるのは
+/// `BlackCatPalette.Category` と同じ、**黒地でも白磁の上でも沈まない明度**に揃えた色です。
+///
+/// **入れ替え前の色で保存された費目は、そのままの色で表示され続けます**
+/// （選択画面では「カスタム」と呼ばれます）。保存値には触れません。
 enum ThemeColorPreset: String, CaseIterable {
-    case blue = "#007AFF"
-    case green = "#34C759"
-    case pink = "#FF375F"
-    case purple = "#AF52DE"
-    case orange = "#FF9F0A"
+    case gold = "#D9A43C"
+    case indigo = "#7FB3D5"
+    case violet = "#9B8FD9"
+    case moss = "#7FC8A9"
+    case amber = "#E0A66B"
+    case blossom = "#D98FA6"
+    case steel = "#8FA8C4"
 
     var title: String {
         switch self {
-        case .blue: "ブルー"
-        case .green: "グリーン"
-        case .pink: "ピンク"
-        case .purple: "パープル"
-        case .orange: "オレンジ"
+        case .gold: "金目"
+        case .indigo: "藍"
+        case .violet: "菫"
+        case .moss: "若草"
+        case .amber: "琥珀"
+        case .blossom: "撫子"
+        case .steel: "鈍色"
         }
     }
 

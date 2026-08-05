@@ -84,7 +84,7 @@ final class ThemeStoreTests: XCTestCase {
         XCTAssertTrue(ThemeStore(defaults: defaults).isDefault)
     }
 
-    /// 既定値はプリセットのブルー（`#007AFF`）とは別の色なので、
+    /// 既定値はどのプリセットとも一致しない色なので、
     /// 素直にプリセット名を引くと初期状態から「カスタム」に見えてしまいます。
     func testDefaultColorsAreNamedDefaultRatherThanCustom() {
         let store = ThemeStore(defaults: defaults)
@@ -96,8 +96,8 @@ final class ThemeStoreTests: XCTestCase {
     func testPresetAndCustomColorsKeepTheirOwnNames() {
         let store = ThemeStore(defaults: defaults)
 
-        store.buttonHex = "#34C759"
-        XCTAssertEqual(store.buttonColorName, "グリーン")
+        store.buttonHex = "#7FC8A9"
+        XCTAssertEqual(store.buttonColorName, "若草")
 
         store.cardHex = "#123456"
         XCTAssertEqual(store.cardColorName, "カスタム")

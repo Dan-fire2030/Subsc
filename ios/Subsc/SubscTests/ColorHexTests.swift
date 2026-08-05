@@ -3,7 +3,9 @@ import XCTest
 @testable import Subsc
 
 final class ColorHexTests: XCTestCase {
-    private let presets = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
+    /// **プリセットを直に並べ書きしません。** 配色を入れ替えたときに、
+    /// テストだけが古い色を検査し続けるのを防ぎます。
+    private let presets = ThemeColorPreset.allCases.map(\.rawValue)
 
     func testPresetColorsSurviveARoundTrip() {
         for hex in presets {

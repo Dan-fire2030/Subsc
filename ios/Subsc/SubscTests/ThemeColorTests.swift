@@ -12,22 +12,25 @@ final class ThemeColorTests: XCTestCase {
     }
 
     func testPresetRawValuesAndTitlesMatchDefinitions() {
+        // 黒猫のパレット（2026-08-05に入れ替え）。
         let expected: [(rawValue: String, title: String)] = [
-            ("#007AFF", "ブルー"),
-            ("#34C759", "グリーン"),
-            ("#FF375F", "ピンク"),
-            ("#AF52DE", "パープル"),
-            ("#FF9F0A", "オレンジ")
+            ("#D9A43C", "金目"),
+            ("#7FB3D5", "藍"),
+            ("#9B8FD9", "菫"),
+            ("#7FC8A9", "若草"),
+            ("#E0A66B", "琥珀"),
+            ("#D98FA6", "撫子"),
+            ("#8FA8C4", "鈍色")
         ]
 
-        XCTAssertEqual(ThemeColorPreset.allCases.count, 5)
+        XCTAssertEqual(ThemeColorPreset.allCases.count, 7)
         XCTAssertEqual(ThemeColorPreset.allCases.map(\.rawValue), expected.map(\.rawValue))
         XCTAssertEqual(ThemeColorPreset.allCases.map(\.title), expected.map(\.title))
     }
 
     func testPresetTitleReturnsCustomForUnknownHex() {
         XCTAssertEqual(ThemeColorPreset.title(for: "#123456"), "カスタム")
-        XCTAssertEqual(ThemeColorPreset.title(for: "#007aff"), "ブルー")
+        XCTAssertEqual(ThemeColorPreset.title(for: "#d9a43c"), "金目")
     }
 
     func testReadableCardBaseKeepsEveryPresetWithinMaximumLuminance() throws {
