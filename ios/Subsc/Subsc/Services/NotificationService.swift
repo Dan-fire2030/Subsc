@@ -248,10 +248,31 @@ enum NotificationService {
                     ),
                     date: date,
                     title: "\(subscription.name)の更新予定",
-                    body: "\(targetDate.formatted(date: .abbreviated, time: .shortened))に更新されます。"
+                    body: renewalBody(for: subscription, targetDate: targetDate)
                 )
             }
         }
+    }
+
+    /// 更新予告の本文です。
+    ///
+    /// **定額の費目は請求額を入れます。** 通知を開かずに「いくら出ていくか」が分かると、
+    /// 支払いに備えるかどうかをその場で決められます。
+    ///
+    /// **変動費は金額を書きません。** 次回の請求額はまだ決まっておらず、
+    /// 古い実績や見込みを断定して出すと、届いた通知そのものが誤りになります。
+    ///
+    /// 額は `yenAmount`（実際に請求される額）を使い、**月額へならしません**。
+    /// 年払いを1/12にして通知すると、その日に引き落とされる額と食い違います。
+    static func renewalBody(for subscription: Subscription, targetDate: Date) -> String {
+        let dateText = targetDate.formatted(date: .abbreviated, time: .shortened)
+        guard !subscription.hasVariableAmount else {
+            return "\(dateText)に更新されます。"
+        }
+        let amountText = subscription.yenAmount.formatted(
+            .currency(code: "JPY").precision(.fractionLength(0))
+        )
+        return "\(dateText)に \(amountText) が更新されます。"
     }
 
     private static func add(notifications: [PlannedNotification]) async -> SyncResult {
