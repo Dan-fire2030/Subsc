@@ -15,65 +15,29 @@ import SwiftUI
 /// Liquid Glass はボタン・ツールバー・検索といった**操作部品に残しています**。
 /// **画面で光るのは操作部品だけ**になり、「光っている＝触れる」が手がかりになります。
 ///
-/// **2026-08-06にテーマ色を戻しました。** 面へ変えたときにテーマ色の反映先が消え、
-/// 設定でカードの色を選んでも何も変わらない状態になっていました。
-/// 色は `ReportSurfaceTint` が薄く重ねます。
+/// **カードに色を持たせる設定は削除しました（2026-08-06）。**
+/// カードは地から浮いた「面」で、色を選ぶ場所ではありません。選べるままにすると、
+/// 面の明度差だけで作った構造がその都度崩れます。地へ掛ける光だけ金目で残しています。
 struct ReportCardSurfaceModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background { ReportOuterSurface(cornerRadius: 26) }
-    }
-}
-
-/// テーマ色をどれだけ面へ混ぜるかです。
-///
-/// **薄さは意図的です。** カードは金額を読むための面なので、色は「どのテーマを選んだか
-/// 分かる」程度に留めます。濃くすると費目の色分けと競合し、グラフの色が
-/// 背景に引きずられて見えます（面へ変える前に起きていた問題です）。
-///
-/// ダークを濃いめにしているのは、墨の地では薄い色が沈んで消えるためです。
-enum ReportSurfaceTint {
-    /// カードの面（地から浮いた面）に重ねる濃さです。
-    static func outer(_ colorScheme: ColorScheme) -> Double {
-        colorScheme == .dark ? 0.10 : 0.07
-    }
-
-    /// カードの中の沈んだ面に重ねる濃さです。**外より濃くします。**
-    /// 同じ濃さだと、内側の面が外側と同化して階層が消えます。
-    static func inner(_ colorScheme: ColorScheme) -> Double {
-        colorScheme == .dark ? 0.15 : 0.11
-    }
-}
-
-/// カードの面です。地から浮いた面に、テーマ色を薄く重ねます。
-struct ReportOuterSurface: View {
-    let cornerRadius: CGFloat
-    @Environment(ThemeStore.self) private var theme
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        shape
-            .fill(BlackCatPalette.surface)
-            .overlay {
-                shape.fill(theme.cardBaseColor.opacity(ReportSurfaceTint.outer(colorScheme)))
-            }
+            .background(
+                BlackCatPalette.surface,
+                in: RoundedRectangle(cornerRadius: 26, style: .continuous)
+            )
     }
 }
 
 /// カードの中の沈んだ面です。合計のブロックとグラフの枠が使います。
+///
+/// 角丸だけを受け取る小さな部品にしているのは、**2箇所で同じ面を使う**ためです。
+/// それぞれに `.background(_:in:)` を書くと、面の色を変えるときに片方だけ直す事故が起きます。
 struct ReportInnerSurface: View {
     let cornerRadius: CGFloat
-    @Environment(ThemeStore.self) private var theme
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        shape
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             .fill(BlackCatPalette.surfaceElevated)
-            .overlay {
-                shape.fill(theme.cardAccentColor.opacity(ReportSurfaceTint.inner(colorScheme)))
-            }
     }
 }
 

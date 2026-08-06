@@ -112,16 +112,6 @@ struct SettingsView: View {
                     }
 
                     NavigationLink {
-                        ThemeColorPickerView.cardColor()
-                    } label: {
-                        ThemeColorSettingLabel(
-                            title: "カードの色",
-                            color: theme.cardBaseColor,
-                            colorName: theme.cardColorName
-                        )
-                    }
-
-                    NavigationLink {
                         ReportChartStylePickerView()
                     } label: {
                         LabeledContent("グラフの表示") {

@@ -119,8 +119,14 @@ struct RootView: View {
 }
 
 struct AppLiquidGlassBackground: View {
-    @Environment(ThemeStore.self) private var theme
     @Environment(\.colorScheme) private var colorScheme
+
+    /// 地へうっすら掛ける光の色です。
+    ///
+    /// **金目で固定します（2026-08-06）。** もとは「カードの色」設定から取っていましたが、
+    /// カードに色を持たせる設定そのものを削除したため、選ぶ余地がなくなりました。
+    /// 既定値がもともと金目だったので、色を変えていない利用者の見た目は変わりません。
+    private var glow: Color { BlackCatPalette.accent }
 
     var body: some View {
         ZStack {
@@ -131,22 +137,22 @@ struct AppLiquidGlassBackground: View {
 
             LinearGradient(
                 colors: [
-                    theme.cardBaseColor.opacity(colorScheme == .dark ? 0.13 : 0.055),
-                    theme.cardHighlightColor.opacity(colorScheme == .dark ? 0.08 : 0.025),
-                    theme.cardAccentColor.opacity(colorScheme == .dark ? 0.1 : 0.04)
+                    glow.opacity(colorScheme == .dark ? 0.13 : 0.055),
+                    glow.opacity(colorScheme == .dark ? 0.08 : 0.025),
+                    glow.opacity(colorScheme == .dark ? 0.1 : 0.04)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
             Circle()
-                .fill(theme.cardAccentColor.opacity(colorScheme == .dark ? 0.1 : 0.065))
+                .fill(glow.opacity(colorScheme == .dark ? 0.1 : 0.065))
                 .frame(width: 260, height: 260)
                 .blur(radius: 68)
                 .offset(x: 150, y: -280)
 
             Circle()
-                .fill(theme.cardHighlightColor.opacity(colorScheme == .dark ? 0.075 : 0.04))
+                .fill(glow.opacity(colorScheme == .dark ? 0.075 : 0.04))
                 .frame(width: 290, height: 290)
                 .blur(radius: 76)
                 .offset(x: -170, y: 220)
