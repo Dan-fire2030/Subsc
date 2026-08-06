@@ -42,6 +42,24 @@ enum DashboardListItem: Identifiable {
         }
     }
 
+    /// 次の期日に出ていく額です。時間軸（`UpcomingTimeline`）で使います。
+    ///
+    /// **年払いは年額をそのまま返します。** 次に出ていくのは1/12ではなく全額だからです
+    /// （一覧の行やレポートの扱いとも揃えています）。
+    /// 停止中の費目は出ていかないので `nil` にします。
+    var nextDueAmount: Double? {
+        switch self {
+        case .subscription(let subscription):
+            guard subscription.state == .active else { return nil }
+            return subscription.billingCycle == .yearly
+                ? subscription.yenAmount
+                : subscription.monthlyYen
+        case .loan(let loan, let summary):
+            guard !loan.isPaused, !summary.isCompleted else { return nil }
+            return summary.nextAmount
+        }
+    }
+
     /// 検索候補で名前の下に出す補足です。費目はカテゴリ、借入は返済方式を指します。
     var searchSubtitle: String {
         switch self {

@@ -483,3 +483,47 @@ final class DashboardListItemTests: XCTestCase {
         return Fixture.calendar.date(from: components) ?? .distantPast
     }
 }
+
+/// 時間軸に出す「次に出ていく額」です。
+final class DashboardListItemNextDueAmountTests: XCTestCase {
+    private let calendar = Calendar(identifier: .gregorian)
+
+    private func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+        DateComponents(calendar: calendar, year: year, month: month, day: day).date!
+    }
+
+    /// 月払いはその月の額です。
+    func testMonthlySubscriptionReportsItsMonthlyAmount() {
+        let subscription = Subscription(
+            name: "Netflix",
+            originalAmount: 1_980,
+            renewalDate: date(2026, 8, 28)
+        )
+
+        XCTAssertEqual(DashboardListItem.subscription(subscription).nextDueAmount, 1_980)
+    }
+
+    /// **年払いは年額をそのまま返します。** 次に出ていくのは1/12ではなく全額だからです。
+    func testYearlySubscriptionReportsTheFullYearlyAmount() {
+        let subscription = Subscription(
+            name: "Adobe CC",
+            originalAmount: 28_776,
+            billingCycle: .yearly,
+            renewalDate: date(2026, 8, 20)
+        )
+
+        XCTAssertEqual(DashboardListItem.subscription(subscription).nextDueAmount, 28_776)
+    }
+
+    /// 停止中の費目は出ていきません。
+    func testPausedSubscriptionHasNoAmount() {
+        let subscription = Subscription(
+            name: "止めたやつ",
+            originalAmount: 1_000,
+            state: .paused,
+            renewalDate: date(2026, 8, 28)
+        )
+
+        XCTAssertNil(DashboardListItem.subscription(subscription).nextDueAmount)
+    }
+}

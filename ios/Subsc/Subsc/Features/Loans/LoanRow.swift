@@ -27,17 +27,17 @@ struct LoanRow: View {
             : AnyLayout(HStackLayout(spacing: 12))
 
         layout {
-            Image(systemName: CostType.loan.systemImage)
-                .font(.title3)
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(accentColor, in: RoundedRectangle(cornerRadius: 11))
+            // **費目の行と同じ細い色の印にします（2026-08-06）。**
+            // 借入だけ塗り面のタイルが残ると、同じ一覧の中でこの行だけが浮きます。
+            Capsule(style: .continuous)
+                .fill(accentColor)
+                .frame(width: 5, height: 34)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(loan.name)
-                        .font(.body.weight(.semibold))
+                        .font(BlackCatType.body)
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     if summary.isCompleted {
                         StatusBadge(title: "完済")

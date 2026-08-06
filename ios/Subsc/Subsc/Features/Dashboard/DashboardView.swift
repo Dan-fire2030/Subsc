@@ -64,6 +64,20 @@ struct DashboardView: View {
         )
     }
 
+    /// 時間軸に並べる、これから期日が来るものです。
+    ///
+    /// **期日を持たないもの（完済した借入など）は外します。** 軸の上に置けないためです。
+    private var upcomingItems: [DashboardListItem] {
+        DashboardListBuilder.items(
+            subscriptions: subscriptions,
+            loans: loans,
+            stateFilter: .active,
+            costTypeFilter: costTypeFilter,
+            query: ""
+        )
+        .filter { $0.nextDueDate != nil }
+    }
+
     /// 相棒の黒猫がいまどの姿で座るかです。
     ///
     /// **種別の絞り込みを掛けた母集団で判断します。** レポートと違う材料で表情を決めると、
@@ -117,39 +131,13 @@ struct DashboardView: View {
 
                     UpcomingChargeSection(notices: upcomingCharges)
 
-                    if let nextDue, let dueDate = nextDue.nextDueDate {
+                    if !upcomingItems.isEmpty {
                         // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
-                        Section("次の支払い") {
-                            NavigationLink {
-                                switch nextDue {
-                                case .subscription(let subscription):
-                                    SubscriptionDetailView(subscription: subscription)
-                                case .loan(let loan, _):
-                                    LoanDetailView(loan: loan)
-                                }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    // **色の面で塗ったタイルをやめました（2026-08-05）。**
-                                    // 一覧の行を細い色の印へ揃えたので、ここだけ塗り面が残ると
-                                    // 画面の中でこの1行だけが浮きます。
-                                    Image(systemName: nextDueSymbol(for: nextDue))
-                                        .font(.title3)
-                                        .foregroundStyle(BlackCatPalette.accent)
-                                        .frame(width: 36, height: 36)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(nextDue.name)
-                                            .font(.headline)
-                                        Text(dueDate, format: .dateTime.month().day())
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text(relativeDate(dueDate))
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.green)
-                                }
-                            }
-                            .glassListRow()
+                        Section("これから出ていく") {
+                            UpcomingTimeline(items: upcomingItems)
+                                .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 2, trailing: 20))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                         }
                     }
 

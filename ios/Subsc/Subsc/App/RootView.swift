@@ -283,9 +283,14 @@ extension View {
         modifier(AdaptiveNavigationBarModifier())
     }
 
+    /// 一覧の行の見た目です。
+    ///
+    /// **箱で囲わず、区切り線も引きません（2026-08-06）。** 行を丸い面で囲むと
+    /// 1行ごとにカードが並んでいるように見え、線を引くと線が情報として読まれます。
+    /// 行の区別は**左端の色の印と余白**が担います。
     func glassListRow() -> some View {
-        listRowBackground(GlassListRowBackground())
-            .listRowSeparatorTint(Color(uiColor: .separator).opacity(0.42))
+        listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
     }
 
     func liquidGlassScreen() -> some View {
