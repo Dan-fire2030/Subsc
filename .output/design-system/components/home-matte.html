@@ -1,0 +1,236 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ホーム（マット）</title>
+<style>
+  :root {
+    --bg:#FAF8F4; --surface:#FFFFFF; --surface-2:#F2EEE7; --border:#E4DED3;
+    --text:#16151A; --muted:#6B6672; --accent:#C8901F; --track:#EAE4DA;
+    --cat:#16151A; --eye:#C8901F;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0B0B0F; --surface:#131318; --surface-2:#191920; --border:#23232B;
+      --text:#F5F3EF; --muted:#9A94A2; --accent:#E8B44A; --track:#1E1E26;
+      --cat:#05050A; --eye:#F2C96B;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px; background:var(--bg); color:var(--text);
+         font-family:-apple-system,"Hiragino Sans",system-ui,sans-serif; line-height:1.6; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:.04em; }
+  .lede { color:var(--muted); font-size:14px; max-width:64ch; margin:0 0 24px; }
+  h2 { font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+       margin:30px 0 10px; font-weight:600; }
+  .num { font-variant-numeric:tabular-nums; }
+  .wrap { display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap; }
+
+  /* 端末 */
+  .phone { position:relative; width:375px; max-width:100%; background:var(--bg);
+           border:1px solid var(--border); border-radius:34px; padding:14px 12px 0; overflow:hidden; }
+  /* **マットの肝**：ごく淡い粒子を全面に敷き、塗りの平坦さを紙に寄せる */
+  .grain { position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; }
+
+  /* 操作部品だけガラスのまま */
+  .bar { display:flex; align-items:center; gap:10px; padding:6px 4px 14px; }
+  .bar .title { font-weight:700; font-size:17px; margin:0 auto; }
+  .gbtn { width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
+          font-size:18px; color:var(--accent);
+          border:1px solid color-mix(in srgb, var(--text) 12%, transparent);
+          background:color-mix(in srgb, var(--text) 7%, transparent);
+          backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%); }
+
+  /* マットな面：影なし・グラデーションなし・明度差だけ */
+  .card { background:var(--surface); border:1px solid var(--border);
+          border-radius:22px; padding:12px; }
+  .panel { background:var(--surface-2); border:1px solid var(--border);
+           border-radius:18px; padding:12px 14px; }
+  .panel + .panel { margin-top:10px; }
+
+  .hero { display:flex; align-items:center; gap:12px; }
+  .hero svg { width:104px; height:104px; flex:none; overflow:visible; }
+  .cat-body { fill:var(--cat); } .inner-ear { fill:var(--eye); opacity:.28; }
+  .eye { fill:var(--eye); } .pupil { fill:var(--cat); }
+  .tail { stroke:var(--cat); stroke-width:13; stroke-linecap:round; fill:none; }
+  .period { font-size:13px; color:var(--muted); }
+  .total { font-size:38px; font-weight:700; letter-spacing:-.02em; line-height:1.15; }
+  .total .yen { font-size:21px; font-weight:600; opacity:.6; margin-right:2px; }
+  .sub { font-size:12.5px; color:var(--muted); }
+
+  /* マットな帯：単色・光沢なし・境目は地の色の隙間で作る */
+  .band { display:flex; gap:2px; height:30px; }
+  .band i { display:block; border-radius:6px; }
+  .legend { display:grid; grid-template-columns:1fr 1fr; gap:2px 12px; margin-top:12px; }
+  .li { display:flex; align-items:center; gap:7px; font-size:12.5px; }
+  .li .dot { width:8px; height:8px; border-radius:999px; flex:none; }
+  .li .nm { color:var(--muted); }
+  .li .pc { margin-left:auto; font-weight:600; }
+
+  .seg { display:flex; gap:2px; background:var(--surface-2); border:1px solid var(--border);
+         border-radius:999px; padding:3px; margin-bottom:10px; }
+  .seg span { flex:1; text-align:center; font-size:13px; padding:5px 0; border-radius:999px; color:var(--muted); }
+  .seg span.on { background:var(--surface); color:var(--text); font-weight:700; }
+
+  .nav { display:flex; justify-content:space-between; margin-top:12px; }
+  .gpill { font-size:13px; font-weight:600; padding:9px 16px; border-radius:999px; color:var(--text);
+           border:1px solid color-mix(in srgb, var(--text) 12%, transparent);
+           background:color-mix(in srgb, var(--text) 7%, transparent);
+           backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%); }
+
+  .sect { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+          margin:18px 4px 8px; }
+  .row { display:flex; align-items:center; gap:12px; background:var(--surface);
+         border:1px solid var(--border); border-radius:16px; padding:12px 14px; }
+  .row + .row { margin-top:8px; }
+  .mark { width:5px; height:32px; border-radius:999px; flex:none; }
+  .row .nm { font-size:15.5px; font-weight:600; }
+  .row .dt { font-size:12.5px; color:var(--muted); }
+  .row .rt { margin-left:auto; font-size:13px; color:var(--accent); font-weight:600; }
+
+  .tabs { display:flex; justify-content:center; gap:26px; margin:16px auto 12px; width:max-content;
+          padding:10px 26px; border-radius:999px;
+          border:1px solid color-mix(in srgb, var(--text) 12%, transparent);
+          background:color-mix(in srgb, var(--text) 7%, transparent);
+          backdrop-filter:blur(18px) saturate(180%); -webkit-backdrop-filter:blur(18px) saturate(180%); }
+  .tabs div { text-align:center; font-size:11px; color:var(--muted); }
+  .tabs div.on { color:var(--accent); }
+  .tabs .ic { font-size:19px; display:block; }
+
+  .note { font-size:12.5px; color:var(--muted); max-width:34ch; }
+  .note b { color:var(--text); }
+  table { border-collapse:collapse; font-size:12.5px; margin-top:8px; }
+  td { padding:3px 10px 3px 0; vertical-align:top; }
+  td:first-child { color:var(--muted); white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<h1>ホーム（マット）</h1>
+<p class="lede">光を反射させるのをやめる案。<strong>光沢・リムライト・落ち影・グラデーションを全部外し</strong>、
+面の区別を<strong>明度差と1pxの境界線だけ</strong>で作る。粒子をごく淡く敷いて、塗りの平坦さを紙に寄せる。
+<strong>操作部品（ツールバー・月送り・タブ）はガラスのまま</strong>なので、押せるものだけが光る。</p>
+
+<div class="wrap">
+
+<div class="phone">
+  <!-- 粒子。マットの質感はこれが8割 -->
+  <svg class="grain" xmlns="http://www.w3.org/2000/svg">
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/>
+      <feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="100%" height="100%" filter="url(#n)" opacity="0.045"/>
+  </svg>
+
+  <div class="bar">
+    <div class="gbtn">☰</div>
+    <div class="title">Subsc</div>
+    <div class="gbtn">＋</div>
+    <div class="gbtn">🔍</div>
+  </div>
+
+  <div class="card">
+    <div class="seg"><span class="on">月額換算</span><span>年間換算</span></div>
+
+    <div class="panel">
+      <div class="hero">
+        <svg viewBox="0 0 200 200" aria-label="見張る黒猫">
+          <path class="tail" d="M132,178 C160,170 172,110 168,58"/>
+          <path class="cat-body" d="M74,184 C74,108 82,88 100,88 C118,88 126,108 126,184 Z"/>
+          <path class="cat-body" d="M74,44 L72,-4 L106,28 Z"/>
+          <path class="cat-body" d="M126,44 L128,-4 L94,28 Z"/>
+          <path class="inner-ear" d="M80,38 L79,10 L98,28 Z"/>
+          <path class="inner-ear" d="M120,38 L121,10 L102,28 Z"/>
+          <circle class="cat-body" cx="100" cy="70" r="40"/>
+          <circle class="eye" cx="86" cy="70" r="12"/>
+          <circle class="eye" cx="114" cy="70" r="12"/>
+          <ellipse class="pupil" cx="86" cy="70" rx="3" ry="10"/>
+          <ellipse class="pupil" cx="114" cy="70" rx="3" ry="10"/>
+        </svg>
+        <div>
+          <div class="period">2026年8月</div>
+          <div class="total num"><span class="yen">¥</span>88,586</div>
+          <div class="sub">10件の費目</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="band">
+        <i style="flex:82;background:#8FA8C4"></i>
+        <i style="flex:5;background:#D98FA6"></i>
+        <i style="flex:5;background:#E0A66B"></i>
+        <i style="flex:2;background:#C4B37F"></i>
+        <i style="flex:2;background:#D98FA6"></i>
+        <i style="flex:4;background:#7FB3D5"></i>
+      </div>
+      <div class="legend">
+        <div class="li"><span class="dot" style="background:#8FA8C4"></span><span class="nm">CardLoanB</span><span class="pc num">82%</span></div>
+        <div class="li"><span class="dot" style="background:#D98FA6"></span><span class="nm">てすと3</span><span class="pc num">5%</span></div>
+        <div class="li"><span class="dot" style="background:#E0A66B"></span><span class="nm">てすと2</span><span class="pc num">5%</span></div>
+        <div class="li"><span class="dot" style="background:#C4B37F"></span><span class="nm">通信費1</span><span class="pc num">2%</span></div>
+        <div class="li"><span class="dot" style="background:#D98FA6"></span><span class="nm">Netflix</span><span class="pc num">2%</span></div>
+        <div class="li"><span class="dot" style="background:#7FB3D5"></span><span class="nm">ほか4件</span><span class="pc num">4%</span></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <span class="gpill">‹ 前の月</span>
+      <span class="gpill">次の月 ›</span>
+    </div>
+  </div>
+
+  <div class="sect">次の支払い</div>
+  <div class="row">
+    <span class="mark" style="background:#7FB3D5"></span>
+    <div><div class="nm">iCloud+</div><div class="dt">8月6日</div></div>
+    <span class="rt">今日</span>
+  </div>
+
+  <div class="sect">費目一覧</div>
+  <div class="row">
+    <span class="mark" style="background:#D98FA6"></span>
+    <div><div class="nm">Netflix</div><div class="dt">毎月28日</div></div>
+    <span class="rt num" style="color:var(--text)">¥1,980</span>
+  </div>
+  <div class="row">
+    <span class="mark" style="background:#8FA8C4"></span>
+    <div><div class="nm">CardLoanB</div><div class="dt">毎月5日</div></div>
+    <span class="rt num" style="color:var(--text)">¥72,249</span>
+  </div>
+
+  <div class="tabs">
+    <div class="on"><span class="ic">▤</span>ホーム</div>
+    <div><span class="ic">⚙</span>設定</div>
+  </div>
+</div>
+
+<div>
+  <h2>いまの実装との差</h2>
+  <table>
+    <tr><td>カードの縁</td><td>白いグラデーションの縁 → <b>1pxの境界線</b></td></tr>
+    <tr><td>カードの影</td><td>半径18の落ち影 → <b>影なし</b></td></tr>
+    <tr><td>グラフの塗り</td><td>3段グラデーション＋上部の光沢 → <b>単色のフラット塗り</b></td></tr>
+    <tr><td>グラフの縁</td><td>白いリムライト → <b>無し。隙間2pxで区切る</b></td></tr>
+    <tr><td>面の段差</td><td>ガラスの透過 → <b>明度差だけ</b></td></tr>
+    <tr><td>全面</td><td>—  → <b>粒子（不透明度4.5%）</b></td></tr>
+    <tr><td>操作部品</td><td colspan="2"><b>変えない</b>（ツールバー・月送り・タブはガラスのまま）</td></tr>
+  </table>
+
+  <h2>マットにすると効くこと</h2>
+  <p class="note"><b>費目の色が正確に読める。</b> 光沢とリムライトは色の上に白を乗せる処理なので、
+  淡いカテゴリ色ほど白飛びして隣と見分けづらくなっていた。フラット塗りなら指定した色がそのまま出る。</p>
+  <p class="note" style="margin-top:10px"><b>押せるものが際立つ。</b> 画面で唯一光るのがガラスの操作部品になるので、
+  「光っている＝触れる」という手がかりが強くなる。</p>
+
+  <h2>捨てるもの</h2>
+  <p class="note">前サイクルで入れた<b>グラフのガラス表現は全部外れる</b>。
+  厚みと浮遊感は無くなり、代わりに紙のような静けさになる。戻したくなった場合、
+  グラフ側は <code>ReportChartGlassShape</code> を再び使うだけで戻せる。</p>
+</div>
+
+</div>
+
+</body>
+</html>
