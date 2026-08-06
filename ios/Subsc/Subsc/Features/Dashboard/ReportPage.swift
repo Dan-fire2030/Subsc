@@ -8,9 +8,14 @@ struct ReportPage: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
-    /// 相棒の黒猫です。**今の期間のページにだけ**渡します。
-    /// 過去や先の月のページに出すと、いまの状況を語る猫が過去を語っているように見えます。
-    let catMood: CatMood?
+    /// 相棒の黒猫です。**どのページにも座ります。**
+    /// 前後のページには平常の姿が渡ります（状態は今月の支出から決まるため）。
+    let catMood: CatMood
+    /// 今の期間のページかどうかです。
+    ///
+    /// **猫の有無で代用しません。** 猫は全ページに座るようになったので、
+    /// 「今の期間だけに出すもの」は自前の印で判断する必要があります。
+    let isCurrentPeriod: Bool
     /// グラフが操作中でページ送りを止めてほしいあいだ真になります。バブルの拡大中だけ使います。
     @Binding var blocksPaging: Bool
     @Environment(ThemeStore.self) private var theme
@@ -24,9 +29,9 @@ struct ReportPage: View {
     ///
     /// 合計だけでは多いか少ないかを判断できません。月初の ¥88,586 と月末の ¥88,586 は
     /// 意味が違うので、**どこまで進んだ月の合計なのか**を添えます。
-    /// 年間表示では意味を成さないので出しません。
+    /// 年間表示と、過ぎた月・これからの月では意味を成さないので出しません。
     private var monthProgress: (fraction: Double, remainingDays: Int)? {
-        guard catMood != nil, period == .month else { return nil }
+        guard isCurrentPeriod, period == .month else { return nil }
         return MonthProgress.current()
     }
 
@@ -45,12 +50,10 @@ struct ReportPage: View {
             // ベースラインが並んでしまい、枠の中で沈んで見えます。
             VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
-            if let catMood {
-                // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
-                // それぞれ勝手に置かれているように見え、状況の要約として読まれません。
-                CatCompanionView(mood: catMood)
-                    .frame(width: 104, height: 104)
-            }
+            // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
+            // それぞれ勝手に置かれているように見え、状況の要約として読まれません。
+            CatCompanionView(mood: catMood)
+                .frame(width: 104, height: 104)
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
                     .font(.subheadline)
@@ -78,12 +81,12 @@ struct ReportPage: View {
             }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 14 : 12)
-            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 11 : 8)
-            .background(
-                BlackCatPalette.surfaceElevated,
-                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-            )
+            // **中身の縁と面の縁を離します。** 以前は上下8ptしかなく、猫と金額が
+            // 枠にぶつかって見えていました。角丸18ptの内側で余白が足りないと、
+            // 角の丸みが中身に食い込み、枠が切れているようにも見えます。
+            .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 18 : 16)
+            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 16 : 14)
+            .background { ReportInnerSurface(cornerRadius: 18) }
 
             Group {
                 if report.entries.isEmpty {
@@ -111,11 +114,8 @@ struct ReportPage: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: chartHeight, maxHeight: chartHeight)
-            .padding(dynamicTypeSize.isAccessibilitySize ? 12 : 12)
-            .background(
-                BlackCatPalette.surfaceElevated,
-                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
-            )
+            .padding(14)
+            .background { ReportInnerSurface(cornerRadius: 20) }
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }

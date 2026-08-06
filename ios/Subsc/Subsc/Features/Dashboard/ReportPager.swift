@@ -37,7 +37,11 @@ struct ReportPager: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
-    /// 相棒の黒猫です。今の期間のページ（`step == 0`）にだけ渡します。
+    /// 相棒の黒猫です。**どのページにも座らせます。**
+    ///
+    /// ただし渡す姿は今の期間のページだけ実際の状態で、**前後のページは平常の姿**にします。
+    /// 状態は今月の支出から決まるものなので、過去のページでそのまま出すと
+    /// 「その月がそうだった」と読めてしまいます。
     let catMood: CatMood
     let accessibilityValue: (ReportPageData) -> String
     let onReturnToCurrentPeriod: () -> Void
@@ -71,7 +75,8 @@ struct ReportPager: View {
                             reduceMotion: reduceMotion,
                             costTypeFilter: costTypeFilter,
                             period: period,
-                            catMood: step == 0 ? catMood : nil,
+                            catMood: step == 0 ? catMood : .calm,
+                            isCurrentPeriod: step == 0,
                             blocksPaging: $blocksPaging
                         )
                         .containerRelativeFrame(.horizontal)

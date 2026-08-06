@@ -29,11 +29,19 @@ struct ReportCard: View {
         )
     }
 
+    /// 1ページの高さです。**中身の実寸より小さくしてはいけません。**
+    ///
+    /// ページャは `.frame(height:)` と `.clipped()` で高さを固定するので、
+    /// 足りないぶんは黙って切り落とされます。292ptだった頃は中身が310ptあり、
+    /// **枠の角丸が切れて直角に見えていました**。
+    ///
+    /// 内訳（通常サイズ）：合計のブロック（猫104＋上下14）＋間隔10
+    /// ＋グラフの枠（156＋上下14）＝ 346。余白を持たせて 356 にしています。
     private var pageHeight: CGFloat {
         if dynamicTypeSize >= .accessibility3 {
-            return 660
+            return 720
         }
-        return dynamicTypeSize.isAccessibilitySize ? 520 : 292
+        return dynamicTypeSize.isAccessibilitySize ? 580 : 356
     }
 
     var body: some View {
