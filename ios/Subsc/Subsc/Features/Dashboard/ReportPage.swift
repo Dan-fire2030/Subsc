@@ -31,7 +31,9 @@ struct ReportPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 10) {
-            HStack(alignment: .bottom, spacing: 12) {
+            // 猫は**枠の縦中央**に置きます。下端で揃えると、猫の足元と金額の
+            // ベースラインが並んでしまい、枠の中で沈んで見えます。
+            HStack(alignment: .center, spacing: 12) {
             if let catMood {
                 // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
                 // それぞれ勝手に置かれているように見え、状況の要約として読まれません。
