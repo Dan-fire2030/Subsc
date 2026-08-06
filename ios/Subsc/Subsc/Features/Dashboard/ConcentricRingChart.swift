@@ -83,33 +83,22 @@ struct ConcentricRingChart: View {
                     ReportChartPalette.fraction(for: item, total: total)
                 )
 
+                // 下地です。白の重ねではなく `chartTrack` を使うのは、白磁の地でも
+                // 同じ濃さで沈ませるためです（白を重ねると明るい地では輪が消えます）。
                 Circle()
-                    .stroke(.white.opacity(0.1), lineWidth: Layout.ringWidth)
+                    .stroke(BlackCatPalette.chartTrack, lineWidth: Layout.ringWidth)
                     .padding(inset)
 
-                // リングは線なので、面を塗る `ReportChartGlassShape` は使えません。
-                // **素材だけ共有します。** 塗りのグラデーションをそのまま線幅へ当て、
-                // 上に細いリムライトを重ねて、他のスタイルと同じ光り方にします。
+                // **単色のフラット塗りです（2026-08-06）。**
+                // リングは線なので `ReportChartShape` は使えませんが、方針は同じです。
+                // グラデーションとリムライトは色の上に白を乗せる処理で、淡いカテゴリ色ほど
+                // 白飛びして隣の輪と見分けづらくなっていました。
                 Circle()
                     .trim(from: 0, to: fraction)
                     .stroke(
-                        ReportChartGlass.fill(ReportChartPalette.color(for: item)),
+                        ReportChartPalette.color(for: item),
                         style: StrokeStyle(lineWidth: Layout.ringWidth, lineCap: .round)
                     )
-                    .overlay {
-                        Circle()
-                            .trim(from: 0, to: fraction)
-                            .stroke(
-                                ReportChartGlass.rim,
-                                style: StrokeStyle(
-                                    lineWidth: Layout.ringWidth * 0.3,
-                                    lineCap: .round
-                                )
-                            )
-                            // 線の中心ではなく上寄りに置き、面の光沢のように見せます。
-                            .padding(Layout.ringWidth * 0.34)
-                            .allowsHitTesting(false)
-                    }
                     .rotationEffect(.degrees(-90))
                     .padding(inset)
                     .accessibilityElement()

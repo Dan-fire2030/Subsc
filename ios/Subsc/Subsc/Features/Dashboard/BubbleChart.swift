@@ -282,11 +282,6 @@ private struct BubbleNodeView: View {
     @State private var hasAppeared = false
 
     private enum Layout {
-        static let highlightOpacity = 0.34
-        static let highlightHeightRatio: CGFloat = 0.18
-        static let highlightHorizontalInsetRatio: CGFloat = 0.4
-        static let highlightTopInsetRatio: CGFloat = 0.12
-        static let minimumHighlightHeight: CGFloat = 1
         static let labelSpacing: CGFloat = 1
         static let labelPadding: CGFloat = 5
         static let minimumLabelScale: CGFloat = 0.55
@@ -300,9 +295,6 @@ private struct BubbleNodeView: View {
         /// **上下と左右で周期をずらします。** 同じ周期だと往復が直線になり、
         /// 8の字にならず「斜めに行ったり来たり」に見えます。
         static let horizontalDurationRatio = 1.45
-        /// 浮いて見せる落ち影です。半径に対する比で決め、小さい円で影が勝たないようにします。
-        static let shadowRadiusRatio: CGFloat = 0.22
-        static let shadowOffsetRatio: CGFloat = 0.14
     }
 
     /// 円ごとにずらした振れ幅です。
@@ -332,20 +324,7 @@ private struct BubbleNodeView: View {
     }
 
     var body: some View {
-        ReportChartGlassShape(shape: Circle(), color: ReportChartPalette.color(for: item))
-            .overlay(alignment: .top) {
-                Circle()
-                    .fill(.white.opacity(Layout.highlightOpacity))
-                    .frame(
-                        height: max(
-                            Layout.minimumHighlightHeight,
-                            node.radius * Layout.highlightHeightRatio
-                        )
-                    )
-                    .padding(.horizontal, node.radius * Layout.highlightHorizontalInsetRatio)
-                    .padding(.top, node.radius * Layout.highlightTopInsetRatio)
-                    .accessibilityHidden(true)
-            }
+        ReportChartShape(shape: Circle(), color: ReportChartPalette.color(for: item))
             .overlay {
                 if showsLabel {
                     VStack(spacing: Layout.labelSpacing) {
@@ -364,12 +343,9 @@ private struct BubbleNodeView: View {
                 }
             }
             .frame(width: node.radius * 2, height: node.radius * 2)
-            // **影は漂いと一緒に動かします。** 円だけ動かすと、影に貼り付いて見えます。
-            .shadow(
-                color: ReportChartGlass.shadowColor(ReportChartPalette.color(for: item)),
-                radius: node.radius * Layout.shadowRadiusRatio,
-                y: node.radius * Layout.shadowOffsetRatio
-            )
+            // **落ち影は持ちません（2026-08-06）。** 円の色を薄く敷いた影は、
+            // 淡いカテゴリ色ほど円の外側へ滲んで「発光している」ように見え、
+            // 隣り合う円の境目を曖昧にしていました。円同士は余白で分けます。
             .offset(x: horizontalDrift, y: verticalDrift)
             .scaleEffect(hasAppeared ? 1 : 0.55)
             .opacity(hasAppeared ? 1 : 0)
@@ -436,15 +412,12 @@ private struct BubbleCallout: View {
         .lineLimit(1)
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
-        // 円と同じ縁の光り方に揃えます。
+        // **下地の黒は薄くしません。** 文字が白なので、明るい面に置き換えると
+        // 背後の円の色によっては読めなくなります。
         //
-        // **下地の黒は薄くしません。** 文字が白なので、明るいガラスに置き換えると
-        // 背後の円の色によっては読めなくなります。質感は縁と光沢だけで合わせます。
+        // **縁は持ちません（2026-08-06）。** 円がマットになったので、縁だけが光ると
+        // ラベルの方が円より手前の部品に見えます。読みやすさは下地の黒で足りています。
         .background(.black.opacity(0.5), in: Capsule(style: .continuous))
-        .overlay {
-            Capsule(style: .continuous)
-                .stroke(ReportChartGlass.rim, lineWidth: ReportChartGlass.rimWidth)
-        }
         .accessibilityHidden(true)
     }
 }

@@ -62,80 +62,34 @@ struct CompactGlassCapsuleModifier: ViewModifier {
     }
 }
 
-// MARK: - グラフ要素のガラス
+// MARK: - グラフ要素の塗り
 
-/// グラフの図形（円・帯・リング）をガラスに見せるための素材です。
+/// グラフの1要素（円・帯・棒）を描きます。
 ///
-/// **4つのスタイルで同じ質感にするため、値をここへ集めています。**
-/// 各ファイルへ書き分けると、後から濃さや光沢を揃え直せなくなります。
+/// **単色のフラット塗りです（2026-08-06）。**
+/// 以前はグラデーション・上端の光沢・縁のリムライト・色付きの落ち影を重ねていましたが、
+/// どれも**色の上に白を乗せる処理**で、淡いカテゴリ色ほど白飛びして隣の費目と
+/// 見分けづらくなっていました。フラットなら指定した色がそのまま出ます。
 ///
-/// **色は薄めすぎません。** 費目・種別の色分けは情報そのもので、
-/// 透過を強くすると4色の区別が付かなくなり、グラフとして機能しなくなります。
-enum ReportChartGlass {
-    /// 塗りのグラデーションです。上を明るく、下を沈ませて厚みを出します。
-    static func fill(_ color: Color) -> LinearGradient {
-        LinearGradient(
-            colors: [
-                color.opacity(0.96),
-                color.opacity(0.74),
-                color.opacity(0.88)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// 縁のリムライトです。光が縁を回り込んでいるように見せます。
-    static let rim = LinearGradient(
-        colors: [.white.opacity(0.62), .white.opacity(0.08), .white.opacity(0.28)],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-
-    static let rimWidth: CGFloat = 0.8
-
-    /// iOS 26 で重ねるガラスのティントの濃さです。
-    /// **強くすると色が飛びます。** 質感を足すだけに留めます。
-    static let tintOpacity = 0.16
-
-    /// 浮いて見せるための落ち影です。図形の色を薄く敷き、地の色に馴染ませます。
-    static func shadowColor(_ color: Color) -> Color {
-        color.opacity(0.34)
-    }
-}
-
-/// グラフの1要素をガラスとして描きます。
+/// **画面で光るのは操作部品だけ**にすることで、「光っている＝触れる」が手がかりになります。
+/// グラフは読むものであって触るものではないので、質感を持ちません。
 ///
-/// iOS 26 では自前のグラデーションの上に `glassEffect` を重ねます。
-/// `ReportCardSurfaceModifier` と同じ二段構えで、iOS 17〜25 でも
-/// グラデーション・光沢・リムライトだけで同じ方向の見た目になります。
-struct ReportChartGlassShape<S: Shape>: View {
+/// 図形を型引数で受け取るのは、円・カプセル・角丸長方形で同じ塗り方を共有するためです。
+struct ReportChartShape<S: Shape>: View {
     let shape: S
     let color: Color
-    /// 光沢の高さです。**マット化で使わなくなりました**が、呼び出し側の記述を
-    /// 一斉に書き換えると差分が大きくなるため、引数は残して無視しています。
-    var glossHeight: CGFloat = 0
-    var glossInsetRatio: CGFloat = 0.18
-    /// 塗りを差し替えます。向きに意味がある図形のために残しています。
-    var fillOverride: LinearGradient?
 
     var body: some View {
-        // **単色のフラット塗りです（2026-08-06）。**
-        // 光沢もリムライトも、色の上に白を乗せる処理です。淡いカテゴリ色ほど白飛びして
-        // 隣の費目と見分けづらくなっていました。フラットなら指定した色がそのまま出ます。
-        //
-        // 塗りを `LinearGradient` のまま渡しているのは、**呼び出し側が
-        // `fillOverride` で向きのある塗りを差し込める**ようにしておくためです。
-        shape.fill(fillOverride ?? LinearGradient(colors: [color, color], startPoint: .top, endPoint: .bottom))
+        shape.fill(color)
     }
 }
 
 // **`GlassEffectContainer` はグラフでは使いません。**
 //
 // 取り込みの負荷を1回へ寄せられるため一度は導入しましたが、ガラスを1枚へまとめる際に
-// 中の非ガラス要素（バブルのラベルと上部の光沢）がガラスの下へ潜り、完全に見えなくなりました。
+// 中の非ガラス要素（バブルのラベル）がガラスの下へ潜り、完全に見えなくなりました。
 // 要素の外側に `.overlay` を足しても、要素の中へ入れても同じです。
-// 数値が読めなくなる代償が大きすぎるため、グラフの要素には個別に `glassEffect` を当てます。
+// 数値が読めなくなる代償が大きすぎたためで、**マット化した今もガラスへ戻しません**。
 
 // **`LiquidGlassCardBackground` は削除しました（2026-08-05）。**
 //

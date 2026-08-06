@@ -99,39 +99,21 @@ private struct GlassBarRow: View {
 
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
+                    // 下地です。**金額の小さい費目でも帯の全長が読める**ように必ず敷きます。
+                    // 白の重ねではなく `chartTrack` を使うのは、白磁の地でも同じ濃さで
+                    // 沈ませるためです（白を重ねると明るい地では下地が消えます）。
                     Capsule(style: .continuous)
-                        .fill(.white.opacity(0.11))
-                        .overlay {
-                            Capsule(style: .continuous)
-                                .stroke(.white.opacity(0.2), lineWidth: 0.6)
-                        }
+                        .fill(BlackCatPalette.chartTrack)
 
-                    // 塗りだけは横方向のままにします。**伸びていく向きに意味がある**ためで、
-                    // 縦のグラデーションにすると、どこまで伸びているかが読み取りにくくなります。
-                    // 縁と光沢は他のスタイルと共通の素材を使います。
-                    ReportChartGlassShape(
+                    // **単色のフラット塗りです（2026-08-06）。**
+                    // 以前は伸びる先を白へ飛ばして向きを示していましたが、淡いカテゴリ色ほど
+                    // 先端が下地と同化し、どこまで伸びているかがかえって読めませんでした。
+                    // 向きは帯の長さそのものが示すので、塗りは色を変えません。
+                    ReportChartShape(
                         shape: Capsule(style: .continuous),
-                        color: ColorHex.color(from: entry.colorHex),
-                        glossHeight: 2,
-                        glossInsetRatio: 0.06,
-                        fillOverride: LinearGradient(
-                            colors: [
-                                ColorHex.color(from: entry.colorHex).opacity(0.96),
-                                ColorHex.color(from: entry.colorHex).opacity(0.62),
-                                .white.opacity(0.72)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                        color: ColorHex.color(from: entry.colorHex)
                     )
                         .frame(width: proxy.size.width * fraction)
-                        .shadow(
-                            color: ReportChartGlass.shadowColor(
-                                ColorHex.color(from: entry.colorHex)
-                            ),
-                            radius: 6,
-                            y: 2
-                        )
                 }
             }
             .frame(height: 12)

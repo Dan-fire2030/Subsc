@@ -119,7 +119,11 @@ struct ColumnChart: View {
             }
             .scrollIndicators(.hidden)
             .scrollDisabled(!canScroll)
-            .background(.black.opacity(canScroll ? 0.12 : 0.04), in: .rect(cornerRadius: Layout.cornerRadius))
+            // 下地です。**他のグラフと同じ `chartTrack` を敷きます。**
+            // 以前は黒を重ね、スクロールできるときだけ濃くしていましたが、白磁の地（ライト）では
+            // どちらの濃さも地に埋もれて差が読めませんでした。**スクロールできることは
+            // 端のフェード（下の `mask`）が示す**ので、下地は濃さを変えません。
+            .background(BlackCatPalette.chartTrack, in: .rect(cornerRadius: Layout.cornerRadius))
             .mask {
                 if canScroll {
                     LinearGradient(
@@ -160,35 +164,29 @@ private struct ColumnItemView: View {
     private enum Layout {
         static let contentSpacing: CGFloat = 3
         static let barCornerRadius: CGFloat = 8
-        static let highlightHeight: CGFloat = 2
-        static let highlightOpacity = 0.26
-        static let highlightHorizontalPadding: CGFloat = 2
-        static let nameOpacity = 0.92
         static let minimumAmountScale: CGFloat = 0.55
     }
 
     var body: some View {
         VStack(spacing: Layout.contentSpacing) {
+            // **文字は棒の外に置くので、地の色に応じた文字色を使います。**
+            // 白で固定すると、白磁の地（ライト）では金額も費目名も読めなくなります。
             Text(item.amount, format: .currency(code: "JPY").precision(.fractionLength(0)))
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(BlackCatPalette.text)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(Layout.minimumAmountScale)
 
+            // **単色のフラット塗りです（2026-08-06）。** 上端の光沢は色の上に白を乗せる
+            // 処理で、淡いカテゴリ色ほど白飛びして隣の棒と見分けづらくなっていました。
             RoundedRectangle(cornerRadius: Layout.barCornerRadius, style: .continuous)
                 .fill(ReportChartPalette.color(for: item))
                 .frame(height: height)
-                .overlay(alignment: .top) {
-                    RoundedRectangle(cornerRadius: Layout.barCornerRadius, style: .continuous)
-                        .fill(.white.opacity(Layout.highlightOpacity))
-                        .frame(height: Layout.highlightHeight)
-                        .padding(.horizontal, Layout.highlightHorizontalPadding)
-                }
 
             Text(item.name)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.white.opacity(Layout.nameOpacity))
+                .foregroundStyle(BlackCatPalette.textMuted)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
