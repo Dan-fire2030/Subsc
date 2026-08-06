@@ -113,11 +113,10 @@ struct LoanDetailView: View {
     private var headerSection: some View {
         Section {
             HStack(spacing: 14) {
-                Image(systemName: CostType.loan.systemImage)
-                    .font(.title2)
-                    .foregroundStyle(.white)
-                    .frame(width: 58, height: 58)
-                    .background(accentColor, in: RoundedRectangle(cornerRadius: 14))
+                Capsule(style: .continuous)
+                    .fill(accentColor)
+                    .frame(width: 6, height: 46)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(loan.name)
                         .font(.title3.bold())
@@ -127,7 +126,7 @@ struct LoanDetailView: View {
                         Text("・")
                         Text(loan.method.title)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
                 }
             }
             .padding(.vertical, 6)
@@ -151,7 +150,7 @@ struct LoanDetailView: View {
                     .tint(accentColor)
                 Text(progressDescription)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
             }
             .padding(.vertical, 2)
             .accessibilityElement(children: .combine)
@@ -166,7 +165,7 @@ struct LoanDetailView: View {
                         .monospacedDigit()
                         Text(nextDueDate, format: .dateTime.year().month().day())
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
             }

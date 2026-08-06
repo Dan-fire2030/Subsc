@@ -22,11 +22,11 @@ struct SubscriptionDetailView: View {
         List {
             Section {
                 HStack(spacing: 14) {
-                    Text(subscription.name.prefix(1).uppercased())
-                        .font(.title2.bold())
-                        .foregroundStyle(.white)
-                        .frame(width: 58, height: 58)
-                        .background(subscription.color, in: RoundedRectangle(cornerRadius: 14))
+                    // 一覧と同じ細い色の印にします。頭文字は名前のすぐ隣にある繰り返しです。
+                    Capsule(style: .continuous)
+                        .fill(subscription.color)
+                        .frame(width: 6, height: 46)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(subscription.name)
                             .font(.title3.bold())
@@ -39,7 +39,7 @@ struct SubscriptionDetailView: View {
                             Text("・")
                             Text(subscription.category)
                         }
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
                 .padding(.vertical, 6)
@@ -66,15 +66,15 @@ struct SubscriptionDetailView: View {
                         // 無料になったのではなく、更新月ではないだけなので、そう書きます。
                         if isYearlyWithoutChargeThisMonth {
                             Text("今月は請求なし")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(BlackCatPalette.textMuted)
                         }
                         if thisMonth.source == .estimated {
                             Text("見込み")
                                 .font(.caption2.weight(.semibold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(.orange.opacity(0.18), in: Capsule())
-                                .foregroundStyle(.orange)
+                                .background(BlackCatPalette.accent.opacity(0.18), in: Capsule())
+                                .foregroundStyle(BlackCatPalette.accent)
                         }
                         if !isYearlyWithoutChargeThisMonth {
                             Text(

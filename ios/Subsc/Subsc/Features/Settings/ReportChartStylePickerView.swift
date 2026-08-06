@@ -69,18 +69,15 @@ struct ReportChartStylePickerView: View {
 
     /// カードと同じ下地の上に描き、実際の見え方に近づけます。
     private func preview(for style: ReportChartStyle) -> some View {
-        ChartStyleThumbnail(style: style, colors: theme.cardGradientColors)
+        ChartStyleThumbnail(style: style, colors: BlackCatPalette.Category.fallbackOrder)
             .frame(height: Layout.previewHeight)
             .frame(maxWidth: .infinity)
             .background {
+                // **本物のグラフと同じ「沈む面」の上に描きます（2026-08-06）。**
+                // テーマ色のグラデーションで塗っていた頃は、見本と実物の地の色が違い、
+                // 選んだあとに「思っていたのと違う」が起きていました。
                 RoundedRectangle(cornerRadius: Layout.previewCornerRadius, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: theme.cardGradientColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(BlackCatPalette.surfaceElevated)
             }
             .clipShape(
                 RoundedRectangle(cornerRadius: Layout.previewCornerRadius, style: .continuous)
@@ -163,7 +160,7 @@ private struct ChartStyleThumbnail: View {
                     .frame(width: 12, height: 46 * fraction + 8)
             }
             Capsule(style: .continuous)
-                .fill(.white.opacity(0.35))
+                .fill(BlackCatPalette.chartTrack)
                 .frame(width: 12, height: 12)
         }
         .frame(maxWidth: .infinity, alignment: .center)
