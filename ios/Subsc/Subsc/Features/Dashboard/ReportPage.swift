@@ -38,7 +38,7 @@ struct ReportPage: View {
                 // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
                 // それぞれ勝手に置かれているように見え、状況の要約として読まれません。
                 CatCompanionView(mood: catMood)
-                    .frame(width: 72, height: 72)
+                    .frame(width: 104, height: 104)
             }
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
