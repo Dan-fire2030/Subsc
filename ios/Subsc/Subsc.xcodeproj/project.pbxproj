@@ -36,6 +36,7 @@
 		AA00011330000000000000133 /* CatMood.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011330000000000000133 /* CatMood.swift */; };
 		AA00011370000000000000137 /* CatMoodContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011370000000000000137 /* CatMoodContext.swift */; };
 		AA00011390000000000000139 /* CatCompanionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011390000000000000139 /* CatCompanionRow.swift */; };
+		AA00011420000000000000142 /* MonthProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011420000000000000142 /* MonthProgress.swift */; };
 		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
 		AA00011400000000000000140 /* BlackCatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* BlackCatType.swift */; };
 		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
@@ -186,6 +187,7 @@
 		BB00011330000000000000133 /* CatMood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMood.swift; sourceTree = "<group>"; };
 		BB00011370000000000000137 /* CatMoodContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContext.swift; sourceTree = "<group>"; };
 		BB00011390000000000000139 /* CatCompanionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionRow.swift; sourceTree = "<group>"; };
+		BB00011420000000000000142 /* MonthProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthProgress.swift; sourceTree = "<group>"; };
 		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
 		BB00011400000000000000140 /* BlackCatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatType.swift; sourceTree = "<group>"; };
 		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
@@ -455,6 +457,7 @@
 				BB00011330000000000000133 /* CatMood.swift */,
 				BB00011370000000000000137 /* CatMoodContext.swift */,
 				BB00011390000000000000139 /* CatCompanionRow.swift */,
+				BB00011420000000000000142 /* MonthProgress.swift */,
 				BB00011310000000000000131 /* UpcomingChargeSection.swift */,
 				BB0000660000000000000066 /* CostTypeBreakdown.swift */,
 				BB0000670000000000000067 /* BubbleLayout.swift */,
@@ -760,6 +763,7 @@
 				AA00011330000000000000133 /* CatMood.swift in Sources */,
 				AA00011370000000000000137 /* CatMoodContext.swift in Sources */,
 				AA00011390000000000000139 /* CatCompanionRow.swift in Sources */,
+				AA00011420000000000000142 /* MonthProgress.swift in Sources */,
 				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
 				AA00011400000000000000140 /* BlackCatType.swift in Sources */,
 				AA00011350000000000000135 /* CatArt.swift in Sources */,

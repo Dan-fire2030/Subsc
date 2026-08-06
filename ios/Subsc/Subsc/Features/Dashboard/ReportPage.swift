@@ -20,6 +20,16 @@ struct ReportPage: View {
         dynamicTypeSize.isAccessibilitySize ? 340 : 156
     }
 
+    /// 月のどこにいるかです。**今の月のページにだけ**出します。
+    ///
+    /// 合計だけでは多いか少ないかを判断できません。月初の ¥88,586 と月末の ¥88,586 は
+    /// 意味が違うので、**どこまで進んだ月の合計なのか**を添えます。
+    /// 年間表示では意味を成さないので出しません。
+    private var monthProgress: (fraction: Double, remainingDays: Int)? {
+        guard catMood != nil, period == .month else { return nil }
+        return MonthProgress.current()
+    }
+
     /// 合計の下に出す内訳の説明です。
     ///
     /// 見込みが混ざっているときは合計が確定額ではないので、その旨をここで断ります。
@@ -33,6 +43,7 @@ struct ReportPage: View {
         VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 14 : 10) {
             // 猫は**枠の縦中央**に置きます。下端で揃えると、猫の足元と金額の
             // ベースラインが並んでしまい、枠の中で沈んで見えます。
+            VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
             if let catMood {
                 // **猫は合計の隣に座らせます。** 別の行に離すと、猫と数字が
@@ -58,6 +69,14 @@ struct ReportPage: View {
                     .foregroundStyle(BlackCatPalette.textMuted)
             }
             }
+
+            if let monthProgress {
+                MonthProgressLine(
+                    progress: monthProgress.fraction,
+                    remainingDays: monthProgress.remainingDays
+                )
+            }
+            }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 14 : 12)
             .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 11 : 8)
@@ -65,10 +84,6 @@ struct ReportPage: View {
                 BlackCatPalette.surfaceElevated,
                 in: RoundedRectangle(cornerRadius: 18, style: .continuous)
             )
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(BlackCatPalette.border, lineWidth: 0.8)
-            }
 
             Group {
                 if report.entries.isEmpty {
@@ -101,10 +116,6 @@ struct ReportPage: View {
                 BlackCatPalette.surfaceElevated,
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
-            .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(BlackCatPalette.border, lineWidth: 0.8)
-            }
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }

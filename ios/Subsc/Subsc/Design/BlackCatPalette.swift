@@ -14,12 +14,22 @@ enum BlackCatPalette {
 
     /// 画面の地です。
     static let background = dynamic(light: "#FAF8F4", dark: "#0B0B0F")
-    /// カードの面です。
-    static let surface = dynamic(light: "#FFFFFF", dark: "#14141A")
-    /// カードの中でもう一段沈める面です（帯の下地など）。
-    static let surfaceElevated = dynamic(light: "#F2EEE7", dark: "#1C1C24")
-    /// 境界線です。面の差だけでは弱い場所に引きます。
-    static let border = dynamic(light: "#E4DED3", dark: "#262630")
+    /// カードの面です。地から**わずかに浮いた**面。
+    ///
+    /// **地との差は明度3%前後にとどめます。** 境目を線ではなく明度だけで作るためで、
+    /// 差を広げると「箱が乗っている」感じが戻ってきます。
+    static let surface = dynamic(light: "#FFFFFF", dark: "#16161C")
+    /// カードの中で**沈む**面です（帯の下地など）。
+    ///
+    /// 浮いた面より暗くします。入れ子を「さらに浮かせる」と階層が増えて騒がしくなるため、
+    /// **内側は沈める**と決めています。
+    static let surfaceElevated = dynamic(light: "#EFEAE1", dark: "#101015")
+    /// 境界線です。
+    ///
+    /// **ホームでは使いません（2026-08-06）。** 線を引くと線そのものが情報として読まれ、
+    /// 面の明度差で作った静けさが壊れます。区切りは余白と角丸で作ります。
+    /// フォームの入力欄など、線が意味を持つ場所にだけ残しています。
+    static let border = dynamic(light: "#E4DED3", dark: "#22222B")
     /// グラフの下地です。**金額が小さい費目を消さない**ために必ず敷きます。
     static let chartTrack = dynamic(light: "#EAE4DA", dark: "#1F1F28")
 

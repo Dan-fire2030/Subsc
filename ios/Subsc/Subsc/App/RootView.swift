@@ -158,7 +158,7 @@ struct AppLiquidGlassBackground: View {
 struct GlassListRowBackground: View {
     var body: some View {
         Rectangle()
-            // カードの面です。地との差だけで段差を作り、境界線は引きません。
+            // 浮いた面です。地との差だけで段差を作り、境界線も影も持ちません。
             .fill(BlackCatPalette.surface)
     }
 }

@@ -7,21 +7,20 @@ import SwiftUI
 /// カード自体を色付きのガラスにすると、費目の色分けと競合して
 /// **グラフの色が背景色に引きずられて見える**ためです。
 ///
+/// **2026-08-06にマットへ変えました。境界線も落ち影も持ちません。**
+/// 線を引くと線そのものが情報として読まれ、影を落とすと面が「箱」に見えます。
+/// 地との差は**明度3%前後**だけで、境目は見えないまま領域が伝わります。
+/// 角丸を26と大きく取っているのは、線が無いぶん輪郭の丸みで一塊を示すためです。
+///
 /// Liquid Glass はボタン・ツールバー・検索といった**操作部品に残しています**。
-/// カードは操作部品ではなく、情報を載せる面です。
+/// **画面で光るのは操作部品だけ**になり、「光っている＝触れる」が手がかりになります。
 struct ReportCardSurfaceModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
                 BlackCatPalette.surface,
-                in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 26, style: .continuous)
             )
-            .overlay {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(BlackCatPalette.border, lineWidth: 0.9)
-            }
-            // 影は薄く。地との段差はすでに面の明度差が作っています。
-            .shadow(color: .black.opacity(0.18), radius: 18, y: 8)
     }
 }
 
@@ -113,50 +112,21 @@ enum ReportChartGlass {
 struct ReportChartGlassShape<S: Shape>: View {
     let shape: S
     let color: Color
-    /// 上部の光沢の高さです。図形ごとに大きさが違うため、呼び出し側で決めます。
-    /// 0 を渡すと光沢を描きません（細いリングなど、入れると潰れる図形のため）。
+    /// 光沢の高さです。**マット化で使わなくなりました**が、呼び出し側の記述を
+    /// 一斉に書き換えると差分が大きくなるため、引数は残して無視しています。
     var glossHeight: CGFloat = 0
-    /// 光沢の左右の食い込みです。図形の幅に対する比で指定します。
     var glossInsetRatio: CGFloat = 0.18
-    /// 塗りを差し替えます。**横バーのように向きに意味がある図形**のためです。
-    /// 縦バーの塗りを横方向のグラデーションへ替えても、縁と光沢は共通のままにできます。
+    /// 塗りを差し替えます。向きに意味がある図形のために残しています。
     var fillOverride: LinearGradient?
 
     var body: some View {
-        base
-            .overlay(alignment: .top) {
-                if glossHeight > 0 {
-                    GeometryReader { proxy in
-                        shape
-                            .fill(.white.opacity(0.3))
-                            .frame(height: glossHeight)
-                            .padding(.horizontal, proxy.size.width * glossInsetRatio)
-                            .padding(.top, glossHeight * 0.7)
-                    }
-                    .allowsHitTesting(false)
-                }
-            }
-            .overlay {
-                shape.stroke(ReportChartGlass.rim, lineWidth: ReportChartGlass.rimWidth)
-            }
-    }
-
-    private var gradient: LinearGradient {
-        fillOverride ?? ReportChartGlass.fill(color)
-    }
-
-    @ViewBuilder
-    private var base: some View {
-        if #available(iOS 26.0, *) {
-            shape
-                .fill(gradient)
-                .glassEffect(
-                    .regular.tint(color.opacity(ReportChartGlass.tintOpacity)),
-                    in: shape
-                )
-        } else {
-            shape.fill(gradient)
-        }
+        // **単色のフラット塗りです（2026-08-06）。**
+        // 光沢もリムライトも、色の上に白を乗せる処理です。淡いカテゴリ色ほど白飛びして
+        // 隣の費目と見分けづらくなっていました。フラットなら指定した色がそのまま出ます。
+        //
+        // 塗りを `LinearGradient` のまま渡しているのは、**呼び出し側が
+        // `fillOverride` で向きのある塗りを差し込める**ようにしておくためです。
+        shape.fill(fillOverride ?? LinearGradient(colors: [color, color], startPoint: .top, endPoint: .bottom))
     }
 }
 
