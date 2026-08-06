@@ -1,0 +1,380 @@
+<!-- @dsCard group="Brand" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アプリアイコン — 6案</title>
+<style>
+  :root {
+    --bg:#FAF8F4; --surface:#FFFFFF; --border:#E4DED3;
+    --text:#16151A; --text-muted:#6B6672;
+    --ink:#0B0B0F; --gold:#D9A43C; --gold-lit:#F2C96B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0B0B0F; --surface:#14141A; --border:#262630;
+      --text:#F5F3EF; --text-muted:#9A94A2;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px; background:var(--bg); color:var(--text);
+         font-family:-apple-system,"Hiragino Sans",system-ui,sans-serif; line-height:1.6; }
+  h1 { font-size:20px; letter-spacing:.04em; margin:0 0 4px; }
+  h2 { font-size:15px; letter-spacing:.04em; margin:36px 0 12px; padding-top:20px;
+       border-top:1px solid var(--border); }
+  .lede { color:var(--text-muted); font-size:14px; margin:0 0 8px; max-width:66ch; }
+
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:20px;
+          padding:18px; }
+
+  /* 角丸は iOS 側が付ける。ここでは squircle に近い 22.5% で見せる */
+  .icon { width:160px; height:160px; border-radius:22.5%; overflow:hidden; display:block;
+          margin:0 auto; }
+  .icon svg { display:block; width:100%; height:100%; }
+
+  /* ホーム画面での実寸（60pt）。ここで潰れる案は落とす */
+  .actual { display:flex; align-items:center; gap:10px; justify-content:center;
+            margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+  .actual .icon { width:60px; height:60px; margin:0; }
+  .actual .tiny { width:29px; height:29px; border-radius:22.5%; overflow:hidden; }
+  .actual .tiny svg { display:block; width:100%; height:100%; }
+  .actual span { font-size:11.5px; color:var(--text-muted); }
+
+  .name { font-size:16px; font-weight:700; margin-top:14px; }
+  .aim { font-size:12.5px; color:var(--text-muted); margin-top:4px; }
+  .weak { font-size:12px; color:var(--text-muted); margin-top:8px;
+          border-top:1px solid var(--border); padding-top:8px; }
+  .weak b { color:var(--text); font-weight:700; }
+
+  .note { font-size:13px; color:var(--text-muted); margin-top:12px; max-width:66ch; }
+  .note b { color:var(--text); }
+  ul.note { padding-left:1.2em; }
+  ul.note li { margin:6px 0; }
+</style>
+</head>
+<body>
+
+<h1>アプリアイコン — 6案</h1>
+<p class="lede">アプリ内と<strong>同じ猫</strong>に見えることを条件にした（丸い頭・三角の耳・金の目・内耳は金を薄く）。
+アイコンは指の爪ほどの大きさで判断されるので、<strong>実寸60ptと29ptを各案に併記</strong>してある。
+ここで潰れる案は、どれだけ大きい表示で良く見えても採らない。</p>
+
+<h2>金を地にする（視認性を取る）</h2>
+<p class="lede">ホーム画面には他のアイコンが並ぶ。<strong>暗いアイコンは沈む。</strong>
+地を金にすると遠くからでも見つかるが、アプリを開いた瞬間の墨の画面とは印象が変わる。</p>
+
+<div class="grid">
+
+  <!-- A：金の地に顔。目は地の色で抜く -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案A 金の地に黒猫の顔">
+        <rect width="200" height="200" fill="#D9A43C"/>
+        <g fill="#0B0B0F">
+          <path d="M55,86 L45,22 L103,60 Z"/>
+          <path d="M145,86 L155,22 L97,60 Z"/>
+          <circle cx="100" cy="112" r="55"/>
+        </g>
+        <ellipse cx="78" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+        <ellipse cx="122" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M55,86 L45,22 L103,60 Z"/><path d="M145,86 L155,22 L97,60 Z"/>
+            <circle cx="100" cy="112" r="55"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+          <ellipse cx="122" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M55,86 L45,22 L103,60 Z"/><path d="M145,86 L155,22 L97,60 Z"/>
+            <circle cx="100" cy="112" r="55"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+          <ellipse cx="122" cy="106" rx="11" ry="15" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">A. 金の地・顔</div>
+    <div class="aim">目を地の色で抜く。塗りは2色だけ。</div>
+    <div class="weak"><b>強い：</b>29ptでも猫と分かる。<br><b>弱い：</b>アプリを開くと墨の画面。地の色が逆転する。</div>
+  </div>
+
+  <!-- B：墨の地に金の目だけ -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案B 墨の地に金の目">
+        <rect width="200" height="200" fill="#0B0B0F"/>
+        <g fill="#15151C">
+          <path d="M55,86 L45,22 L103,60 Z"/>
+          <path d="M145,86 L155,22 L97,60 Z"/>
+          <circle cx="100" cy="112" r="55"/>
+        </g>
+        <ellipse cx="78" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+        <ellipse cx="122" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <g fill="#15151C">
+            <path d="M55,86 L45,22 L103,60 Z"/><path d="M145,86 L155,22 L97,60 Z"/>
+            <circle cx="100" cy="112" r="55"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+          <ellipse cx="122" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <g fill="#15151C">
+            <path d="M55,86 L45,22 L103,60 Z"/><path d="M145,86 L155,22 L97,60 Z"/>
+            <circle cx="100" cy="112" r="55"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+          <ellipse cx="122" cy="106" rx="11" ry="15" fill="#F2C96B"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">B. 墨の地・金の目</div>
+    <div class="aim">猫は地から明度4%だけ浮かせる。画面の作りと同じ考え方。</div>
+    <div class="weak"><b>強い：</b>アプリを開いたときと地続き。<br><b>弱い：</b><b>29ptでは目の2点しか残らない。</b>ホーム画面で沈む。</div>
+  </div>
+
+  <!-- C：墨の地・金の線画 -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案C 墨の地に金の線画">
+        <rect width="200" height="200" fill="#0B0B0F"/>
+        <g fill="none" stroke="#D9A43C" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M70,69 L47,26 L100,60"/>
+          <path d="M130,69 L153,26 L100,60"/>
+          <circle cx="100" cy="112" r="52"/>
+        </g>
+        <ellipse cx="78" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+        <ellipse cx="122" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <g fill="none" stroke="#D9A43C" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M70,69 L47,26 L100,60"/><path d="M130,69 L153,26 L100,60"/>
+            <circle cx="100" cy="112" r="52"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+          <ellipse cx="122" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <g fill="none" stroke="#D9A43C" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M70,69 L47,26 L100,60"/><path d="M130,69 L153,26 L100,60"/>
+            <circle cx="100" cy="112" r="52"/>
+          </g>
+          <ellipse cx="78" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+          <ellipse cx="122" cy="106" rx="9" ry="13" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">C. 墨の地・金の線画</div>
+    <div class="aim">塗らずに輪郭だけ。墨のままコントラストを稼ぐ。</div>
+    <div class="weak"><b>強い：</b>墨の地を保ったまま29ptでも形が残る。<br><b>弱い：</b>線は<b>塗りより印象が弱い</b>。並ぶと繊細すぎるかも。</div>
+  </div>
+
+</div>
+
+<h2>猫を主役にする（愛着を取る）</h2>
+<p class="lede">顔だけでなく、アプリの中にいるあの猫だと分かる案。</p>
+
+<div class="grid">
+
+  <!-- D：金の地に座り姿の全身 -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案D 金の地に座り姿">
+        <rect width="200" height="200" fill="#D9A43C"/>
+        <g fill="#0B0B0F">
+          <path d="M60,178 C60,132 78,112 100,112 C122,112 140,132 140,178 Z"/>
+          <path d="M68,74 L63,30 L101,56 Z"/>
+          <path d="M132,74 L137,30 L99,56 Z"/>
+          <circle cx="100" cy="94" r="42"/>
+        </g>
+        <path d="M140,172 C172,172 180,142 163,124" fill="none" stroke="#0B0B0F"
+              stroke-width="13" stroke-linecap="round"/>
+        <ellipse cx="85" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+        <ellipse cx="115" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M60,178 C60,132 78,112 100,112 C122,112 140,132 140,178 Z"/>
+            <path d="M68,74 L63,30 L101,56 Z"/><path d="M132,74 L137,30 L99,56 Z"/>
+            <circle cx="100" cy="94" r="42"/>
+          </g>
+          <path d="M140,172 C172,172 180,142 163,124" fill="none" stroke="#0B0B0F"
+                stroke-width="13" stroke-linecap="round"/>
+          <ellipse cx="85" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+          <ellipse cx="115" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M60,178 C60,132 78,112 100,112 C122,112 140,132 140,178 Z"/>
+            <path d="M68,74 L63,30 L101,56 Z"/><path d="M132,74 L137,30 L99,56 Z"/>
+            <circle cx="100" cy="94" r="42"/>
+          </g>
+          <path d="M140,172 C172,172 180,142 163,124" fill="none" stroke="#0B0B0F"
+                stroke-width="13" stroke-linecap="round"/>
+          <ellipse cx="85" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+          <ellipse cx="115" cy="90" rx="8" ry="11" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">D. 金の地・座り姿</div>
+    <div class="aim">アプリの中で座っている、あの姿そのまま。</div>
+    <div class="weak"><b>強い：</b>猫の性格が出る。<br><b>弱い：</b><b>要素が多く29ptで団子になる。</b>しっぽが潰れる。</div>
+  </div>
+
+  <!-- E：顔を枠いっぱいにトリミング。耳は上端で切れる -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案E 枠いっぱいの顔">
+        <rect width="200" height="200" fill="#D9A43C"/>
+        <g fill="#0B0B0F">
+          <path d="M46,96 L28,-16 L108,52 Z"/>
+          <path d="M154,96 L172,-16 L92,52 Z"/>
+          <circle cx="100" cy="128" r="80"/>
+        </g>
+        <ellipse cx="72" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+        <ellipse cx="128" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M46,96 L28,-16 L108,52 Z"/><path d="M154,96 L172,-16 L92,52 Z"/>
+            <circle cx="100" cy="128" r="80"/>
+          </g>
+          <ellipse cx="72" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+          <ellipse cx="128" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M46,96 L28,-16 L108,52 Z"/><path d="M154,96 L172,-16 L92,52 Z"/>
+            <circle cx="100" cy="128" r="80"/>
+          </g>
+          <ellipse cx="72" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+          <ellipse cx="128" cy="116" rx="13" ry="18" fill="#D9A43C"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">E. 枠いっぱいの顔</div>
+    <div class="aim">Aを寄って撮った案。耳は枠の外へ抜け、顔が四辺に触れる。</div>
+    <div class="weak"><b>強い：</b><b>29ptで最も強い。</b>形が大きいぶん潰れる要素がない。<br><b>弱い：</b>猫の輪郭が切れるので<b>「猫らしさ」より記号に寄る</b>。</div>
+  </div>
+
+  <!-- F：金の地・顔＋内耳（アプリ内の描き分けを残す） -->
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 200 200" aria-label="案F 金の地に顔と内耳">
+        <rect width="200" height="200" fill="#0B0B0F"/>
+        <circle cx="100" cy="104" r="76" fill="#D9A43C"/>
+        <g fill="#0B0B0F">
+          <path d="M62,90 L54,40 L104,70 Z"/>
+          <path d="M146,90 L154,40 L104,70 Z"/>
+          <circle cx="100" cy="114" r="46"/>
+        </g>
+        <path d="M69,84 L64,50 L94,68 Z" fill="#D9A43C" opacity=".28"/>
+        <path d="M139,84 L144,50 L114,68 Z" fill="#D9A43C" opacity=".28"/>
+        <ellipse cx="82" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+        <ellipse cx="118" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+      </svg>
+    </div>
+    <div class="actual">
+      <div class="icon">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <circle cx="100" cy="104" r="76" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M62,90 L54,40 L104,70 Z"/><path d="M146,90 L154,40 L104,70 Z"/>
+            <circle cx="100" cy="114" r="46"/>
+          </g>
+          <path d="M69,84 L64,50 L94,68 Z" fill="#D9A43C" opacity=".28"/>
+          <path d="M139,84 L144,50 L114,68 Z" fill="#D9A43C" opacity=".28"/>
+          <ellipse cx="82" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+          <ellipse cx="118" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+        </svg>
+      </div>
+      <div class="tiny">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <rect width="200" height="200" fill="#0B0B0F"/>
+          <circle cx="100" cy="104" r="76" fill="#D9A43C"/>
+          <g fill="#0B0B0F">
+            <path d="M62,90 L54,40 L104,70 Z"/><path d="M146,90 L154,40 L104,70 Z"/>
+            <circle cx="100" cy="114" r="46"/>
+          </g>
+          <path d="M69,84 L64,50 L94,68 Z" fill="#D9A43C" opacity=".28"/>
+          <path d="M139,84 L144,50 L114,68 Z" fill="#D9A43C" opacity=".28"/>
+          <ellipse cx="82" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+          <ellipse cx="118" cy="110" rx="9" ry="13" fill="#F2C96B"/>
+        </svg>
+      </div>
+      <span>60pt / 29pt</span>
+    </div>
+    <div class="name">F. 金の輪の中の顔</div>
+    <div class="aim">Eの月を輪として使い、内耳の金（画面と同じ 28%）まで残した案。</div>
+    <div class="weak"><b>強い：</b>金の面と墨の地の両方が立つ。<br><b>弱い：</b><b>29ptで内耳が消える。</b>要素の数がEより多い。</div>
+  </div>
+
+</div>
+
+<h2>選ぶときの基準</h2>
+<ul class="note">
+  <li><b>29ptで何が残るか</b>を先に見る。ここで消える要素は、無いのと同じ。</li>
+  <li><b>ホーム画面で沈まないか。</b>Bは墨だけなので、暗い壁紙と他アイコンの間で埋もれる。</li>
+  <li><b>開いた瞬間と地続きか。</b>金の地（A・D・E）はアイコンと画面で明暗が逆転する。
+      墨の地（B・C・F）は連続する。</li>
+  <li><b>猫と分かるか。</b>目だけ（B）は暗がりの猫として詩的だが、初見では猫と読まれにくい。</li>
+  <li>テキストは入れない。名前は<b>アイコンの下に必ず出る</b>ので、絵の中で繰り返す意味がない。</li>
+</ul>
+
+<p class="note"><b>まだ決めていないこと：</b>アプリ名。名前が決まると印象が変わるので、
+<b>名前と一緒に最終決定するのが安全</b>。ここでは方向を2〜3案に絞るところまで。</p>
+
+<p class="note"><b>この先の作り方：</b>選んだ案は 1024×1024 の PNG が要る（App Store 提出用）。
+SVGからの書き出しは<b>ビットマップ生成なのでCodexへ委譲する規約</b>。
+iOS 18以降はライト／ダーク／ティントの3種を分けて登録できるので、
+採用案が決まってから3種ぶん作る。</p>
+
+</body>
+</html>
