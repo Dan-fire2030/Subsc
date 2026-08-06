@@ -104,7 +104,7 @@ extension SubscriptionFormView {
             LabeledContent(hasVariableAmount ? "今月の金額" : "金額") {
                 HStack(spacing: 6) {
                     Text(currency.symbol)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                     TextField(
                         currency == .usd ? "19.99" : "1,490",
                         value: $amount,
@@ -128,7 +128,7 @@ extension SubscriptionFormView {
                         .contentTransition(.numericText())
                     } else {
                         Text("取得待ち")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
 
@@ -139,7 +139,7 @@ extension SubscriptionFormView {
                     } else if exchangeRate > 0 {
                         Text("1 USD = \(exchangeRate.formatted(.currency(code: "JPY").precision(.fractionLength(2))))")
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                             .monospacedDigit()
                     } else {
                         Text("取得できません")
@@ -235,7 +235,7 @@ extension SubscriptionFormView {
                 } label: {
                     LabeledContent("通知タイミング") {
                         Text("\(leadDays.count + leadHours.count)件")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
             }

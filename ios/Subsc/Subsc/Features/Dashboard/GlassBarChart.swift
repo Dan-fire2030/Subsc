@@ -39,7 +39,7 @@ struct GlassBarChart: View {
                             .font(.system(size: 9, weight: .bold))
                     }
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(BlackCatPalette.text)
                     .padding(.horizontal, 11)
                     .padding(.vertical, 5)
                     .modifier(CompactGlassCapsuleModifier())
@@ -81,7 +81,7 @@ private struct GlassBarRow: View {
             layout {
                 Text(entry.name)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(BlackCatPalette.text)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
 
                 if !dynamicTypeSize.isAccessibilitySize {
@@ -93,7 +93,7 @@ private struct GlassBarRow: View {
                     format: .currency(code: "JPY").precision(.fractionLength(0))
                 )
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(.white.opacity(0.92))
+                .foregroundStyle(BlackCatPalette.text)
                 .monospacedDigit()
             }
 

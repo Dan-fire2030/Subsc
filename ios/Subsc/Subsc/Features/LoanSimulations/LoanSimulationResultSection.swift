@@ -36,7 +36,7 @@ struct LoanSimulationResultSection: View {
                             outcome.baselineMonthlyPayment,
                             format: .currency(code: "JPY").precision(.fractionLength(0))
                         )
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                         Image(systemName: "arrow.right")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
@@ -55,7 +55,7 @@ struct LoanSimulationResultSection: View {
                 LabeledContent("完済予定") {
                     HStack(spacing: 6) {
                         Text(baselineDate, format: .dateTime.year().month())
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                         Image(systemName: "arrow.right")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
@@ -71,7 +71,7 @@ struct LoanSimulationResultSection: View {
                         outcome.baseline.totalInterest,
                         format: .currency(code: "JPY").precision(.fractionLength(0))
                     )
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     Image(systemName: "arrow.right")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
@@ -96,7 +96,7 @@ struct LoanSimulationUnavailableSection: View {
         Section {
             Text(message)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BlackCatPalette.textMuted)
         }
         .glassListRow()
     }

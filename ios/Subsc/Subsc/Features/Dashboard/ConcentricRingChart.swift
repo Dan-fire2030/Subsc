@@ -133,7 +133,7 @@ struct ConcentricRingChart: View {
             if items.count > visibleItems.count {
                 Text("ほか\(items.count - visibleItems.count)件")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     .accessibilityLabel("ほか\(items.count - visibleItems.count)件。詳細で確認できます")
             }
         }
@@ -179,7 +179,7 @@ private struct ConcentricRingLegendItem: View {
                     .font(.caption2)
                     .monospacedDigit()
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(BlackCatPalette.text)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.isEstimated ? "\(item.name)、見込み" : item.name)

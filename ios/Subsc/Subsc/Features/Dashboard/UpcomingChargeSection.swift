@@ -22,10 +22,10 @@ struct UpcomingChargeSection: View {
         HStack(spacing: 12) {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.title3)
-                .foregroundStyle(.orange)
+                .foregroundStyle(BlackCatPalette.accent)
                 .frame(width: 36, height: 36)
                 .background(
-                    .orange.opacity(0.14),
+                    BlackCatPalette.accent.opacity(0.14),
                     in: RoundedRectangle(cornerRadius: 10, style: .continuous)
                 )
                 .accessibilityHidden(true)
@@ -36,7 +36,7 @@ struct UpcomingChargeSection: View {
                 // 名前を並べます。多いときは先頭2件だけにして、行の高さを保ちます。
                 Text(summary(for: notice))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
                     .lineLimit(1)
             }
 

@@ -59,20 +59,20 @@ struct AmountHistorySection: View {
             HStack(spacing: 6) {
                 if resolved.source == .unavailable {
                     Text("未記録")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BlackCatPalette.textMuted)
                 } else {
                     Text("見込み")
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(.orange.opacity(0.18), in: Capsule())
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(BlackCatPalette.accent)
                     Text(
                         resolved.amount,
                         format: .currency(code: "JPY").precision(.fractionLength(0))
                     )
                     .monospacedDigit()
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
                 }
             }
         }

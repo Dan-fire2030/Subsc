@@ -33,13 +33,13 @@ struct ReportBreakdownSheet: View {
                         VStack(alignment: .leading, spacing: 5) {
                             Text("合計")
                                 .font(.caption)
-                                .foregroundStyle(.white.opacity(0.72))
+                                .foregroundStyle(BlackCatPalette.textMuted)
                             Text(
                                 total,
                                 format: .currency(code: "JPY").precision(.fractionLength(0))
                             )
                             .font(.system(.title, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(BlackCatPalette.text)
                             .monospacedDigit()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -50,7 +50,7 @@ struct ReportBreakdownSheet: View {
                         )
                         .overlay {
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(.white.opacity(0.38), lineWidth: 0.8)
+                                .stroke(BlackCatPalette.border, lineWidth: 0.8)
                         }
 
                         ForEach(entries) { entry in
@@ -71,7 +71,7 @@ struct ReportBreakdownSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完了") { dismiss() }
                         .fontWeight(.semibold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(BlackCatPalette.text)
                 }
             }
         }
@@ -95,7 +95,7 @@ private struct BreakdownRow: View {
                         colors: [
                             ColorHex.color(from: entry.colorHex),
                             ColorHex.color(from: entry.colorHex).opacity(0.55),
-                            .white.opacity(0.7)
+                            BlackCatPalette.surfaceElevated
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -104,14 +104,14 @@ private struct BreakdownRow: View {
                 .frame(width: 38, height: 38)
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(.white.opacity(0.48), lineWidth: 0.7)
+                        .stroke(BlackCatPalette.border, lineWidth: 0.7)
                 }
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 5) {
                     Text(entry.name)
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(BlackCatPalette.text)
                         .lineLimit(1)
 
                     if entry.isEstimated {
@@ -120,8 +120,8 @@ private struct BreakdownRow: View {
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(.white.opacity(0.22), in: Capsule())
-                            .foregroundStyle(.white)
+                            .background(BlackCatPalette.surfaceElevated, in: Capsule())
+                            .foregroundStyle(BlackCatPalette.text)
                     }
                 }
 
@@ -130,7 +130,7 @@ private struct BreakdownRow: View {
                     format: .percent.precision(.fractionLength(1))
                 )
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.68))
+                .foregroundStyle(BlackCatPalette.textMuted)
             }
 
             Spacer(minLength: 8)
@@ -140,7 +140,7 @@ private struct BreakdownRow: View {
                 format: .currency(code: "JPY").precision(.fractionLength(0))
             )
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(BlackCatPalette.text)
             .monospacedDigit()
         }
         .padding(13)
@@ -150,7 +150,7 @@ private struct BreakdownRow: View {
         )
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(.white.opacity(0.28), lineWidth: 0.7)
+                .stroke(BlackCatPalette.border, lineWidth: 0.7)
         }
         .accessibilityElement(children: .combine)
     }

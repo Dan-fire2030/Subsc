@@ -276,7 +276,7 @@ private struct ThemeColorSettingLabel: View {
                     }
                     .accessibilityHidden(true)
                 Text(colorName)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BlackCatPalette.textMuted)
             }
         }
         .accessibilityElement(children: .combine)

@@ -32,7 +32,7 @@ struct LoanBorrowingSimulatorView: View {
                 LabeledContent("借入額") {
                     HStack(spacing: 6) {
                         Text("¥")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                         TextField(
                             "1,000,000",
                             value: $principal,
@@ -55,7 +55,7 @@ struct LoanBorrowingSimulatorView: View {
                         .multilineTextAlignment(.trailing)
                         .accessibilityIdentifier("simulator-rate-field")
                         Text("％")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
 
@@ -66,7 +66,7 @@ struct LoanBorrowingSimulatorView: View {
                             .multilineTextAlignment(.trailing)
                             .accessibilityIdentifier("simulator-count-field")
                         Text("回")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(BlackCatPalette.textMuted)
                     }
                 }
 
