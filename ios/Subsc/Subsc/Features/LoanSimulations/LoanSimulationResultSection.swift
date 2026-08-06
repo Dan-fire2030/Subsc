@@ -19,7 +19,7 @@ struct LoanSimulationResultSection: View {
                     format: .currency(code: "JPY").precision(.fractionLength(0))
                 )
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(savesInterest ? Color.green : Color.orange)
+                .foregroundStyle(savesInterest ? BlackCatPalette.positive : BlackCatPalette.caution)
                 .monospacedDigit()
                 .contentTransition(.numericText())
             }

@@ -107,7 +107,7 @@ private struct StatusBadge: View {
             .foregroundStyle(BlackCatPalette.textMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(.quaternary, in: Capsule())
+            .background(BlackCatPalette.surfaceElevated, in: Capsule())
     }
 }
 
@@ -131,6 +131,6 @@ private struct LoanMethodBadge: View {
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(.quaternary, in: Capsule())
+        .background(BlackCatPalette.surfaceElevated, in: Capsule())
     }
 }

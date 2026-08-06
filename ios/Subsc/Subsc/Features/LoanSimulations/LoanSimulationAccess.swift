@@ -38,7 +38,7 @@ struct LoanSimulationLink<Destination: View>: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(.quaternary, in: Capsule())
+                    .background(BlackCatPalette.surfaceElevated, in: Capsule())
             } label: {
                 Label(title, systemImage: systemImage)
                     .foregroundStyle(.secondary)

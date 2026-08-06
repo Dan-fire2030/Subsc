@@ -45,11 +45,10 @@ struct ReportCard: View {
             }
             .pickerStyle(.segmented)
             .padding(3)
+            // **縁は持ちません（2026-08-06）。** ホームは線を引かない方針で、
+            // ここだけ輪郭があると期間の切り替えが「囲われた別の部品」に見えます。
+            // 下地の沈んだ面だけで、触れる範囲は十分に伝わります。
             .background(BlackCatPalette.surfaceElevated, in: Capsule(style: .continuous))
-            .overlay {
-                Capsule(style: .continuous)
-                    .stroke(BlackCatPalette.border, lineWidth: 0.7)
-            }
             .accessibilityLabel("レポート期間")
 
             if costTypeFilter.isNarrowed {

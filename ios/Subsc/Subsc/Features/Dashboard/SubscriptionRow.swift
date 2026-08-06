@@ -37,7 +37,7 @@ struct SubscriptionRow: View {
                             .foregroundStyle(BlackCatPalette.textMuted)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.quaternary, in: Capsule())
+                            .background(BlackCatPalette.surfaceElevated, in: Capsule())
                     }
                 }
                 metadataLayout {
@@ -104,11 +104,14 @@ private struct CategoryBadge: View {
                 .frame(width: dotSize, height: dotSize)
             Text(title)
                 .font(BlackCatType.badge)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BlackCatPalette.textMuted)
                 .lineLimit(1)
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(.quaternary, in: Capsule())
+        // **下地は `surfaceElevated` です（2026-08-06）。**
+        // `.quaternary` はモードに関わらず灰色を重ねるため、白磁の地（ライト）では
+        // 一覧に灰色の小箱が並んで見えていました。地に馴染む沈んだ面へ揃えます。
+        .background(BlackCatPalette.surfaceElevated, in: Capsule())
     }
 }
