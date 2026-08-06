@@ -137,22 +137,6 @@ struct SettingsView: View {
                 }
                 .glassListRow()
 
-                // 借入シミュレーターは**登録していなくても試せる**ため、
-                // 契約の詳細画面ではなくここに置いています。
-                Section {
-                    LoanSimulationLink(
-                        title: "借入シミュレーター",
-                        systemImage: CostType.loan.systemImage
-                    ) {
-                        LoanBorrowingSimulatorView()
-                    }
-                } header: {
-                    Text("ツール")
-                } footer: {
-                    Text("借入額・年利・返済回数から毎月の返済額を試算します。登録は要りません。")
-                }
-                .glassListRow()
-
                 Section("アプリ情報") {
                     NavigationLink("プライバシーについて") {
                         PrivacyPolicyView()

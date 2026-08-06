@@ -119,13 +119,6 @@
 		AA0001070000000000000107 /* LoanScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001070000000000000107 /* LoanScheduleView.swift */; };
 		AA0001080000000000000108 /* LoanHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001080000000000000108 /* LoanHistoryView.swift */; };
 		AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001090000000000000109 /* LoanPaymentEditorView.swift */; };
-		AA0001100000000000000110 /* LoanSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001100000000000000110 /* LoanSimulator.swift */; };
-		AA0001110000000000000111 /* LoanSimulationAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001110000000000000111 /* LoanSimulationAccess.swift */; };
-		AA0001120000000000000112 /* LoanSimulationResultSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001120000000000000112 /* LoanSimulationResultSection.swift */; };
-		AA0001130000000000000113 /* LoanPrepaymentSimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001130000000000000113 /* LoanPrepaymentSimulationView.swift */; };
-		AA0001140000000000000114 /* LoanRateChangeSimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001140000000000000114 /* LoanRateChangeSimulationView.swift */; };
-		AA0001150000000000000115 /* LoanBorrowingSimulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001150000000000000115 /* LoanBorrowingSimulatorView.swift */; };
-		AA0001160000000000000116 /* LoanSimulatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001160000000000000116 /* LoanSimulatorTests.swift */; };
 		AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */; };
 		AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */; };
 		AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */; };
@@ -276,13 +269,6 @@
 		BB0001070000000000000107 /* LoanScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanScheduleView.swift; sourceTree = "<group>"; };
 		BB0001080000000000000108 /* LoanHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanHistoryView.swift; sourceTree = "<group>"; };
 		BB0001090000000000000109 /* LoanPaymentEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPaymentEditorView.swift; sourceTree = "<group>"; };
-		BB0001100000000000000110 /* LoanSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSimulator.swift; sourceTree = "<group>"; };
-		BB0001110000000000000111 /* LoanSimulationAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSimulationAccess.swift; sourceTree = "<group>"; };
-		BB0001120000000000000112 /* LoanSimulationResultSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSimulationResultSection.swift; sourceTree = "<group>"; };
-		BB0001130000000000000113 /* LoanPrepaymentSimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanPrepaymentSimulationView.swift; sourceTree = "<group>"; };
-		BB0001140000000000000114 /* LoanRateChangeSimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanRateChangeSimulationView.swift; sourceTree = "<group>"; };
-		BB0001150000000000000115 /* LoanBorrowingSimulatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanBorrowingSimulatorView.swift; sourceTree = "<group>"; };
-		BB0001160000000000000116 /* LoanSimulatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSimulatorTests.swift; sourceTree = "<group>"; };
 		BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorLoanTests.swift; sourceTree = "<group>"; };
 		BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFilterEmptyStateTests.swift; sourceTree = "<group>"; };
 		BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculatorPausedTests.swift; sourceTree = "<group>"; };
@@ -425,19 +411,6 @@
 			path = Loans;
 			sourceTree = "<group>";
 		};
-		DD0000210000000000000021 /* LoanSimulations */ = {
-			isa = PBXGroup;
-			children = (
-				BB0001150000000000000115 /* LoanBorrowingSimulatorView.swift */,
-				BB0001140000000000000114 /* LoanRateChangeSimulationView.swift */,
-				BB0001130000000000000113 /* LoanPrepaymentSimulationView.swift */,
-				BB0001120000000000000112 /* LoanSimulationResultSection.swift */,
-				BB0001110000000000000111 /* LoanSimulationAccess.swift */,
-				BB0001100000000000000110 /* LoanSimulator.swift */,
-			);
-			path = LoanSimulations;
-			sourceTree = "<group>";
-		};
 		DD0000070000000000000007 /* Features */ = {
 			isa = PBXGroup;
 			children = (
@@ -445,7 +418,6 @@
 				DD0000090000000000000009 /* Subscriptions */,
 				DD0000120000000000000012 /* Settings */,
 				DD0000200000000000000020 /* Loans */,
-				DD0000210000000000000021 /* LoanSimulations */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -519,7 +491,6 @@
 				BB0001190000000000000119 /* ReportCalculatorPausedTests.swift */,
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
 				BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */,
-				BB0001160000000000000116 /* LoanSimulatorTests.swift */,
 				BB0001010000000000000101 /* DashboardListItemTests.swift */,
 				BB0001000000000000000100 /* LoanFormInputTests.swift */,
 				BB000099000000000000099 /* LoanSummaryTests.swift */,
@@ -720,12 +691,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */,
-				AA0001150000000000000115 /* LoanBorrowingSimulatorView.swift in Sources */,
-				AA0001140000000000000114 /* LoanRateChangeSimulationView.swift in Sources */,
-				AA0001130000000000000113 /* LoanPrepaymentSimulationView.swift in Sources */,
-				AA0001120000000000000112 /* LoanSimulationResultSection.swift in Sources */,
-				AA0001110000000000000111 /* LoanSimulationAccess.swift in Sources */,
-				AA0001100000000000000110 /* LoanSimulator.swift in Sources */,
 				AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */,
 				AA0001080000000000000108 /* LoanHistoryView.swift in Sources */,
 				AA0001070000000000000107 /* LoanScheduleView.swift in Sources */,
@@ -829,7 +794,6 @@
 				AA0001190000000000000119 /* ReportCalculatorPausedTests.swift in Sources */,
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
 				AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */,
-				AA0001160000000000000116 /* LoanSimulatorTests.swift in Sources */,
 				AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */,
 				AA0001000000000000000100 /* LoanFormInputTests.swift in Sources */,
 				AA000099000000000000099 /* LoanSummaryTests.swift in Sources */,

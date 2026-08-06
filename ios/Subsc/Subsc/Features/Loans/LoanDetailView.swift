@@ -31,7 +31,6 @@ struct LoanDetailView: View {
             balanceSection
             termsSection
             navigationSection
-            simulationSection
             pauseSection
 
             if !loan.note.isEmpty {
@@ -228,29 +227,6 @@ struct LoanDetailView: View {
             } label: {
                 Label("返済履歴", systemImage: "clock.arrow.circlepath")
             }
-        }
-        .glassListRow()
-    }
-
-    /// 試算への入口です。**記録は残りません。** 実際の繰上返済は返済履歴から記録します。
-    private var simulationSection: some View {
-        Section {
-            LoanSimulationLink(
-                title: "繰上返済の試算",
-                systemImage: "arrow.down.right.circle"
-            ) {
-                LoanPrepaymentSimulationView(loan: loan)
-            }
-            LoanSimulationLink(
-                title: "利率変更の影響",
-                systemImage: "percent"
-            ) {
-                LoanRateChangeSimulationView(loan: loan)
-            }
-        } header: {
-            Text("試算")
-        } footer: {
-            Text("「もしこうしたら」を見るだけの機能です。記録には残りません。")
         }
         .glassListRow()
     }
