@@ -38,6 +38,7 @@
 		AA00011390000000000000139 /* CatCompanionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011390000000000000139 /* CatCompanionRow.swift */; };
 		AA00011420000000000000142 /* MonthProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011420000000000000142 /* MonthProgress.swift */; };
 		AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011430000000000000143 /* UpcomingTimeline.swift */; };
+		AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011440000000000000144 /* RelativeDueLabel.swift */; };
 		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
 		AA00011400000000000000140 /* BlackCatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* BlackCatType.swift */; };
 		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
@@ -130,6 +131,7 @@
 		AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011280000000000000128 /* ServiceCatalogTests.swift */; };
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
 		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
+		AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011450000000000000145 /* RelativeDueLabelTests.swift */; };
 		AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011380000000000000138 /* CatMoodContextTests.swift */; };
 		AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011410000000000000141 /* HarmonizedColorTests.swift */; };
 /* End PBXBuildFile section */
@@ -183,6 +185,7 @@
 		BB00011390000000000000139 /* CatCompanionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionRow.swift; sourceTree = "<group>"; };
 		BB00011420000000000000142 /* MonthProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthProgress.swift; sourceTree = "<group>"; };
 		BB00011430000000000000143 /* UpcomingTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingTimeline.swift; sourceTree = "<group>"; };
+		BB00011440000000000000144 /* RelativeDueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabel.swift; sourceTree = "<group>"; };
 		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
 		BB00011400000000000000140 /* BlackCatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatType.swift; sourceTree = "<group>"; };
 		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
@@ -280,6 +283,7 @@
 		BB00011280000000000000128 /* ServiceCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalogTests.swift; sourceTree = "<group>"; };
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
 		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
+		BB00011450000000000000145 /* RelativeDueLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabelTests.swift; sourceTree = "<group>"; };
 		BB00011380000000000000138 /* CatMoodContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContextTests.swift; sourceTree = "<group>"; };
 		BB00011410000000000000141 /* HarmonizedColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarmonizedColorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -433,6 +437,7 @@
 				BB00011390000000000000139 /* CatCompanionRow.swift */,
 				BB00011420000000000000142 /* MonthProgress.swift */,
 				BB00011430000000000000143 /* UpcomingTimeline.swift */,
+				BB00011440000000000000144 /* RelativeDueLabel.swift */,
 				BB00011310000000000000131 /* UpcomingChargeSection.swift */,
 				BB0000660000000000000066 /* CostTypeBreakdown.swift */,
 				BB0000670000000000000067 /* BubbleLayout.swift */,
@@ -485,6 +490,7 @@
 				BB00011280000000000000128 /* ServiceCatalogTests.swift */,
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
 				BB00011320000000000000132 /* CatMoodTests.swift */,
+				BB00011450000000000000145 /* RelativeDueLabelTests.swift */,
 				BB00011380000000000000138 /* CatMoodContextTests.swift */,
 				BB00011410000000000000141 /* HarmonizedColorTests.swift */,
 				BB0001200000000000000120 /* LoanDueDateTests.swift */,
@@ -733,6 +739,7 @@
 				AA00011390000000000000139 /* CatCompanionRow.swift in Sources */,
 				AA00011420000000000000142 /* MonthProgress.swift in Sources */,
 				AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */,
+				AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */,
 				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
 				AA00011400000000000000140 /* BlackCatType.swift in Sources */,
 				AA00011350000000000000135 /* CatArt.swift in Sources */,
@@ -788,6 +795,7 @@
 				AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */,
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
 				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
+				AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */,
 				AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */,
 				AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */,
 				AA0001200000000000000120 /* LoanDueDateTests.swift in Sources */,

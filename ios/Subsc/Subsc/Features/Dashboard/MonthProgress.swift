@@ -25,6 +25,12 @@ enum MonthProgress {
 struct MonthProgressLine: View {
     let progress: Double
     let remainingDays: Int
+    /// 線の下に出す日付です。
+    ///
+    /// **`Date.now` を直接読みません（2026-08-08に修正）。** 進み具合は
+    /// `MonthProgress.current(now:)` が注入された時刻から出しているのに、
+    /// ここだけ実時刻を読むと、線の位置と日付が別々の瞬間を指しえます。
+    let date: Date
 
     private let height: CGFloat = 3
 
@@ -41,7 +47,7 @@ struct MonthProgressLine: View {
             .frame(height: height)
 
             HStack {
-                Text(Date.now, format: .dateTime.month().day())
+                Text(date, format: .dateTime.month().day())
                 Spacer()
                 Text("残り\(remainingDays)日")
                     .monospacedDigit()

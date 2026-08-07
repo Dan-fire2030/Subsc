@@ -18,6 +18,9 @@ struct ReportPage: View {
     let isCurrentPeriod: Bool
     /// グラフが操作中でページ送りを止めてほしいあいだ真になります。バブルの拡大中だけ使います。
     @Binding var blocksPaging: Bool
+    /// 「今」の基準です。**進み具合と日付で同じ瞬間を使う**ために1箇所で持ちます。
+    var now: Date = .now
+    var calendar: Calendar = .current
     @Environment(ThemeStore.self) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -32,7 +35,7 @@ struct ReportPage: View {
     /// 年間表示と、過ぎた月・これからの月では意味を成さないので出しません。
     private var monthProgress: (fraction: Double, remainingDays: Int)? {
         guard isCurrentPeriod, period == .month else { return nil }
-        return MonthProgress.current()
+        return MonthProgress.current(now: now, calendar: calendar)
     }
 
     /// 合計の下に出す内訳の説明です。
@@ -76,7 +79,8 @@ struct ReportPage: View {
             if let monthProgress {
                 MonthProgressLine(
                     progress: monthProgress.fraction,
-                    remainingDays: monthProgress.remainingDays
+                    remainingDays: monthProgress.remainingDays,
+                    date: now
                 )
             }
             }

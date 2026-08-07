@@ -92,13 +92,34 @@ private struct ChartStyleThumbnail: View {
     let style: ReportChartStyle
     let colors: [Color]
 
-    private enum Sample {
-        static let fractions: [Double] = [0.46, 0.26, 0.18, 0.10]
-        static let colorHexes = CostType.allCases.map(\.colorHex)
+    /// 見本の1切れです。**割合と色を1つの値にまとめてあります。**
+    ///
+    /// 以前は割合の配列（4件）と色の配列（`CostType.allCases` 由来で5件）が別々で、
+    /// 割合の添字で色を引いていました。**費目種別を4件未満に減らすと範囲外アクセスで落ちます。**
+    /// 一緒に持てば、片方だけ増減させようがありません。
+    private struct Slice {
+        let fraction: Double
+        let color: Color
     }
 
-    private var sampleColors: [Color] {
-        Sample.colorHexes.map(ColorHex.color(from:))
+    private enum Sample {
+        /// 色は費目種別ではなくパレットから直に取ります。見本は「どんな形か」を
+        /// 伝えるためのもので、特定の費目種別を表しているわけではありません。
+        static let slices: [Slice] = [
+            Slice(fraction: 0.46, color: BlackCatPalette.Category.watch),
+            Slice(fraction: 0.26, color: BlackCatPalette.Category.listen),
+            Slice(fraction: 0.18, color: BlackCatPalette.Category.read),
+            Slice(fraction: 0.10, color: BlackCatPalette.Category.work)
+        ]
+
+        /// バブルだけは大きさと位置を1つずつ決めるので、その並びも一緒に持ちます。
+        /// `zip` で組むため、どちらかが短ければ短いほうに合わせて止まります。
+        static let bubbleGeometry: [(diameter: CGFloat, x: CGFloat, y: CGFloat)] = [
+            (40, -26, 0),
+            (28, 10, -10),
+            (20, 32, 14),
+            (13, 6, 20)
+        ]
     }
 
     var body: some View {
@@ -116,10 +137,10 @@ private struct ChartStyleThumbnail: View {
     private var bar: some View {
         GeometryReader { proxy in
             HStack(spacing: 2) {
-                ForEach(Array(Sample.fractions.enumerated()), id: \.offset) { index, fraction in
+                ForEach(Array(Sample.slices.enumerated()), id: \.offset) { _, slice in
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(sampleColors[index])
-                        .frame(width: proxy.size.width * fraction - 2)
+                        .fill(slice.color)
+                        .frame(width: proxy.size.width * slice.fraction - 2)
                 }
             }
             .frame(height: 22)
@@ -129,11 +150,11 @@ private struct ChartStyleThumbnail: View {
 
     private var ring: some View {
         ZStack {
-            ForEach(Array(Sample.fractions.enumerated()), id: \.offset) { index, fraction in
+            ForEach(Array(Sample.slices.enumerated()), id: \.offset) { index, slice in
                 let inset = CGFloat(index) * 9
                 Circle()
-                    .trim(from: 0, to: fraction)
-                    .stroke(sampleColors[index], style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                    .trim(from: 0, to: slice.fraction)
+                    .stroke(slice.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .padding(inset)
             }
@@ -144,20 +165,23 @@ private struct ChartStyleThumbnail: View {
 
     private var bubble: some View {
         ZStack {
-            Circle().fill(sampleColors[0]).frame(width: 40, height: 40).offset(x: -26)
-            Circle().fill(sampleColors[1]).frame(width: 28, height: 28).offset(x: 10, y: -10)
-            Circle().fill(sampleColors[2]).frame(width: 20, height: 20).offset(x: 32, y: 14)
-            Circle().fill(sampleColors[3]).frame(width: 13, height: 13).offset(x: 6, y: 20)
+            ForEach(Array(zip(Sample.slices, Sample.bubbleGeometry).enumerated()), id: \.offset) { _, pair in
+                let (slice, geometry) = pair
+                Circle()
+                    .fill(slice.color)
+                    .frame(width: geometry.diameter, height: geometry.diameter)
+                    .offset(x: geometry.x, y: geometry.y)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var column: some View {
         HStack(alignment: .bottom, spacing: 6) {
-            ForEach(Array(Sample.fractions.enumerated()), id: \.offset) { index, fraction in
+            ForEach(Array(Sample.slices.enumerated()), id: \.offset) { _, slice in
                 Capsule(style: .continuous)
-                    .fill(sampleColors[index])
-                    .frame(width: 12, height: 46 * fraction + 8)
+                    .fill(slice.color)
+                    .frame(width: 12, height: 46 * slice.fraction + 8)
             }
             Capsule(style: .continuous)
                 .fill(BlackCatPalette.chartTrack)

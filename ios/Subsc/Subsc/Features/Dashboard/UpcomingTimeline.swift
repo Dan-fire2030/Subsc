@@ -9,6 +9,12 @@ import SwiftUI
 /// 「金＝いま効くもの」という読み方が育ちます。
 struct UpcomingTimeline: View {
     let items: [DashboardListItem]
+    /// 「あと何日か」を数える基準の時刻です。
+    ///
+    /// **行ごとに実時刻を読みません。** 1回の描画の中で行ごとに違う時刻を読むと、
+    /// 日付が変わる瞬間に「今日」と「あと1日」が同じ並びに混ざります。
+    var now: Date = .now
+    var calendar: Calendar = .current
 
     /// 何件まで出すかです。**多すぎると一覧と役割が重なります。**
     /// 全件は下の費目一覧で見られるので、ここは近い順に数件だけ示します。
@@ -17,7 +23,7 @@ struct UpcomingTimeline: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(items.prefix(Self.maximumCount).enumerated()), id: \.element.id) { index, item in
-                UpcomingTimelineRow(item: item, isFirst: index == 0)
+                UpcomingTimelineRow(item: item, isFirst: index == 0, now: now, calendar: calendar)
             }
         }
         .background(alignment: .leading) {
@@ -37,6 +43,8 @@ struct UpcomingTimelineRow: View {
     let item: DashboardListItem
     /// 直近の1件かどうかです。金色の点はここだけに出します。
     let isFirst: Bool
+    var now: Date = .now
+    var calendar: Calendar = .current
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -76,16 +84,10 @@ struct UpcomingTimelineRow: View {
 
     /// 「今日」「あと3日」のように、**日付そのものより残りの日数**を先に出します。
     /// 行動に効くのは何月何日かではなく、あと何日かだからです。
+    ///
+    /// 数え方は `RelativeDueLabel` に置いてあります。境目が実行日で変わるので、
+    /// ビューの中に閉じたままだとテストできません。
     private var relativeLabel: String {
-        guard let dueDate = item.nextDueDate else { return "" }
-        let calendar = Calendar.current
-        let days = calendar.dateComponents(
-            [.day],
-            from: calendar.startOfDay(for: .now),
-            to: calendar.startOfDay(for: dueDate)
-        ).day ?? 0
-        if days == 0 { return "今日" }
-        if days < 0 { return "期日超過" }
-        return "あと\(days)日"
+        RelativeDueLabel.text(for: item.nextDueDate, now: now, calendar: calendar)
     }
 }

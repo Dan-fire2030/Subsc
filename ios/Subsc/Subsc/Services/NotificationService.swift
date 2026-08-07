@@ -272,7 +272,9 @@ enum NotificationService {
         let amountText = subscription.yenAmount.formatted(
             .currency(code: "JPY").precision(.fractionLength(0))
         )
-        return "\(dateText)に \(amountText) が更新されます。"
+        // **金額を主語にしません。** 「¥1,480 が更新されます」では、更新されるのが
+        // 契約ではなく金額だと読めます。更新の事実を先に置き、額は添えます。
+        return "\(dateText)に更新されます（\(amountText)）。"
     }
 
     private static func add(notifications: [PlannedNotification]) async -> SyncResult {
