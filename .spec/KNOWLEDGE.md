@@ -401,3 +401,22 @@ Diff View のヘッダ `@@ -1,132 +1,134 @@` が示す**追加2行・削除な�
 - `pageHeight` は 292 だったが、中身は 310 あった（猫104＋余白＋グラフ枠156＋余白）
 - **中身の実寸を変えたら `pageHeight` も直す。** 切り落とされても警告もログも出ないので、
   「なぜか角が直角」という見た目の異常としてしか現れない
+
+### 2026-08-08：pbxprojで `+` を含むパスは引用符が要る
+- `DashboardView+Rows.swift` のような `+` 付きファイル名を登録したら、`plutil -lint` が
+  **`Unexpected character / at line 1`** で落ちた。エラーは1行目を指すが、**原因は追加した行**
+- pbxprojはOpenStep形式のplistで、**引用符なしの文字列に使えるのは英数字と `_ $ / : . -` だけ**。
+  `+` は許されないため、`path = DashboardView+Rows.swift;` は構文エラーになる
+- 正しくは `path = "DashboardView+Rows.swift";`。**コメント（`/* ... */`）の中は素のままでよい**
+- 既存の `LoanFormView+Sections.swift` も同じ形で登録されていた。**迷ったら既存の行を見る**
+- **登録したら必ず `plutil -lint` を通す。** Xcodeで開くまで気づけない類の壊れ方をする
+
+### 2026-08-08：ファイルをまたぐextensionは `private` を参照できない
+- SwiftUIのViewを `View+Rows.swift` のように分割すると、`private` な `@State` や
+  `@Environment` が別ファイルのextensionから見えなくなる。**`fileprivate` にしても同じ**
+  （どちらもファイル単位のため）
+- 参照される保存プロパティは `private` を外す（internalにする）必要がある。
+  `LoanFormView` が先例で、**なぜ外したかをdocコメントに残す**運用になっている
+- 分割で `private struct` を別ファイルへ移す場合も同様に `private` を外す。
+  AGENTS.mdの「ファイル内限定のビューは `private struct` にする」は
+  **ファイル内に留める場合の話**で、切り出したら適用外
