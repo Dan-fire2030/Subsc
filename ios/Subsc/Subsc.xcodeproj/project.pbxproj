@@ -38,6 +38,8 @@
 		AA00011390000000000000139 /* CatCompanionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011390000000000000139 /* CatCompanionRow.swift */; };
 		AA00011420000000000000142 /* MonthProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011420000000000000142 /* MonthProgress.swift */; };
 		AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011430000000000000143 /* UpcomingTimeline.swift */; };
+		AA00011510000000000000151 /* BubbleNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011510000000000000151 /* BubbleNodeView.swift */; };
+		AA00011500000000000000150 /* BubbleChartTransform.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011500000000000000150 /* BubbleChartTransform.swift */; };
 		AA00011490000000000000149 /* DashboardView+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011490000000000000149 /* DashboardView+Actions.swift */; };
 		AA00011480000000000000148 /* DashboardView+Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011480000000000000148 /* DashboardView+Menus.swift */; };
 		AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011470000000000000147 /* DashboardView+Rows.swift */; };
@@ -189,6 +191,8 @@
 		BB00011390000000000000139 /* CatCompanionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionRow.swift; sourceTree = "<group>"; };
 		BB00011420000000000000142 /* MonthProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthProgress.swift; sourceTree = "<group>"; };
 		BB00011430000000000000143 /* UpcomingTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingTimeline.swift; sourceTree = "<group>"; };
+		BB00011510000000000000151 /* BubbleNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleNodeView.swift; sourceTree = "<group>"; };
+		BB00011500000000000000150 /* BubbleChartTransform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleChartTransform.swift; sourceTree = "<group>"; };
 		BB00011490000000000000149 /* DashboardView+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Actions.swift"; sourceTree = "<group>"; };
 		BB00011480000000000000148 /* DashboardView+Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Menus.swift"; sourceTree = "<group>"; };
 		BB00011470000000000000147 /* DashboardView+Rows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Rows.swift"; sourceTree = "<group>"; };
@@ -445,6 +449,8 @@
 				BB00011390000000000000139 /* CatCompanionRow.swift */,
 				BB00011420000000000000142 /* MonthProgress.swift */,
 				BB00011430000000000000143 /* UpcomingTimeline.swift */,
+				BB00011510000000000000151 /* BubbleNodeView.swift */,
+				BB00011500000000000000150 /* BubbleChartTransform.swift */,
 				BB00011490000000000000149 /* DashboardView+Actions.swift */,
 				BB00011480000000000000148 /* DashboardView+Menus.swift */,
 				BB00011470000000000000147 /* DashboardView+Rows.swift */,
@@ -751,6 +757,8 @@
 				AA00011390000000000000139 /* CatCompanionRow.swift in Sources */,
 				AA00011420000000000000142 /* MonthProgress.swift in Sources */,
 				AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */,
+				AA00011510000000000000151 /* BubbleNodeView.swift in Sources */,
+				AA00011500000000000000150 /* BubbleChartTransform.swift in Sources */,
 				AA00011490000000000000149 /* DashboardView+Actions.swift in Sources */,
 				AA00011480000000000000148 /* DashboardView+Menus.swift in Sources */,
 				AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */,
