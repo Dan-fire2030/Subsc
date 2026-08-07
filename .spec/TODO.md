@@ -7,15 +7,18 @@ SPEC：`.spec/SPEC.md`（黒猫モチーフの全面リデザイン・2026-08-05
 
 ## 前サイクルからの繰り越し
 
-- [ ] **Codex による独立レビュー**（ビルド9〜10ぶん）
-      **使用上限のため未実行。復帰は 2026-08-08 12:53**
-- [ ] **実機での TestFlight ビルド10 確認**（harutoさんの作業）
-      ガラス表現の見え方／年払いを更新月へ寄せた後の表示／停止からの再開／2台でのiCloud同期
+- [x] **独立レビュー**（2026-08-08・**Codexではなくメインスレッドが実施**）
+      Codexが使用上限だったため、harutoさんの指示でメインスレッドが `main..HEAD` の46コミットを
+      レビューした。結果は下の「レビューで挙がった宿題」を参照
+- [ ] **実機での TestFlight 確認**（harutoさんの作業。**確認対象はビルド11以降**）
+      iOS 17〜25のフォールバック表示／アイコンの29pt表示／空状態の案内の猫／
+      返済予定表・履歴／検索／金額入り通知の実文面
 - [ ] 同梱サービスカタログ64件の過不足の判断（harutoさん）
 - [ ] 支払い予告の範囲を3ヶ月とした妥当性、通知でも知らせるかの判断
-- [ ] App Store Connect の掲載情報入力（**アプリ名を変えるためリデザインの結論待ち**）
+- [ ] App Store Connect の掲載情報入力（**掲載名が未確定のため保留**）
 - [ ] App Store用スクリーンショットの撮り直し（**リデザイン後**）
-- [ ] 統合済みブランチの削除（`feat/loan-pause` / `feat/glass-charts` / `feat/loan-repayment`）
+- [x] 統合済みブランチの削除（2026-08-08。ローカル12本・GitHub側3本。
+      すべて `design/black-cat-redesign` に取り込み済みであることを確認してから削除）
 
 ---
 
@@ -62,6 +65,12 @@ SPEC：`.spec/SPEC.md`（黒猫モチーフの全面リデザイン・2026-08-05
       **Codexが使用上限だったため、harutoさんの許可を得て今回だけ規約を外し**、
       numpyで直接ラスタライズした（`.output/design-system/brand/app-icon-f.svg` と同じ座標）。
       **規約自体は変えていない。次回のビットマップ生成はCodexへ委譲する**
+- [ ] **設定画面のアイコン素材（`AppIconPreview`）を新アイコンへ差し替える**
+      ホーム画面（`AppIcon`）だけ差し替え、設定画面の素材が**リデザイン前の旧アイコンのまま**
+      残っていた（2026-08-08に発見。**ビルド11に混入している**）。
+      ビットマップ生成なので `codex:codex-rescue` へ委譲する。
+      原本は `.output/design-system/brand/app-icon-f.svg`、
+      出力先は `ios/Subsc/Subsc/Assets.xcassets/AppIconPreview.imageset/icon-1024.png`
 - [ ] 実機でアイコンを確認する（29ptの一覧、ダーク／ライトの壁紙の上）
 - [ ] iOS 18以降のライト／ダーク／ティントの3種を出し分けるか決める
       （今は標準1枚のみ。採用案は墨の地なので**ダーク用は同じで足りる**可能性が高い）
@@ -76,7 +85,32 @@ SPEC：`.spec/SPEC.md`（黒猫モチーフの全面リデザイン・2026-08-05
 
 ## フェーズ4：仕上げ
 
-- [ ] 既存ユニットテストが全て通ることを確認（**データの形を変えないため落ちてはいけない**）
-- [ ] Codex による独立レビュー（8/8以降）
-- [ ] TestFlight ビルド11
+- [x] 既存ユニットテストが全て通ることを確認（**データの形を変えないため落ちてはいけない**）
+      2026-08-08に `** TEST SUCCEEDED **` を確認
+- [x] 独立レビュー（2026-08-08・メインスレッドが実施）
+- [x] TestFlight ビルド11（2026-08-06アップロード・Apple側の受領に成功）
+- [x] 端末上の表示名以外に残っていた旧名「Subsc」を差し替える（2026-08-08）
+      ホーム画面のナビゲーションタイトル・設定画面のヘッダー・起動失敗時の案内文の3箇所
 - [ ] iOS 17〜25 のフォールバック表示を実機確認（harutoさん）
+- [ ] main へのマージ（`git log --oneline main..HEAD` で範囲を確認してから）
+
+---
+
+## レビューで挙がった宿題（2026-08-08）
+
+**保存データの形・CloudKitスキーマは変更なし。`plutil -lint` もOK。落とすべき不具合は無し。**
+以下はいずれも「今すぐ壊れてはいないが、直しておくと良い」もの。
+
+- [ ] **`UpcomingTimelineRow.relativeLabel` が `Calendar.current` と `.now` を直接参照している**
+      （`Features/Dashboard/UpcomingTimeline.swift`）。「あと3日」を出す計算はロジックなのに
+      注入できず、テストが書けない。AGENTS.md の「外部依存は既定値付き引数で注入する」に反する
+- [ ] **`MonthProgressLine` が `Text(Date.now, ...)` で今日を描いている**
+      （`Features/Dashboard/MonthProgress.swift`）。`MonthProgress.current(now:)` は `now` を
+      注入できる設計なのに、線の隣に出す日付だけ実時刻を直接読むので、両者が食い違いうる
+- [ ] **`ReportChartStylePickerView` の `sampleColors[index]` に境界の保証がない**
+      `Sample.fractions` は4件、`sampleColors` は `CostType.allCases`（現在5件）由来。
+      **CostType を4件未満に減らすと設定画面が範囲外アクセスで落ちる**。今は落ちない
+- [ ] **通知本文の日本語が不自然**（`Services/NotificationService.swift` の `renewalBody`）。
+      「8月10日 9:00に ¥1,480 が更新されます。」は金額が主語になっている。
+      「8月10日 9:00に更新されます（¥1,480）。」などへ
+- [ ] **`DashboardView.swift` が528行**。AGENTS.md の「1ファイル400行程度を目安」を超えている
