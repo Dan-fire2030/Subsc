@@ -101,16 +101,19 @@ SPEC：`.spec/SPEC.md`（黒猫モチーフの全面リデザイン・2026-08-05
 **保存データの形・CloudKitスキーマは変更なし。`plutil -lint` もOK。落とすべき不具合は無し。**
 以下はいずれも「今すぐ壊れてはいないが、直しておくと良い」もの。
 
-- [ ] **`UpcomingTimelineRow.relativeLabel` が `Calendar.current` と `.now` を直接参照している**
-      （`Features/Dashboard/UpcomingTimeline.swift`）。「あと3日」を出す計算はロジックなのに
-      注入できず、テストが書けない。AGENTS.md の「外部依存は既定値付き引数で注入する」に反する
-- [ ] **`MonthProgressLine` が `Text(Date.now, ...)` で今日を描いている**
-      （`Features/Dashboard/MonthProgress.swift`）。`MonthProgress.current(now:)` は `now` を
-      注入できる設計なのに、線の隣に出す日付だけ実時刻を直接読むので、両者が食い違いうる
-- [ ] **`ReportChartStylePickerView` の `sampleColors[index]` に境界の保証がない**
-      `Sample.fractions` は4件、`sampleColors` は `CostType.allCases`（現在5件）由来。
-      **CostType を4件未満に減らすと設定画面が範囲外アクセスで落ちる**。今は落ちない
-- [ ] **通知本文の日本語が不自然**（`Services/NotificationService.swift` の `renewalBody`）。
-      「8月10日 9:00に ¥1,480 が更新されます。」は金額が主語になっている。
-      「8月10日 9:00に更新されます（¥1,480）。」などへ
-- [ ] **`DashboardView.swift` が528行**。AGENTS.md の「1ファイル400行程度を目安」を超えている
+- [x] **「あと何日か」の計算を `RelativeDueLabel` へ切り出した**（2026-08-08）
+      `UpcomingTimelineRow` の中で `Calendar.current` と `.now` を直接読んでおり、
+      境目が実行日で変わるのにテストできなかった。固定日付のテストを6件追加
+- [x] **`MonthProgressLine` が `Text(Date.now, ...)` で今日を描いていたのを直した**（2026-08-08）
+      進み具合は注入された時刻から出しているのに、日付だけ実時刻を読んでいた
+- [x] **設定画面の見本で割合と色を1つの `Slice` にまとめた**（2026-08-08）
+      割合4件と `CostType.allCases` 由来の色5件が別配列で、添字で引いていた。
+      費目種別を4件未満に減らすと範囲外アクセスで落ちる状態だった
+- [x] **通知本文を「更新されます（¥1,480）」へ直した**（2026-08-08）
+      「¥1,480 が更新されます」は金額が主語で、更新されるのが契約ではなく金額だと読めた
+- [x] **`DashboardView.swift`（528行）を5ファイルへ分割した**（2026-08-08）
+      本体205行＋`+Collections` / `+Rows` / `+Menus` / `+Actions`。
+      あわせて未使用の `theme` / `nextDue` / `nextDueSymbol` / `relativeDate` を削除。
+      **`relativeDate` は期日超過に「あと-3日」と出す欠陥を抱えたまま眠っていた**
+
+**次のビルドに入る変更は以上です。** アイコン素材の差し替え（Codex委譲）だけが残っています。
