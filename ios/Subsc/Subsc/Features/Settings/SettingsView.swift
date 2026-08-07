@@ -52,6 +52,8 @@ struct SettingsView: View {
                     HStack(spacing: 14) {
                         // ホーム画面と同じアイコンを出します。別の絵を描くと、
                         // どのアプリの設定なのかが一目で結びつかなくなります。
+                        // ※ 現在この素材は黒猫リデザイン前の旧アイコンのままです。
+                        //   新アイコン（案F）の書き出しを待って差し替えます。
                         Image("AppIconPreview")
                             .resizable()
                             .scaledToFill()
@@ -62,7 +64,7 @@ struct SettingsView: View {
                                     .stroke(.primary.opacity(0.12), lineWidth: 0.8)
                             }
                             .accessibilityHidden(true)
-                        Text("Subsc")
+                        Text("つきねこ")
                             .font(.headline)
                     }
                     .padding(.vertical, 4)

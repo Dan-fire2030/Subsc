@@ -72,7 +72,7 @@ private struct StartupFailureView: View {
         ContentUnavailableView {
             Label("データを開けませんでした", systemImage: "exclamationmark.icloud.fill")
         } description: {
-            Text("iCloudの状態を確認して、Subscを再起動してください。データが削除されることはありません。")
+            Text("iCloudの状態を確認して、つきねこを再起動してください。データが削除されることはありません。")
         } actions: {
             Text(errorDescription)
                 .font(.caption)

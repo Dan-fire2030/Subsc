@@ -185,7 +185,7 @@ struct DashboardView: View {
             }
             .listStyle(.insetGrouped)
             .liquidGlassScreen()
-            .navigationTitle("Subsc")
+            .navigationTitle("つきねこ")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(
                 text: $query,
