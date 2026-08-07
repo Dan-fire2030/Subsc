@@ -38,6 +38,10 @@
 		AA00011390000000000000139 /* CatCompanionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011390000000000000139 /* CatCompanionRow.swift */; };
 		AA00011420000000000000142 /* MonthProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011420000000000000142 /* MonthProgress.swift */; };
 		AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011430000000000000143 /* UpcomingTimeline.swift */; };
+		AA00011490000000000000149 /* DashboardView+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011490000000000000149 /* DashboardView+Actions.swift */; };
+		AA00011480000000000000148 /* DashboardView+Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011480000000000000148 /* DashboardView+Menus.swift */; };
+		AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011470000000000000147 /* DashboardView+Rows.swift */; };
+		AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011460000000000000146 /* DashboardView+Collections.swift */; };
 		AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011440000000000000144 /* RelativeDueLabel.swift */; };
 		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
 		AA00011400000000000000140 /* BlackCatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* BlackCatType.swift */; };
@@ -185,6 +189,10 @@
 		BB00011390000000000000139 /* CatCompanionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionRow.swift; sourceTree = "<group>"; };
 		BB00011420000000000000142 /* MonthProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthProgress.swift; sourceTree = "<group>"; };
 		BB00011430000000000000143 /* UpcomingTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingTimeline.swift; sourceTree = "<group>"; };
+		BB00011490000000000000149 /* DashboardView+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Actions.swift"; sourceTree = "<group>"; };
+		BB00011480000000000000148 /* DashboardView+Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Menus.swift"; sourceTree = "<group>"; };
+		BB00011470000000000000147 /* DashboardView+Rows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Rows.swift"; sourceTree = "<group>"; };
+		BB00011460000000000000146 /* DashboardView+Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Collections.swift"; sourceTree = "<group>"; };
 		BB00011440000000000000144 /* RelativeDueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabel.swift; sourceTree = "<group>"; };
 		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
 		BB00011400000000000000140 /* BlackCatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatType.swift; sourceTree = "<group>"; };
@@ -437,6 +445,10 @@
 				BB00011390000000000000139 /* CatCompanionRow.swift */,
 				BB00011420000000000000142 /* MonthProgress.swift */,
 				BB00011430000000000000143 /* UpcomingTimeline.swift */,
+				BB00011490000000000000149 /* DashboardView+Actions.swift */,
+				BB00011480000000000000148 /* DashboardView+Menus.swift */,
+				BB00011470000000000000147 /* DashboardView+Rows.swift */,
+				BB00011460000000000000146 /* DashboardView+Collections.swift */,
 				BB00011440000000000000144 /* RelativeDueLabel.swift */,
 				BB00011310000000000000131 /* UpcomingChargeSection.swift */,
 				BB0000660000000000000066 /* CostTypeBreakdown.swift */,
@@ -739,6 +751,10 @@
 				AA00011390000000000000139 /* CatCompanionRow.swift in Sources */,
 				AA00011420000000000000142 /* MonthProgress.swift in Sources */,
 				AA00011430000000000000143 /* UpcomingTimeline.swift in Sources */,
+				AA00011490000000000000149 /* DashboardView+Actions.swift in Sources */,
+				AA00011480000000000000148 /* DashboardView+Menus.swift in Sources */,
+				AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */,
+				AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */,
 				AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */,
 				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
 				AA00011400000000000000140 /* BlackCatType.swift in Sources */,
