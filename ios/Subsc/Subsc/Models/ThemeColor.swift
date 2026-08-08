@@ -118,8 +118,4 @@ private extension ThemeColor {
         let remainder = hue.truncatingRemainder(dividingBy: Constants.hueCycle)
         return remainder < 0 ? remainder + Constants.hueCycle : remainder
     }
-
-    static func clamped(_ value: Double) -> Double {
-        min(max(value, 0), 1)
-    }
 }

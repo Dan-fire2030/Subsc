@@ -43,16 +43,15 @@ extension DashboardView {
 
     /// 時間軸に並べる、これから期日が来るものです。
     ///
-    /// **期日を持たないもの（完済した借入など）は外します。** 軸の上に置けないためです。
+    /// **絞り込みの条件は `DashboardListBuilder` に閉じています。**
+    /// ここで自前に `filter` を書いていたため、過ぎた期日が
+    /// 「これから出ていく」に並んでいました（2026-08-08に修正）。
     var upcomingItems: [DashboardListItem] {
-        DashboardListBuilder.items(
+        DashboardListBuilder.upcomingItems(
             subscriptions: subscriptions,
             loans: loans,
-            stateFilter: .active,
-            costTypeFilter: costTypeFilter,
-            query: ""
+            costTypeFilter: costTypeFilter
         )
-        .filter { $0.nextDueDate != nil }
     }
 
     /// 相棒の黒猫がいまどの姿で座るかです。

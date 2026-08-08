@@ -122,6 +122,7 @@
 		AA000099000000000000099 /* LoanSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000099000000000000099 /* LoanSummaryTests.swift */; };
 		AA0001000000000000000100 /* LoanFormInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001000000000000000100 /* LoanFormInputTests.swift */; };
 		AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001010000000000000101 /* DashboardListItemTests.swift */; };
+		AA00011560000000000000156 /* UpcomingTimelineItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011560000000000000156 /* UpcomingTimelineItemTests.swift */; };
 		AA0001020000000000000102 /* LoanRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001020000000000000102 /* LoanRow.swift */; };
 		AA0001030000000000000103 /* LoanFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001030000000000000103 /* LoanFormView.swift */; };
 		AA0001040000000000000104 /* LoanFormView+Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001040000000000000104 /* LoanFormView+Sections.swift */; };
@@ -284,6 +285,7 @@
 		BB000099000000000000099 /* LoanSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSummaryTests.swift; sourceTree = "<group>"; };
 		BB0001000000000000000100 /* LoanFormInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormInputTests.swift; sourceTree = "<group>"; };
 		BB0001010000000000000101 /* DashboardListItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListItemTests.swift; sourceTree = "<group>"; };
+		BB00011560000000000000156 /* UpcomingTimelineItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingTimelineItemTests.swift; sourceTree = "<group>"; };
 		BB0001020000000000000102 /* LoanRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanRow.swift; sourceTree = "<group>"; };
 		BB0001030000000000000103 /* LoanFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormView.swift; sourceTree = "<group>"; };
 		BB0001040000000000000104 /* LoanFormView+Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoanFormView+Sections.swift"; sourceTree = "<group>"; };
@@ -535,6 +537,7 @@
 				BB0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift */,
 				BB0001170000000000000117 /* ReportCalculatorLoanTests.swift */,
 				BB0001010000000000000101 /* DashboardListItemTests.swift */,
+				BB00011560000000000000156 /* UpcomingTimelineItemTests.swift */,
 				BB0001000000000000000100 /* LoanFormInputTests.swift */,
 				BB000099000000000000099 /* LoanSummaryTests.swift */,
 				BB0000100000000000000010 /* ReportCalculatorTests.swift */,
@@ -850,6 +853,7 @@
 				AA0001180000000000000118 /* SubscriptionFilterEmptyStateTests.swift in Sources */,
 				AA0001170000000000000117 /* ReportCalculatorLoanTests.swift in Sources */,
 				AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */,
+				AA00011560000000000000156 /* UpcomingTimelineItemTests.swift in Sources */,
 				AA0001000000000000000100 /* LoanFormInputTests.swift in Sources */,
 				AA000099000000000000099 /* LoanSummaryTests.swift in Sources */,
 				AA0000100000000000000010 /* ReportCalculatorTests.swift in Sources */,

@@ -47,10 +47,16 @@ enum DashboardListItem: Identifiable {
     /// **年払いは年額をそのまま返します。** 次に出ていくのは1/12ではなく全額だからです
     /// （一覧の行やレポートの扱いとも揃えています）。
     /// 停止中の費目は出ていかないので `nil` にします。
+    ///
+    /// **変動費は金額を返しません（2026-08-08に修正）。** 次回の請求額は決まっておらず、
+    /// ここで返していた `monthlyYen` は `originalAmount` 由来の別の値でした。
+    /// 通知（`NotificationService.renewalBody`）も同じ理由で金額を書きません。
+    /// **片方だけが額を出すと、同じアプリの中で言うことが食い違います。**
     var nextDueAmount: Double? {
         switch self {
         case .subscription(let subscription):
             guard subscription.state == .active else { return nil }
+            guard !subscription.hasVariableAmount else { return nil }
             return subscription.billingCycle == .yearly
                 ? subscription.yenAmount
                 : subscription.monthlyYen
@@ -142,6 +148,31 @@ enum DashboardListBuilder {
         now: Date = .now,
         calendar: Calendar = .current
     ) -> DashboardListItem? {
+        upcomingItems(
+            subscriptions: subscriptions,
+            loans: loans,
+            costTypeFilter: costTypeFilter,
+            now: now,
+            calendar: calendar
+        )
+        .first
+    }
+
+    /// 時間軸（`UpcomingTimeline`）に並べる、**これから期日が来るもの**です。
+    ///
+    /// **過ぎた期日を外します（2026-08-08に修正）。** 以前は期日の有無しか見ておらず、
+    /// 「これから出ていく」の見出しの下に「期日超過」が並びえました。
+    /// 更新日の繰り越しは起動時に走りますが、保存に失敗して巻き戻った場合や、
+    /// 繰り越しが終わる前の描画では過去日が残ります。
+    ///
+    /// **`nextDue` と同じ判定です。** 別々に書くと、片方だけ直して食い違います。
+    static func upcomingItems(
+        subscriptions: [Subscription],
+        loans: [Loan],
+        costTypeFilter: CostTypeFilter,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> [DashboardListItem] {
         let today = calendar.startOfDay(for: now)
         return items(
             subscriptions: subscriptions,
@@ -152,7 +183,7 @@ enum DashboardListBuilder {
             now: now,
             calendar: calendar
         )
-        .first { item in
+        .filter { item in
             guard let dueDate = item.nextDueDate else { return false }
             return calendar.startOfDay(for: dueDate) >= today
         }
