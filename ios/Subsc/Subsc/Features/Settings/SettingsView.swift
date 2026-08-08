@@ -6,7 +6,6 @@ import UserNotifications
 struct SettingsView: View {
     @Environment(ThemeStore.self) private var theme
     @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
-    @Environment(OnboardingStore.self) private var onboarding
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @State private var notificationPermission = NotificationPermission.checking
@@ -131,11 +130,6 @@ struct SettingsView: View {
                 .glassListRow()
 
                 Section("アプリ情報") {
-                    // **見直しても「見た」記録は消しません。**
-                    // 消すと、見直した次の起動で勝手に出てきて驚かせます。
-                    Button("チュートリアルをもう一度見る") {
-                        onboarding.replayTutorial()
-                    }
                     NavigationLink("プライバシーについて") {
                         PrivacyPolicyView()
                     }

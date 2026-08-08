@@ -3,7 +3,6 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(ThemeStore.self) private var theme
-    @Environment(OnboardingStore.self) private var onboarding
     @Environment(LoanNotificationSettings.self) private var loanNotificationSettings
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -49,9 +48,7 @@ struct RootView: View {
     }
 
     var body: some View {
-        @Bindable var onboarding = onboarding
-
-        return TabView(selection: $selectedTab) {
+        TabView(selection: $selectedTab) {
             DashboardView()
                 .tabItem {
                     Label("ホーム", systemImage: "rectangle.grid.1x2.fill")
@@ -66,14 +63,6 @@ struct RootView: View {
         }
         .tint(theme.buttonColor)
         .modifier(AdaptiveTabBarModifier())
-        // **初回だけ全画面で被せます。** タブの上に出すことで、
-        // 見終わった直後に説明された画面がそのまま現れます。
-        .fullScreenCover(isPresented: $onboarding.isPresentingTutorial) {
-            TutorialView(
-                onFinish: { onboarding.markTutorialFinished() },
-                onSkip: { onboarding.markTutorialSkipped() }
-            )
-        }
         .task(id: notificationSyncID) {
             guard scenePhase == .active else { return }
             await reconcileSubscriptions()
