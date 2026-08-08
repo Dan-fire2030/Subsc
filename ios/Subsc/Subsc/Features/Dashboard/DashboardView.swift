@@ -27,7 +27,14 @@ struct DashboardView: View {
     @State var pendingDeletion: Subscription?
 
     var body: some View {
-        NavigationStack {
+        // **1回の描画で一度だけ求めます。**
+        // computed property のまま複数箇所から読むと、そのたびに
+        // `DashboardListBuilder` の絞り込みと並べ替えが走り、借入ごとに
+        // `LoanSummary` まで作り直されます（2026-08-08のレビュー指摘）。
+        let upcoming = upcomingItems
+        let visible = visibleItems
+
+        return NavigationStack {
             List {
                 if hasNoRegistrations {
                     Section {
@@ -53,10 +60,10 @@ struct DashboardView: View {
 
                     UpcomingChargeSection(notices: upcomingCharges)
 
-                    if !upcomingItems.isEmpty {
+                    if !upcoming.isEmpty {
                         // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
                         Section("これから出ていく") {
-                            UpcomingTimeline(items: upcomingItems)
+                            UpcomingTimeline(items: upcoming)
                                 .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 2, trailing: 20))
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
@@ -83,7 +90,7 @@ struct DashboardView: View {
                     }
 
                     Section(listSectionTitle) {
-                        if visibleItems.isEmpty {
+                        if visible.isEmpty {
                             ContentUnavailableView(
                                 query.isEmpty ? filter.emptyStateTitle : "見つかりませんでした",
                                 systemImage: query.isEmpty
@@ -93,7 +100,7 @@ struct DashboardView: View {
                             )
                             .glassListRow()
                         } else {
-                            ForEach(visibleItems) { item in
+                            ForEach(visible) { item in
                                 switch item {
                                 case .subscription(let subscription):
                                     subscriptionRow(subscription)

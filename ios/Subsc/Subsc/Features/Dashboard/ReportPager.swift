@@ -129,6 +129,12 @@ struct ReportPager: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("利用コストレポート")
+        // **ここで `makePage` をもう一度呼ぶのは承知のうえです（2026-08-08）。**
+        // 現在ページを先に1回だけ作り、`ForEach` の中で使い回すよう変えたところ、
+        // **CPUが100%に張り付きました**。ページの中身が `currentStep` に依存すると、
+        // 「スクロール位置が動く → 中身が変わる → 再レイアウト → 位置が動く」の循環になります
+        // （このファイル冒頭の「位置を親に持たせない」理由と同じ話です）。
+        // 重複を嫌ってここを1回にまとめないこと。
         .accessibilityValue(accessibilityValue(makePage(currentStep)))
         .accessibilityHint("上下にスワイプして前後の\(periodUnit)へ移動できます")
         .accessibilityAdjustableAction { direction in

@@ -130,4 +130,60 @@ final class CatMoodTests: XCTestCase {
     func testZeroAverageStaysCalm() {
         XCTAssertEqual(mood(monthlyTotal: 70_000, recentAverage: 0), .calm)
     }
+
+    // MARK: - 材料を先に計算しない
+
+    /// **早く決まる場合は、重い材料に触れません（2026-08-08）。**
+    ///
+    /// 過去3ヶ月の平均は `ReportCalculator.report` を3回走らせます。
+    /// 費目が1件も無い月や、催促・見張りで決まる月にまでそれを走らせていました。
+    /// ここでは「触れたら失敗する材料」を渡して、実際に評価されないことを確かめます。
+    func testExpensiveInputsAreNotComputedWhenTheMoodIsDecidedEarly() {
+        func mustNotBeCalled<T>(_ label: String, _ value: T) -> T {
+            XCTFail("\(label) を評価してはいけない。早い段階で状態が決まっている")
+            return value
+        }
+
+        // 費目が1件も無い月。案内で決まるので、どの材料も要りません。
+        XCTAssertEqual(
+            CatMood.decide(
+                registrationCount: 0,
+                monthlyTotal: mustNotBeCalled("monthlyTotal", 0),
+                recentAverage: mustNotBeCalled("recentAverage", nil),
+                hasUpcomingLargeCharge: mustNotBeCalled("hasUpcomingLargeCharge", false),
+                hasUnenteredVariableCost: mustNotBeCalled("hasUnenteredVariableCost", false),
+                now: nearMonthEnd(),
+                calendar: calendar
+            ),
+            .guiding
+        )
+
+        // 催促で決まる月。増減の材料（平均と合計）は要りません。
+        XCTAssertEqual(
+            CatMood.decide(
+                registrationCount: 3,
+                monthlyTotal: mustNotBeCalled("monthlyTotal", 0),
+                recentAverage: mustNotBeCalled("recentAverage", nil),
+                hasUpcomingLargeCharge: false,
+                hasUnenteredVariableCost: true,
+                now: nearMonthEnd(),
+                calendar: calendar
+            ),
+            .nudging
+        )
+
+        // 見張りで決まる月。同じく増減の材料は要りません。
+        XCTAssertEqual(
+            CatMood.decide(
+                registrationCount: 3,
+                monthlyTotal: mustNotBeCalled("monthlyTotal", 0),
+                recentAverage: mustNotBeCalled("recentAverage", nil),
+                hasUpcomingLargeCharge: true,
+                hasUnenteredVariableCost: false,
+                now: nearMonthEnd(),
+                calendar: calendar
+            ),
+            .watching
+        )
+    }
 }

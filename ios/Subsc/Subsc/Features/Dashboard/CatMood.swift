@@ -57,31 +57,37 @@ extension CatMood {
     ///
     /// 保存データに依存しない引数だけを受け取り、実行日も注入します。
     /// 画面から切り離してテストできるようにするためです。
+    ///
+    /// **材料は `@autoclosure` で受け取り、必要になるまで計算しません（2026-08-08）。**
+    /// 以前は呼び出し側が全部を先に作っており、費目が1件も無い月でも
+    /// 過去3ヶ月ぶんの集計（`ReportCalculator.report` を4回）が走っていました。
+    /// 遅延させても**優先順位はここ1箇所に残ります**。呼び出し側へ順序を写すと、
+    /// 「どの条件が優先か」の判断が二重になります。
     static func decide(
         registrationCount: Int,
-        monthlyTotal: Double,
-        recentAverage: Double?,
-        hasUpcomingLargeCharge: Bool,
-        hasUnenteredVariableCost: Bool,
+        monthlyTotal: @autoclosure () -> Double,
+        recentAverage: @autoclosure () -> Double?,
+        hasUpcomingLargeCharge: @autoclosure () -> Bool,
+        hasUnenteredVariableCost: @autoclosure () -> Bool,
         now: Date = .now,
         calendar: Calendar = .current
     ) -> CatMood {
         if registrationCount <= 0 { return .guiding }
 
-        if hasUnenteredVariableCost, isNearMonthEnd(now: now, calendar: calendar) {
+        if hasUnenteredVariableCost(), isNearMonthEnd(now: now, calendar: calendar) {
             return .nudging
         }
 
-        if hasUpcomingLargeCharge { return .watching }
+        if hasUpcomingLargeCharge() { return .watching }
 
         // 比較できる過去が無い月や、平均が0円の月は増減を語りません。
         // 0で割ると必ず「増えた」になり、初月の利用者を無用に心配させます。
-        guard let average = recentAverage, average > 0 else { return .calm }
+        guard let average = recentAverage(), average > 0 else { return .calm }
 
         // **平均に倍率を掛けて比べません。** `50,000 × 1.15` は 57499.999… になり、
         // ちょうど閾値の額が「超えた」と判定されます。割って比にすれば、
         // 閾値と同じ表現の値どうしの比較になり、境目が意図どおりに閉じます。
-        let ratio = monthlyTotal / average
+        let ratio = monthlyTotal() / average
         if ratio > Threshold.increaseRatio + Threshold.epsilon { return .worried }
         if ratio < Threshold.decreaseRatio - Threshold.epsilon { return .pleased }
         return .calm
