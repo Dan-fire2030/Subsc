@@ -65,10 +65,12 @@ enum CatPathParser {
         case "C":
             // 3次ベジエは6数値で1本。命令の文字を繰り返さず数値だけ続ける書き方に備え、
             // 6ずつ取り出せる分だけ進めます。余りは捨てます。
+            // 始点が無いまま曲線を足すと Core Graphics 側で不正な形になります。
+            // **ループの外で1度だけ見ます。** `currentPoint` は溜めた要素をたどるため、
+            // 1本ごとに呼ぶと本数の2乗に比例して遅くなります。
+            guard path.currentPoint != nil else { return }
             var offset = 0
             while offset + 6 <= numbers.count {
-                // 始点が無いまま曲線を足すと Core Graphics 側で不正な形になります。
-                guard path.currentPoint != nil else { return }
                 path.addCurve(
                     to: CGPoint(x: numbers[offset + 4], y: numbers[offset + 5]),
                     control1: CGPoint(x: numbers[offset], y: numbers[offset + 1]),
