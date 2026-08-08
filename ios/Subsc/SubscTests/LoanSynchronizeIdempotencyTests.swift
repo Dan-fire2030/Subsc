@@ -97,6 +97,63 @@ final class LoanSynchronizeIdempotencyTests: XCTestCase {
         XCTAssertEqual(loan.updatedAt, Fixture.marker, "停止中の借入で起動のたびに書き込みが起きています")
     }
 
+    /// **繰り延べる回が実際にあるときは、1回目だけ書きます。**
+    /// 「書かなくなった」だけでは不十分で、書くべきときに書くことも同時に要ります。
+    func testDeferWritesOnlyOnTheRunThatActuallyDefersSomething() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+        try LoanPaymentStore.pause(loan: loan, on: date(2026, 2, 1), calendar: Fixture.calendar)
+
+        let now = date(2026, 5, 1)
+        loan.updatedAt = Fixture.marker
+        try LoanPaymentStore.deferPastDue(on: loan, now: now, calendar: Fixture.calendar)
+        XCTAssertGreaterThan(loan.updatedAt, Fixture.marker, "繰り延べたのに記録されていません")
+
+        loan.updatedAt = Fixture.marker
+        try LoanPaymentStore.deferPastDue(on: loan, now: now, calendar: Fixture.calendar)
+        XCTAssertEqual(loan.updatedAt, Fixture.marker)
+    }
+
+    /// 停止中の借入が複数あっても同じです。**起動時は借入ごとに1回ずつ通ります。**
+    func testMultiplePausedLoansAreAllQuietOnRepeatedRuns() throws {
+        let loans = [makeLoan(), makeLoan(), makeLoan()]
+        let now = date(2026, 5, 1)
+        for loan in loans {
+            try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+            try LoanPaymentStore.pause(loan: loan, on: date(2026, 2, 1), calendar: Fixture.calendar)
+            try LoanPaymentStore.deferPastDue(on: loan, now: now, calendar: Fixture.calendar)
+            loan.updatedAt = Fixture.marker
+        }
+
+        // 起動のたびに走る処理を、そのままもう一巡させます。
+        for loan in loans {
+            try LoanPaymentStore.deferPastDue(on: loan, now: now, calendar: Fixture.calendar)
+        }
+
+        for (index, loan) in loans.enumerated() {
+            XCTAssertEqual(loan.updatedAt, Fixture.marker, "\(index)件目で書き込みが起きています")
+        }
+    }
+
+    /// 完済した借入でも、繰り返し通して書きません。
+    /// **完済の判定（`isClosed`）を毎回書き直していないこと**の確認でもあります。
+    func testRepeatedRunsOnClosedLoanDoNotTouchUpdatedAt() throws {
+        let loan = makeLoan()
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+
+        // 全回の返済日を過ぎた時点まで進めると完済になります。
+        let afterAllDueDates = date(2027, 6, 1)
+        LoanPaymentStore.settlePastDue(on: loan, now: afterAllDueDates)
+        XCTAssertTrue(loan.isClosed, "前提が崩れています。完済になっていません")
+
+        loan.updatedAt = Fixture.marker
+        LoanPaymentStore.settlePastDue(on: loan, now: afterAllDueDates)
+        try LoanPaymentStore.synchronize(loan: loan, calendar: Fixture.calendar)
+
+        XCTAssertEqual(loan.updatedAt, Fixture.marker)
+        XCTAssertTrue(loan.isClosed)
+    }
+
     /// 停止していない借入も同じです。こちらは `settlePastDue` を通ります。
     func testRepeatedSettleOnActiveLoanDoesNotTouchUpdatedAt() throws {
         let loan = makeLoan()
