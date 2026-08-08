@@ -399,7 +399,29 @@ error: exportArchive No Accounts with App Store Connect Access
   Appleの定型文がそのまま返っているだけと見られ、ここから原因を読み取らないこと
 - 22:06 / 22:08 / 22:21 の3回とも同じ結果でした
 
-**切り分けの結果、Apple側の問題と判断しています（2026-08-08時点）。**
+**原因は Apple の定期メンテナンスでした。** Apple自身のステータスフィードに記載があります。
+
+```
+App Store Connect — "Due to scheduled maintenance, some services will be unavailable."
+2026-08-08 05:30 PDT – 08:00 PDT（全ユーザー対象）
+対象：App Store Connect / App Store Connect - App Upload /
+      App Store Connect - TestFlight / App Store Connect API ほか
+```
+
+**日本時間では 8/8 21:30 〜 翌 00:00。** 失敗した3回（22:06 / 22:08 / 22:21）は全てこの窓の中で、
+成功したビルド11（8/6）は窓の外です。
+
+**ステータスの確認先（HTMLページはJavaScript描画で読めない）：**
+
+```bash
+curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js | head -c 2000
+```
+
+`developer.apple.com/system-status/` のHTMLを見に行っても中身は取れません。
+上のURLは `www.apple.com/support/systemstatus/data/developer/...` へ302で転送されます。
+**`.json` ではなく `.js`** です。
+
+以下は、原因が分かる前に行った切り分けです。同じ症状に出会ったときの参考として残します。
 
 - **メンバーシップは有効**（harutoさんが `developer.apple.com/account` で確認）
 - Xcodeとブラウザのアカウントは同じ `haruto_1224@icloud.com`。**アカウント違いではない**
@@ -411,8 +433,13 @@ error: exportArchive No Accounts with App Store Connect Access
   そのときもAppleのステータスページは緑のままだった**
 - 併記される「12月29日以降に」の文言は日付が合わず、**古い定型応答が返っている兆候**と見ている
 
-**対処：時間をおいて再試行する。** Archiveは作り直し不要（下記の場所に保存済み）。
-復旧しない場合はApple Developer Supportへ問い合わせる。
+**対処：メンテナンスが明けてから再試行する。** Archiveは作り直し不要（下記の場所に保存済み）。
+
+**教訓：エラー文言から原因を読もうとしない。** 今回Appleが返した
+「年末年始のため受付停止。12月29日以降に再試行を」は完全な的外れで、
+`No Accounts with App Store Connect Access` も「アカウントが無い」わけではなかった。
+**メンテナンス中は、無関係な認証エラーの形で失敗する。**
+アップロードが理由不明で落ちたら、アカウントを疑う前にまずステータスフィードを見ること。
 
 **対処（エージェントは代行しません。認証情報の入力は人の作業です）**
 
