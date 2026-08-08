@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210" role="img" aria-label="平常の黒猫">
+  <path fill="#16151A" stroke="#16151A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" d="M127 173 C146 181 162 176 168 164 C173 154 170 144 160 138 C156 136 155 132 157 129 C160 126 164 126 168 129 C183 139 187 155 179 170 C169 187 147 192 126 183 Z"/>
+  <path fill="#16151A" stroke="#16151A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" d="M78 119 C62 127 53 147 55 168 C57 188 73 197 100 197 C127 197 143 188 145 168 C147 147 138 127 122 119 C116 116 108 114 100 114 C92 114 84 116 78 119 Z"/>
+  <path fill="#FAF8F4" stroke="#16151A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" d="M100 139 C85 139 76 150 77 166 C78 182 87 190 100 190 C113 190 122 182 123 166 C124 150 115 139 100 139 Z"/>
+  <path fill="#16151A" stroke="#16151A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" d="M41 81 C41 66 45 56 53 48 L50 26 C49 19 55 16 60 21 L84 40 C89 37 94 36 100 36 C106 36 111 37 116 40 L140 21 C145 16 151 19 150 26 L147 48 C155 56 159 66 159 81 C159 110 136 131 100 131 C64 131 41 110 41 81 Z"/>
+  <path fill="#E8A0A8" stroke="#16151A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M57 29 L61 47 C66 43 72 42 78 43 Z"/>
+  <path fill="#E8A0A8" stroke="#16151A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M143 29 L139 47 C134 43 128 42 122 43 Z"/>
+  <path fill="none" stroke="#C8901F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" d="M70 79 C76 84 84 84 90 79"/>
+  <path fill="none" stroke="#C8901F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" d="M110 79 C116 84 124 84 130 79"/>
+  <path fill="#E8A0A8" stroke="#16151A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M94 96 C97 93 103 93 106 96 C107 99 103 103 100 104 C97 103 93 99 94 96 Z"/>
+  <path fill="#E8A0A8" stroke="#16151A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M65 178 C66 173 71 170 77 172 C83 174 87 179 85 184 C82 189 73 189 68 186 C65 184 64 181 65 178 Z"/>
+  <path fill="#E8A0A8" stroke="#16151A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M135 178 C134 173 129 170 123 172 C117 174 113 179 115 184 C118 189 127 189 132 186 C135 184 136 181 135 178 Z"/>
+</svg>
