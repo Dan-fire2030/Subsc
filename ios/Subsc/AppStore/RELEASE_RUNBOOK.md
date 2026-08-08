@@ -397,7 +397,22 @@ error: exportArchive No Accounts with App Store Connect Access
 - **`account (null)`** が要点で、Xcodeが使えるApple Accountを1つも見つけられていません
 - 併記される「年末年始のため受付停止」は**日付が合っていません**（発生日は8月8日）。
   Appleの定型文がそのまま返っているだけと見られ、ここから原因を読み取らないこと
-- 2回試して2回とも同じ結果でした。一時的な揺らぎではありません
+- 22:06 / 22:08 / 22:21 の3回とも同じ結果でした
+
+**切り分けの結果、Apple側の問題と判断しています（2026-08-08時点）。**
+
+- **メンバーシップは有効**（harutoさんが `developer.apple.com/account` で確認）
+- Xcodeとブラウザのアカウントは同じ `haruto_1224@icloud.com`。**アカウント違いではない**
+- **2日前（8/6）のビルド11は同じアカウント・同じ手順で成功している**
+- ブラウザからも `appstoreconnect.apple.com/m/INVALIDITCUSER?errorKey=ITC.signin.error.invalidUser.asc`
+  で弾かれる。**Xcodeとブラウザの両方が同時に落ちている**
+- 同じエラーキーの前例がApple Developer Forumsにある（2025年12月）。
+  **メンバーシップが有効な開発者がApple側の障害で同じ文言を受け、後に復旧している。
+  そのときもAppleのステータスページは緑のままだった**
+- 併記される「12月29日以降に」の文言は日付が合わず、**古い定型応答が返っている兆候**と見ている
+
+**対処：時間をおいて再試行する。** Archiveは作り直し不要（下記の場所に保存済み）。
+復旧しない場合はApple Developer Supportへ問い合わせる。
 
 **対処（エージェントは代行しません。認証情報の入力は人の作業です）**
 
