@@ -12,6 +12,9 @@ struct SubscApp: App {
     private let startupError: String?
     @State private var theme = ThemeStore()
     @State private var loanNotificationSettings = LoanNotificationSettings()
+    /// チュートリアルを出すかどうかです。`UserDefaults` に閉じており、
+    /// **CloudKitのスキーマには影響しません。**
+    @State private var onboarding = OnboardingStore()
     /// 通知の受け口です。**強参照で持ち続けないと、`delegate` が解放されて応答が届きません。**
     @State private var notificationResponder: LoanNotificationResponder?
 
@@ -54,6 +57,7 @@ struct SubscApp: App {
             .modelContainer(modelContainer)
             .environment(theme)
             .environment(loanNotificationSettings)
+            .environment(onboarding)
             .task {
                 // **予約より先にカテゴリを登録しないと、通知にボタンが出ません。**
                 NotificationService.registerCategories()
