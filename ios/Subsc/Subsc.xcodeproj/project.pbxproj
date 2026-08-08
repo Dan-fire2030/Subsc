@@ -145,6 +145,7 @@
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
 		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
 		AA00011570000000000000157 /* CatPathParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011570000000000000157 /* CatPathParserTests.swift */; };
+		AA000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */; };
 		AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011450000000000000145 /* RelativeDueLabelTests.swift */; };
 		AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011380000000000000138 /* CatMoodContextTests.swift */; };
 		AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011410000000000000141 /* HarmonizedColorTests.swift */; };
@@ -311,6 +312,7 @@
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
 		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
 		BB00011570000000000000157 /* CatPathParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParserTests.swift; sourceTree = "<group>"; };
+		BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSynchronizeIdempotencyTests.swift; sourceTree = "<group>"; };
 		BB00011450000000000000145 /* RelativeDueLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabelTests.swift; sourceTree = "<group>"; };
 		BB00011380000000000000138 /* CatMoodContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContextTests.swift; sourceTree = "<group>"; };
 		BB00011410000000000000141 /* HarmonizedColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarmonizedColorTests.swift; sourceTree = "<group>"; };
@@ -538,6 +540,7 @@
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
 				BB00011320000000000000132 /* CatMoodTests.swift */,
 				BB00011570000000000000157 /* CatPathParserTests.swift */,
+				BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */,
 				BB00011450000000000000145 /* RelativeDueLabelTests.swift */,
 				BB00011380000000000000138 /* CatMoodContextTests.swift */,
 				BB00011410000000000000141 /* HarmonizedColorTests.swift */,
@@ -857,6 +860,7 @@
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
 				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
 				AA00011570000000000000157 /* CatPathParserTests.swift in Sources */,
+				AA000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift in Sources */,
 				AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */,
 				AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */,
 				AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */,

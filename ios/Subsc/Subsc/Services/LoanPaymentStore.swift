@@ -40,6 +40,9 @@ enum LoanPaymentStore {
 
         var byPeriod = Dictionary(grouping: existing, by: \.period)
         var payments: [LoanPayment] = []
+        // **何か1つでも実際に変えたか**を持ち回ります。詳細は末尾の `updatedAt` の項を参照。
+        var didChange = false
+        var hasNewRows = false
 
         for installment in schedule.installments {
             let components = calendar.dateComponents([.year, .month], from: installment.dueDate)
@@ -59,20 +62,15 @@ enum LoanPaymentStore {
                         status: Self.status(for: installment)
                     )
                 )
+                hasNewRows = true
                 continue
             }
 
             // 同期で重複していた場合も、全件を同じ値へ揃えてどれが選ばれても同じにします。
             for row in rows {
-                row.year = components.year ?? 0
-                row.month = components.month ?? 0
-                row.dueOn = installment.dueDate
-                row.scheduledAmount = installment.amount
-                row.principalPortion = installment.principal
-                row.interestPortion = installment.interest
-                row.balanceAfter = installment.balanceAfter
-                // **状態は上書きしません。** 滞納も繰上返済も利用者が記録した事実で、
-                // 計算結果より優先されます。
+                if apply(installment, components: components, to: row) {
+                    didChange = true
+                }
             }
             payments.append(contentsOf: rows)
         }
@@ -82,12 +80,66 @@ enum LoanPaymentStore {
             row.loan = nil
         }
 
-        loan.payments = payments
+        // **関係を組み直すのは、顔ぶれが変わったときだけです。**
+        // 同じ顔ぶれを入れ直すのも書き込みとして扱われます。
+        if hasNewRows || !removed.isEmpty {
+            loan.payments = payments
+            didChange = true
+        }
+
         // **完済したかどうかをここで確定させます。** 記録を取り消して返済が復活したときは
         // false へ戻ります。
-        updateClosedState(of: loan)
-        loan.updatedAt = .now
+        if updateClosedState(of: loan) {
+            didChange = true
+        }
+
+        // **変わっていないなら `updatedAt` を進めません（2026-08-08）。**
+        // ここを無条件に書いていたため、アプリが無限に回りました。`RootView` は
+        // `.task(id:)` の鍵に `Loan.updatedAt` を含めており、そのタスクの中から
+        // ここが呼ばれます。毎回書くと鍵が変わってタスクが再発火し、また書く、
+        // という循環になります（停止中の借入が1件でもあれば必ず起きます）。
+        //
+        // 書き込みを減らすためではなく、**`updatedAt` は「変わった」という意味の値**
+        // だからです。変わっていないのに進めると、CloudKitへ無意味な同期も流れます。
+        if didChange {
+            loan.updatedAt = .now
+        }
         return SynchronizationResult(payments: payments, removed: removed)
+    }
+
+    /// 計算結果を1回ぶんの記録へ写します。**値が違うときだけ書き、書いたかどうかを返します。**
+    ///
+    /// 同じ値でも代入すればSwiftDataは変更として扱うため、「書かない」ことに意味があります。
+    ///
+    /// **状態（`status`）は写しません。** 滞納も繰上返済も利用者が記録した事実で、
+    /// 計算結果より優先されます。
+    private static func apply(
+        _ installment: LoanInstallment,
+        components: DateComponents,
+        to row: LoanPayment
+    ) -> Bool {
+        // 短絡評価で書き漏らさないよう、**全項目を先に評価してから**まとめます。
+        let changes = [
+            assign(components.year ?? 0, to: \.year, on: row),
+            assign(components.month ?? 0, to: \.month, on: row),
+            assign(Optional(installment.dueDate), to: \.dueOn, on: row),
+            assign(installment.amount, to: \.scheduledAmount, on: row),
+            assign(installment.principal, to: \.principalPortion, on: row),
+            assign(installment.interest, to: \.interestPortion, on: row),
+            assign(installment.balanceAfter, to: \.balanceAfter, on: row)
+        ]
+        return changes.contains(true)
+    }
+
+    /// 値が違うときだけ書き、書いたかどうかを返します。
+    private static func assign<Root: AnyObject, Value: Equatable>(
+        _ value: Value,
+        to keyPath: ReferenceWritableKeyPath<Root, Value>,
+        on object: Root
+    ) -> Bool {
+        guard object[keyPath: keyPath] != value else { return false }
+        object[keyPath: keyPath] = value
+        return true
     }
 
     /// その回を滞納として記録します。**返済額は0になり、以降の予定が後ろへずれます。**
@@ -244,10 +296,15 @@ enum LoanPaymentStore {
     /// **停止中の回が残っているあいだは完済にしません。** 繰り延べを記録した直後は
     /// 予定を組み直すまで `scheduled` が一時的に0件になり得るため、
     /// これが無いと止めた瞬間に完済扱いへ倒れます。
-    private static func updateClosedState(of loan: Loan) {
+    /// **値が変わったときだけ書き、書いたかどうかを返します。**
+    /// 同じ値でも代入すればSwiftDataは変更として扱い、`synchronize` が
+    /// 「変わった」と誤って判断してしまいます。
+    @discardableResult
+    private static func updateClosedState(of loan: Loan) -> Bool {
         let payments = sortedPayments(on: loan)
-        loan.isClosed = !payments.isEmpty
+        let isClosed = !payments.isEmpty
             && payments.allSatisfy { $0.status != .scheduled && $0.status != .deferred }
+        return assign(isClosed, to: \.isClosed, on: loan)
     }
 
     /// 予定表の1回目の返済日です。
