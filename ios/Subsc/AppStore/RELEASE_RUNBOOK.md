@@ -233,6 +233,42 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 **独立レビューは2026-08-08にメインスレッドが実施しました**（Codexが使用上限だったため、harutoさんの指示による）。保存プロパティ・CloudKitスキーマの変更が無いこと、削除した機能の残骸が無いこと、`project.pbxproj` が壊れていないこと（`plutil -lint`）を確認済みです。指摘事項は `.spec/TODO.md` の「レビューで挙がった宿題」にあります。
 
+### ビルド12（2026-08-08）— **Archiveまで完了、アップロードは未完了**
+
+2026-08-08にバージョン1.0.0、ビルド12のArchiveを作成しました。**アップロードは認証で失敗し、Apple側へは届いていません。** 対処は「既知のリリース時トラブル」の該当項を参照してください。
+
+- Archiveの場所：`~/Library/Developer/Xcode/Archives/2026-08-08/Subsc 2026-08-08 22.10.xcarchive`
+  （Xcodeの Organizer から見えます。**そこから Distribute App で送れます**）
+- Archive内容の確認済み事項：`CFBundleShortVersionString = 1.0.0` / `CFBundleVersion = 12` /
+  `com.tonaria.subsc`、`Assets.car` に `AppIcon` と `AppIconPreview` が両方1024×1024で入っていること、
+  事前レンダリングされた120pxのアイコンが新意匠であること
+
+このビルドに含めた変更：
+
+- **相棒の黒猫を新しいイラストへ差し替えた**（6状態すべて）。SVGのパスデータを持ったまま描く形にし、色は従来どおりパレットから渡すのでライト／ダークの追従は変わらない
+- **アプリアイコンを新しい意匠へ差し替えた**（円グラフ＋中心の金の円＋黒猫の顔）。
+  **`AppIcon` と `AppIconPreview` の両方**を差し替え、md5が生成元と一致することを確認済み。
+  ビルド11の「設定画面だけ旧アイコン」は解消
+- **画面に残っていた旧アプリ名「Subsc」3箇所を修正**（ビルド11の不備）
+- **起動後にCPUが100%へ張り付いたまま戻らない不具合を修正。**
+  停止中の借入が1件でもあると発生していた。`RootView` の `.task(id:)` が鍵に `Loan.updatedAt` を含む一方、
+  そのタスクから呼ばれる `synchronize` が差分の有無に関わらず `updatedAt` を書いており、
+  タスクが自分の再発火条件を書き換えていた。**SwiftDataへの書き込みが止まらないため、
+  CloudKitへの同期も延々と発生していた**
+- 独立レビューで挙がった、正しさに関わる4件と性能2件の修正
+- 起動時チュートリアル（初回のみ4ページ、設定から再生可）
+
+**SwiftDataの保存プロパティは変えていません。CloudKitスキーマの反映は不要です**（ビルド11以降、`@Model` クラスの保存プロパティに増減が無いことを確認済み）。
+
+**このビルドで未検証の項目です。TestFlightで確認します。**
+
+- **停止中の借入がある状態での起動時のCPUと発熱。** 今回いちばん確かめたい項目。
+  シミュレーターでは冷えた起動を計18試行して一度も再現しなくなったが、**実機では未確認**
+- **アイコンの実寸表示**（シミュレーターのホーム画面と設定画面では確認済み、実機は未）
+- **実機での見え方全般**と、**iOS 17〜25のフォールバック表示**（ずっと未検証）
+- **チュートリアルの最大文字サイズでの見え方**（一度失敗している箇所）
+- **停止からの再開（`resume`）の画面動作**
+
 ---
 
 ## ビルド10（2026-08-05）
@@ -344,6 +380,34 @@ App Store掲載名に`Subsc`単体は使えません。
 ### アップロード認証
 
 アプリ専用パスワードをファイルへ保存せず、Xcodeへログイン済みのApple Accountと`-allowProvisioningUpdates`を使用します。
+
+#### `No Accounts with App Store Connect Access`（2026-08-08・ビルド12で発生）
+
+CLIからの `xcodebuild -exportArchive` が認証で失敗しました。2日前のビルド11は同じ手順で成功しています。
+
+```
+IDEDistribution: App Store Connect request for store configuration failed for account (null)
+  (Unable to authenticate with App Store Connect (CDWebService Code=1064
+   "The iTunes Store is not currently accepting content due to the holiday.
+    Please try again after December 29th."))
+error: exportArchive No Accounts with App Store Connect Access
+** EXPORT FAILED **
+```
+
+- **`account (null)`** が要点で、Xcodeが使えるApple Accountを1つも見つけられていません
+- 併記される「年末年始のため受付停止」は**日付が合っていません**（発生日は8月8日）。
+  Appleの定型文がそのまま返っているだけと見られ、ここから原因を読み取らないこと
+- 2回試して2回とも同じ結果でした。一時的な揺らぎではありません
+
+**対処（エージェントは代行しません。認証情報の入力は人の作業です）**
+
+1. Xcode を開き、**Settings → Accounts** で Apple Account がログイン済みか確認する。
+   消えていれば追加し直す（**2要素認証のコード入力が要ります**）
+2. アカウントを選び **Manage Certificates** で配布用の証明書があることを確認する
+3. Organizer（**Window → Organizer**）から該当のArchiveを選び、
+   **Distribute App → App Store Connect → Upload** で送る
+4. CLIから再試行する場合は、Xcodeでのログイン後に
+   `xcodebuild -exportArchive -archivePath <archive> -exportOptionsPlist AppStore/UploadOptions.plist -allowProvisioningUpdates`
 
 ## 次の安全な作業
 
