@@ -1,6 +1,6 @@
 # Subsc iOS Release Runbook
 
-最終更新：2026-08-08
+最終更新：2026-08-09
 
 この文書はSubsc固有のリリース情報と作業状態を記録します。パスワード、APIキー、証明書の秘密鍵は記録しません。
 
@@ -233,12 +233,11 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 **独立レビューは2026-08-08にメインスレッドが実施しました**（Codexが使用上限だったため、harutoさんの指示による）。保存プロパティ・CloudKitスキーマの変更が無いこと、削除した機能の残骸が無いこと、`project.pbxproj` が壊れていないこと（`plutil -lint`）を確認済みです。指摘事項は `.spec/TODO.md` の「レビューで挙がった宿題」にあります。
 
-### ビルド12（2026-08-08）— **Archiveまで完了、アップロードは未完了**
+### ビルド12（Archive 2026-08-08 / アップロード 2026-08-09）
 
-2026-08-08にバージョン1.0.0、ビルド12のArchiveを作成しました。**アップロードは認証で失敗し、Apple側へは届いていません。** 対処は「既知のリリース時トラブル」の該当項を参照してください。
+2026-08-08にバージョン1.0.0、ビルド12のArchiveを作成しました。当日のアップロードはAppleの定期メンテナンスにより失敗しましたが、**メンテナンス明けの2026-08-09 08:39（日本時間）に再送し、Apple側の受領に成功しました**（`Upload succeeded.` / `** EXPORT SUCCEEDED **`）。**Archiveの作り直しは不要でした。** 失敗時の切り分けは「既知のリリース時トラブル」の該当項に記録してあります。
 
 - Archiveの場所：`~/Library/Developer/Xcode/Archives/2026-08-08/Subsc 2026-08-08 22.10.xcarchive`
-  （Xcodeの Organizer から見えます。**そこから Distribute App で送れます**）
 - Archive内容の確認済み事項：`CFBundleShortVersionString = 1.0.0` / `CFBundleVersion = 12` /
   `com.tonaria.subsc`、`Assets.car` に `AppIcon` と `AppIconPreview` が両方1024×1024で入っていること、
   事前レンダリングされた120pxのアイコンが新意匠であること
@@ -434,6 +433,12 @@ curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js |
 - 併記される「12月29日以降に」の文言は日付が合わず、**古い定型応答が返っている兆候**と見ている
 
 **対処：メンテナンスが明けてから再試行する。** Archiveは作り直し不要（下記の場所に保存済み）。
+
+**結果：この見立てで正しく、2026-08-09 08:39（日本時間）に同じArchive・同じコマンドで再送し成功しました。** 認証情報の入れ直しもアカウントの変更も一切していません。メンテナンス（`08/08/2026 05:30–08:00 PDT`）はステータスフィード上 `eventStatus: completed` になっていました。再送前の確認はこの1行で足ります。
+
+```bash
+curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js | head -c 3000
+```
 
 **教訓：エラー文言から原因を読もうとしない。** 今回Appleが返した
 「年末年始のため受付停止。12月29日以降に再試行を」は完全な的外れで、
