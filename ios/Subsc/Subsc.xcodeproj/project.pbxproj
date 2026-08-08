@@ -50,6 +50,8 @@
 		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
 		AA00011400000000000000140 /* BlackCatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* BlackCatType.swift */; };
 		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
+		AA000111580000000000000158 /* CatArtworkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111580000000000000158 /* CatArtworkData.swift */; };
+		AA000111590000000000000159 /* CatPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111590000000000000159 /* CatPathParser.swift */; };
 		AA00011360000000000000136 /* CatCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011360000000000000136 /* CatCompanionView.swift */; };
 		AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011310000000000000131 /* UpcomingChargeSection.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
@@ -142,6 +144,7 @@
 		AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011280000000000000128 /* ServiceCatalogTests.swift */; };
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
 		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
+		AA00011570000000000000157 /* CatPathParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011570000000000000157 /* CatPathParserTests.swift */; };
 		AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011450000000000000145 /* RelativeDueLabelTests.swift */; };
 		AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011380000000000000138 /* CatMoodContextTests.swift */; };
 		AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011410000000000000141 /* HarmonizedColorTests.swift */; };
@@ -208,6 +211,8 @@
 		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
 		BB00011400000000000000140 /* BlackCatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatType.swift; sourceTree = "<group>"; };
 		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
+		BB000111580000000000000158 /* CatArtworkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArtworkData.swift; sourceTree = "<group>"; };
+		BB000111590000000000000159 /* CatPathParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParser.swift; sourceTree = "<group>"; };
 		BB00011360000000000000136 /* CatCompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionView.swift; sourceTree = "<group>"; };
 		BB00011310000000000000131 /* UpcomingChargeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingChargeSection.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
@@ -305,6 +310,7 @@
 		BB00011280000000000000128 /* ServiceCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalogTests.swift; sourceTree = "<group>"; };
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
 		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
+		BB00011570000000000000157 /* CatPathParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParserTests.swift; sourceTree = "<group>"; };
 		BB00011450000000000000145 /* RelativeDueLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabelTests.swift; sourceTree = "<group>"; };
 		BB00011380000000000000138 /* CatMoodContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContextTests.swift; sourceTree = "<group>"; };
 		BB00011410000000000000141 /* HarmonizedColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarmonizedColorTests.swift; sourceTree = "<group>"; };
@@ -377,6 +383,8 @@
 				BB00011340000000000000134 /* BlackCatPalette.swift */,
 				BB00011400000000000000140 /* BlackCatType.swift */,
 				BB00011350000000000000135 /* CatArt.swift */,
+				BB000111580000000000000158 /* CatArtworkData.swift */,
+				BB000111590000000000000159 /* CatPathParser.swift */,
 				BB00011360000000000000136 /* CatCompanionView.swift */,
 			);
 			path = Design;
@@ -529,6 +537,7 @@
 				BB00011280000000000000128 /* ServiceCatalogTests.swift */,
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
 				BB00011320000000000000132 /* CatMoodTests.swift */,
+				BB00011570000000000000157 /* CatPathParserTests.swift */,
 				BB00011450000000000000145 /* RelativeDueLabelTests.swift */,
 				BB00011380000000000000138 /* CatMoodContextTests.swift */,
 				BB00011410000000000000141 /* HarmonizedColorTests.swift */,
@@ -793,6 +802,8 @@
 				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
 				AA00011400000000000000140 /* BlackCatType.swift in Sources */,
 				AA00011350000000000000135 /* CatArt.swift in Sources */,
+				AA000111580000000000000158 /* CatArtworkData.swift in Sources */,
+				AA000111590000000000000159 /* CatPathParser.swift in Sources */,
 				AA00011360000000000000136 /* CatCompanionView.swift in Sources */,
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
@@ -845,6 +856,7 @@
 				AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */,
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
 				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
+				AA00011570000000000000157 /* CatPathParserTests.swift in Sources */,
 				AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */,
 				AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */,
 				AA00011410000000000000141 /* HarmonizedColorTests.swift in Sources */,

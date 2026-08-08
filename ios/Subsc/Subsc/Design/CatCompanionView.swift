@@ -9,10 +9,10 @@ struct CatCompanionView: View {
 
     var body: some View {
         Canvas { context, size in
-            // 設計空間（200）＋余白を、与えられた大きさへ収めます。
+            // 設計空間（210）を、与えられた大きさへ収めます。
+            // 耳や尻尾の逃げ場は設計空間の中に含まれているため、余白は足しません。
             let scale = min(size.width, size.height) / CatArt.canvasSize
             context.scaleBy(x: scale, y: scale)
-            context.translateBy(x: CatArt.margin, y: CatArt.margin)
             CatArt.draw(
                 mood: mood,
                 in: &context,
