@@ -41,9 +41,6 @@ struct TutorialView: View {
             ForEach(pages) { page in
                 TutorialPageView(
                     page: page,
-                    // **猫は1ページ目にだけ座らせます。** 全ページに出すと、
-                    // 猫が説明役として喋っているように読めてしまいます。
-                    showsCat: page.id == 0,
                     topInset: Inset.top,
                     bottomInset: Inset.bottom
                 )
@@ -132,7 +129,6 @@ struct TutorialView: View {
 /// チュートリアルの1ページです。
 private struct TutorialPageView: View {
     let page: TutorialPage
-    let showsCat: Bool
     /// 上下の操作部が隠す高さです。ここを余白として空けます。
     let topInset: CGFloat
     let bottomInset: CGFloat
@@ -151,8 +147,9 @@ private struct TutorialPageView: View {
         // 素直に上から積み、収まらないぶんはスクロールで読ませます。
         ScrollView {
             VStack(spacing: BlackCatSpacing.xl) {
+                // **大きさは絵ごとに決めます。** 状態を並べる図は正方形に収まらないため、
+                // ここで一律に枠をはめると潰れます。
                 artwork
-                    .frame(width: artworkSize, height: artworkSize)
 
                 VStack(spacing: BlackCatSpacing.m) {
                     Text(page.title)
@@ -180,18 +177,80 @@ private struct TutorialPageView: View {
 
     @ViewBuilder
     private var artwork: some View {
-        if showsCat {
-            // 案内の姿です。**この状態は既にあります**（費目0件のときと同じ姿勢）。
-            CatCompanionView(mood: .guiding)
-        } else {
-            Image(systemName: page.systemImage)
+        switch page.artwork {
+        case .cat(let mood):
+            CatCompanionView(mood: mood)
+                .frame(width: artworkSize, height: artworkSize)
+        case .symbol(let name):
+            Image(systemName: name)
                 .resizable()
                 .scaledToFit()
                 .fontWeight(.light)
                 .foregroundStyle(BlackCatPalette.accent)
                 .padding(BlackCatSpacing.xl)
+                .frame(width: artworkSize, height: artworkSize)
                 .accessibilityHidden(true)
+        case .catMoodGuide:
+            CatMoodGuide(moods: TutorialPage.featuredMoods)
         }
+    }
+}
+
+/// 猫の姿と、その姿が意味することを並べて見せる図です。
+///
+/// **チュートリアルの中だけで使います。** ホーム画面の猫は姿勢だけで状況を伝え、
+/// 名前を添えません。ここは「読み方」を最初に一度渡す場所なので、
+/// 例外として姿と名前を並べます。
+private struct CatMoodGuide: View {
+    let moods: [CatMood]
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    /// **文字を大きくしている画面では1列に落とします。**
+    /// 2列のまま名前を折り返させると、姿と名前の対応が読み取れなくなります。
+    private var columns: [GridItem] {
+        dynamicTypeSize.isAccessibilitySize
+            ? [GridItem(.flexible())]
+            : [GridItem(.flexible()), GridItem(.flexible())]
+    }
+
+    /// 1匹あたりの大きさです。**4匹並ぶので、1匹だけのページより小さくします。**
+    private var catSize: CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? 52 : 76
+    }
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: BlackCatSpacing.l) {
+            ForEach(moods) { mood in
+                item(for: mood)
+            }
+        }
+    }
+
+    /// 1匹ぶんです。1列に落ちたときは横並びにして、縦の長さを抑えます。
+    private func item(for mood: CatMood) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(HStackLayout(spacing: BlackCatSpacing.m))
+            : AnyLayout(VStackLayout(spacing: BlackCatSpacing.s))
+
+        return layout {
+            CatCompanionView(mood: mood)
+                .frame(width: catSize, height: catSize)
+                // **猫側の読み上げを止めます。** `CatCompanionView` は状態名を
+                // 読み上げるので、下の `Text` と合わせると同じ名前を2回言います。
+                .accessibilityHidden(true)
+
+            Text(mood.title)
+                .font(BlackCatType.label)
+                .foregroundStyle(BlackCatPalette.textMuted)
+                .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if dynamicTypeSize.isAccessibilitySize {
+                Spacer(minLength: 0)
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

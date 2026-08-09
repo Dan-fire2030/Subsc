@@ -13,15 +13,44 @@ struct TutorialPage: Identifiable, Equatable {
     let title: String
     /// 本文です。**3行に収まる長さを目安にします。** 長い案内は読まれません。
     let body: String
-    /// 添える絵です。ビットマップを持たず、SF Symbolsで足ります。
-    let systemImage: String
+    /// 添える絵です。
+    let artwork: Artwork
 }
 
 extension TutorialPage {
-    /// 出す順の4ページです。
+    /// ページに添える絵の種類です。
+    ///
+    /// **`String` のシンボル名だけを持つのをやめました（2026-08-09）。**
+    /// 猫の状態を並べるページが増え、絵の描き方がページごとに違うためです。
+    /// 種類を型で持てば、ビュー側の分岐が網羅されているかをコンパイラが見ます。
+    enum Artwork: Equatable {
+        /// 相棒の黒猫を1匹だけ座らせます。
+        case cat(CatMood)
+        /// SF Symbols を1つ置きます。ビットマップは持ちません。
+        case symbol(String)
+        /// 猫の状態を並べて、姿と意味の対応を見せます。
+        case catMoodGuide
+    }
+
+    /// 状態の説明ページに並べる姿です。
+    ///
+    /// **よく出る4つに絞ります。** 残る2つ（変動費が未入力・費目がまだ無い）は、
+    /// その状況になれば必ず目に入るうえ、初回の案内で6つ覚えてもらう必要がありません。
+    ///
+    /// **名前は `CatMood.title` を使い回します。** 読み上げと画面で違うことを
+    /// 言わせないためで、文言を二重に持つと片方だけ直して食い違います。
+    static let featuredMoods: [CatMood] = [.calm, .worried, .pleased, .watching]
+
+    /// 出す順の5ページです。
     ///
     /// **順番に意味があります。** 費目の登録（誰でも使う）→ 借入（使う人には中核）
-    /// → レポート（貯まってから効く）→ 通知とデータ（安心して続けるための前提）。
+    /// → レポート（貯まってから効く）→ 猫の姿（レポートの要約として読む）
+    /// → 通知とデータ（安心して続けるための前提）。
+    ///
+    /// **猫の説明はレポートの直後に置きます。** 猫が示すのは支出の傾向で、
+    /// レポートで見た集計を姿に置き換えたものだからです。
+    /// **最後は「通知とデータ」で閉じます。** 外へ送らないという前提は、
+    /// 使い始める前にいちばん最後に残したい情報です。
     static let all: [TutorialPage] = [
         TutorialPage(
             id: 0,
@@ -30,7 +59,7 @@ extension TutorialPage {
             サブスク、通信費、光熱費などを費目として登録します。\
             金額が毎月変わる費目は、月ごとの実績をあとから入力できます。
             """,
-            systemImage: "square.stack.3d.up"
+            artwork: .cat(.guiding)
         ),
         TutorialPage(
             id: 1,
@@ -39,7 +68,7 @@ extension TutorialPage {
             住宅ローンや奨学金を、借りたときの条件からでも今の残高からでも登録できます。\
             返済予定表と完済予定日は自動で計算されます。
             """,
-            systemImage: "banknote"
+            artwork: .symbol("banknote")
         ),
         TutorialPage(
             id: 2,
@@ -48,16 +77,26 @@ extension TutorialPage {
             月間・年間の支払いを集計します。左右にスワイプで期間を移動でき、\
             年払いは更新月にまとめて計上します。
             """,
-            systemImage: "chart.bar.xaxis"
+            artwork: .symbol("chart.bar.xaxis")
         ),
         TutorialPage(
             id: 3,
+            title: "猫の姿で今の状況を知る",
+            body: """
+            ホーム画面の猫は、支出の様子に応じて姿勢が変わります。\
+            増減は直近3ヶ月の平均と比べて判断します。\
+            このほか、変動費が未入力のまま月末が近いときと、費目がまだ無いときにも別の姿になります。
+            """,
+            artwork: .catMoodGuide
+        ),
+        TutorialPage(
+            id: 4,
             title: "通知で取りこぼさない",
             body: """
             更新日や返済日の前に通知でお知らせします。\
             データは端末と本人のiCloudにだけ保存され、外部へ送ることはありません。
             """,
-            systemImage: "bell.badge"
+            artwork: .symbol("bell.badge")
         )
     ]
 }

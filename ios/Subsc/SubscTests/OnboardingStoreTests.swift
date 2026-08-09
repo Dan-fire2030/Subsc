@@ -78,3 +78,77 @@ final class OnboardingStoreTests: XCTestCase {
         )
     }
 }
+
+/// チュートリアルに並べる内容のテストです。
+///
+/// **ページを足す・並べ替えるときに壊れやすい前提**をここで縛ります。
+/// `TabView` の選択は `id` をそのまま `tag` に使っているため、
+/// 番号が飛ぶと「次へ」で進めないページができます。
+final class TutorialPageTests: XCTestCase {
+    /// `id` は 0 から連番であること。`selection += 1` で進める作りの前提です。
+    func testPageIdentifiersAreSequentialFromZero() {
+        XCTAssertEqual(
+            TutorialPage.all.map(\.id),
+            Array(0..<TutorialPage.all.count),
+            "idが連番でないと「次へ」で進めないページができます。"
+        )
+    }
+
+    /// 見出しと本文が空のページを出さないこと。
+    func testEveryPageHasTitleAndBody() {
+        for page in TutorialPage.all {
+            XCTAssertFalse(page.title.isEmpty, "\(page.id)ページ目の見出しが空です。")
+            XCTAssertFalse(page.body.isEmpty, "\(page.id)ページ目の本文が空です。")
+        }
+    }
+
+    /// **猫の状態を説明するページは、レポートの直後に置きます。**
+    /// 猫が示すのは支出の傾向で、レポートで見た集計を姿に置き換えたものだからです。
+    func testMoodGuideFollowsTheReportPage() throws {
+        let guideIndex = try XCTUnwrap(
+            TutorialPage.all.firstIndex { $0.artwork == .catMoodGuide },
+            "猫の状態を説明するページがありません。"
+        )
+        let previous = TutorialPage.all[guideIndex - 1]
+
+        XCTAssertEqual(previous.artwork, .symbol("chart.bar.xaxis"))
+    }
+
+    /// **最後は「通知とデータ」で閉じること。** 外へ送らないという前提は、
+    /// 使い始める直前に残しておきたい情報です。
+    func testTheLastPageIsAboutNotificationsAndData() throws {
+        let last = try XCTUnwrap(TutorialPage.all.last)
+
+        XCTAssertEqual(last.artwork, .symbol("bell.badge"))
+    }
+
+    /// **猫を1匹だけ座らせるページは1つだけ。** 全ページに出すと、
+    /// 猫が説明役として喋っているように読めてしまいます。
+    func testOnlyOnePageSeatsASingleCat() {
+        let seated = TutorialPage.all.filter { page in
+            if case .cat = page.artwork { return true }
+            return false
+        }
+
+        XCTAssertEqual(seated.count, 1)
+    }
+
+    /// 並べる状態が重複していないこと。同じ姿が2つ並ぶと対応が読めません。
+    func testFeaturedMoodsAreDistinct() {
+        XCTAssertEqual(
+            Set(TutorialPage.featuredMoods).count,
+            TutorialPage.featuredMoods.count
+        )
+    }
+
+    /// **名前も重複しないこと。** 姿が違っても同じ名前が並ぶと、
+    /// どちらがどの状況か分かりません。名前は `CatMood.title` を使い回しています。
+    func testFeaturedMoodNamesAreDistinctAndNotEmpty() {
+        let names = TutorialPage.featuredMoods.map(\.title)
+
+        XCTAssertEqual(Set(names).count, names.count, "同じ名前の姿が並んでいます：\(names)")
+        for name in names {
+            XCTAssertFalse(name.isEmpty)
+        }
+    }
+}
