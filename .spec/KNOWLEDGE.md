@@ -560,3 +560,41 @@ Diff View のヘッダ `@@ -1,132 +1,134 @@` が示す**追加2行・削除な�
 「8/9の14時に、8/10更新・前日13:30」で登録すると直近の1回は1件も予約されない。
 `hasNotifiableTime` を切り出し、フォームの通知セクションの説明文で事前に知らせる。
 **予約されないことが仕様でも、黙っているのは不具合。**
+
+### 2026-08-09：通知デリゲートを `async` で書くと、通知タップのたびに落ちる
+**ビルド14の実機クラッシュ（`SIGABRT`）。** 通知が届くようになった当日に発覚した。
+
+```
+Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:didReceive:)
+  → -[UIApplication _updateSnapshotAndStateRestorationWithAction:windowScene:]
+  → -[UIApplication _performBlockAfterCATransactionCommitSynchronizes:]
+  → NSAssertionHandler → abort
+落ちたスレッド：com.apple.root.user-initiated-qos.cooperative（＝メインではない）
+```
+
+- `UNUserNotificationCenterDelegate` の **`async` 版**で実装すると、UIKitへ返す完了処理が
+  **関数の再開先（協調スレッドプール）から呼ばれる**。UIKitはそこでスナップショットと
+  状態復元を行うため、メイン以外だとアサーションで落ちる
+- **`await MainActor.run { }` を中に挟んでも直らない。** 関数自身の再開先が変わらないため
+- **`@MainActor` を付けた `async` 版はコンパイルできない。**
+  `UNNotification` などの引数がSendableでなく、MainActorへ渡せない
+- 残る道は**完了ハンドラ版（`withCompletionHandler:`）を実装し、`Task { @MainActor in }` から
+  自分で呼ぶ**こと。ハンドラはObjCブロックでSendableでないため、包んで渡す
+- **デリゲートの割り当ては `init` で行う。** `.task` はビューが現れた後＝起動後で、
+  Appleの「起動が終わるまでに割り当てること」に反する。
+  アプリ未起動時に通知のボタンを押した応答を取りこぼす
+
+**教訓：不具合は別の不具合に隠れる。** 通知が1件も配信されていなかったため、
+タップ経路のクラッシュは長期間表に出なかった。**配信を直した日に初めて出た。**
+1つ直したら、その先の経路が初めて通ることを意識する。
+
+### 2026-08-09：クラッシュは推測せず、`.ips` を取り寄せて記号化する
+- 端末の `.ips` は **設定 → プライバシーとセキュリティ → 解析と改善 → 解析データ**
+- **`~/Library/Group Containers/.../shared-pasteboard/` はTCCで読めない**（`Operation not permitted`）。
+  `~/Downloads` など通常の場所へ移してもらう
+- 記号化はArchiveのdSYMで足りる。`slice_uuid` と `dwarfdump --uuid` の一致を必ず確認する
+  ```bash
+  atos -o "<archive>/dSYMs/App.app.dSYM/Contents/Resources/DWARF/App" -arch arm64 \
+       -l 0x100000000 $((0x100000000 + <imageOffset>))
+  ```
+- `.ips` は2行構成。1行目がメタ（`build_version` 等）、2行目が本体のJSON

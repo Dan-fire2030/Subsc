@@ -39,7 +39,12 @@ struct SubscApp: App {
     /// **CloudKitのスキーマには影響しません。**
     @State private var onboarding = OnboardingStore()
     /// 通知の受け口です。**強参照で持ち続けないと、`delegate` が解放されて応答が届きません。**
-    @State private var notificationResponder: LoanNotificationResponder?
+    ///
+    /// **`init` で作って持ちます（2026-08-09）。** 以前は `.task` の中で作っていましたが、
+    /// `.task` はビューが現れた後、つまり**起動が終わった後**に走ります。
+    /// Appleは「デリゲートは起動が終わるまでに割り当てること」と定めており、
+    /// 遅れると**アプリが起動していない状態で通知のボタンを押したときの応答を取りこぼします**。
+    private let notificationResponder: LoanNotificationResponder
 
     init() {
         let configuration = StorageMode.resolve().modelConfiguration(
@@ -66,6 +71,13 @@ struct SubscApp: App {
                 fatalError("復旧用データ領域の初期化に失敗しました: \(error.localizedDescription)")
             }
         }
+
+        // **通知の受け口は起動中に用意します。** `.task` では遅すぎます（上のコメント参照）。
+        // カテゴリの登録も予約より先に済ませないと、通知にボタンが出ません。
+        let responder = LoanNotificationResponder(modelContainer: modelContainer)
+        notificationResponder = responder
+        NotificationService.registerCategories()
+        UNUserNotificationCenter.current().delegate = responder
     }
 
     var body: some Scene {
@@ -81,13 +93,6 @@ struct SubscApp: App {
             .environment(theme)
             .environment(loanNotificationSettings)
             .environment(onboarding)
-            .task {
-                // **予約より先にカテゴリを登録しないと、通知にボタンが出ません。**
-                NotificationService.registerCategories()
-                let responder = LoanNotificationResponder(modelContainer: modelContainer)
-                notificationResponder = responder
-                UNUserNotificationCenter.current().delegate = responder
-            }
         }
     }
 }
