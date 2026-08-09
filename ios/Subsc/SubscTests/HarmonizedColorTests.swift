@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import XCTest
 @testable import Subsc
 
@@ -56,5 +57,98 @@ final class HarmonizedColorTests: XCTestCase {
     func testHuesMapToTheNearestCategoryColor() {
         XCTAssertEqual(BlackCatPalette.harmonizedHex(from: "#FF0000"), "#D98FA6")
         XCTAssertEqual(BlackCatPalette.harmonizedHex(from: "#0000FF"), "#9B8FD9")
+    }
+}
+
+/// 猫が地から分離して見えることを縛るテストです。
+///
+/// **1.04:1 という実質不可視の状態を、誰も気づかないまま出荷しかけました（2026-08-09）。**
+/// ダークの体色は地より暗く置く設計で、白磁の地では影として正しく読めますが、
+/// 墨の地では体と地が同じ色になっていました。**目視では「黒っぽい」としか分からず、
+/// 比を測って初めて分かる**ため、ここで数値として固定します。
+final class BlackCatContrastTests: XCTestCase {
+    /// 文字以外の図形に求められる最低限のコントラストです。
+    private let minimumGraphicContrast: Double = 3.0
+
+    /// ライトでは体そのものが地に対して十分暗く、面を敷く必要がありません。
+    func testCatBodyReadsAgainstTheLightBackground() {
+        let contrast = ratio(
+            BlackCatPalette.cat,
+            BlackCatPalette.background,
+            style: .light
+        )
+
+        XCTAssertGreaterThan(
+            contrast,
+            minimumGraphicContrast,
+            "ライトで猫が地から分離していません：\(String(format: "%.2f", contrast)):1"
+        )
+    }
+
+    /// **ダークは体ではなく、背後へ敷く面が分離を作ります。**
+    /// 体は墨のまま（黒猫であること）を保つため、比は面と体のあいだで測ります。
+    func testHaloSeparatesTheCatInDarkMode() {
+        let contrast = ratio(
+            BlackCatPalette.catHalo,
+            BlackCatPalette.cat,
+            style: .dark
+        )
+
+        XCTAssertGreaterThan(
+            contrast,
+            minimumGraphicContrast,
+            "ダークで猫を浮かせられていません：\(String(format: "%.2f", contrast)):1"
+        )
+    }
+
+    /// **体を明るくして解決していないこと。** 明るくすると黒猫でなくなるため、
+    /// 体はカード面より暗いままであることを縛ります。
+    func testCatBodyStaysDarkerThanTheSurfaceInDarkMode() {
+        XCTAssertLessThan(
+            luminance(BlackCatPalette.cat, style: .dark),
+            luminance(BlackCatPalette.surface, style: .dark),
+            "ダークの猫がカード面より明るくなっています。黒猫でなくなります。"
+        )
+    }
+
+    /// 金の目は両モードで読めていること。猫の分離を直すときに巻き添えで潰さないためです。
+    func testEyesReadInBothModes() {
+        XCTAssertGreaterThan(
+            ratio(BlackCatPalette.catEye, BlackCatPalette.cat, style: .light),
+            minimumGraphicContrast
+        )
+        XCTAssertGreaterThan(
+            ratio(BlackCatPalette.catEye, BlackCatPalette.cat, style: .dark),
+            minimumGraphicContrast
+        )
+    }
+
+    // MARK: - 補助
+
+    /// WCAG の相対輝度です。**モードを指定して解決します。**
+    /// 動的な色をそのまま測ると、実行環境の外観に結果が左右されます。
+    private func luminance(_ color: Color, style: UIUserInterfaceStyle) -> Double {
+        let resolved = UIColor(color).resolvedColor(
+            with: UITraitCollection(userInterfaceStyle: style)
+        )
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+
+        let channels = [red, green, blue].map { channel -> Double in
+            let value = Double(channel)
+            return value <= 0.03928
+                ? value / 12.92
+                : pow((value + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+    }
+
+    private func ratio(_ lhs: Color, _ rhs: Color, style: UIUserInterfaceStyle) -> Double {
+        let left = luminance(lhs, style: style)
+        let right = luminance(rhs, style: style)
+        return (max(left, right) + 0.05) / (min(left, right) + 0.05)
     }
 }

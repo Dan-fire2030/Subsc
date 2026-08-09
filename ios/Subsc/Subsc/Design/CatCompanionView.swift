@@ -6,6 +6,10 @@ import SwiftUI
 /// つかなくなるためです。読み上げにだけ状態の説明を渡します。
 struct CatCompanionView: View {
     let mood: CatMood
+    /// **ダークでだけ背後に淡い面を敷くため**に見ています。
+    /// 墨の地では体と地のコントラストが 1.04:1 しかなく、猫が消えていました。
+    /// ライトでは体が地に対して 17:1 あるので敷きません。
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Canvas { context, size in
@@ -17,7 +21,8 @@ struct CatCompanionView: View {
                 mood: mood,
                 in: &context,
                 cat: BlackCatPalette.cat,
-                eye: BlackCatPalette.catEye
+                eye: BlackCatPalette.catEye,
+                halo: colorScheme == .dark ? BlackCatPalette.catHalo : nil
             )
         }
         .aspectRatio(1, contentMode: .fit)

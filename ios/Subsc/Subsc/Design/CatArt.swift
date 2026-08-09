@@ -44,14 +44,36 @@ enum CatArt {
         }
     }
 
+    /// 背後へ敷く面のぼかし半径です。**設計空間（210）の単位**なので、
+    /// 表示を大きくしても小さくしても、猫に対する滲みの比は変わりません。
+    private static let haloBlurRadius: CGFloat = 9
+
     /// 状態に応じた猫を描きます。
+    ///
+    /// `halo` を渡すと、**同じ形をぼかして背後へ一度敷いてから**猫を描きます。
+    /// 円い面ではなく猫の形そのものを使うのは、位置や大きさの定数を持たずに済み、
+    /// どの状態でもシルエットに沿って縁だけが淡く光るためです。
+    /// 敷く必要が無いモード（ライト）では `nil` を渡し、描画ごと省きます。
     static func draw(
         mood: CatMood,
         in context: inout GraphicsContext,
         cat: Color,
-        eye: Color
+        eye: Color,
+        halo: Color? = nil
     ) {
-        for shape in shapes(for: mood) {
+        let shapes = shapes(for: mood)
+
+        if let halo {
+            // **体だけを敷きます。** 目や符号まで敷くと、金色の周りが二重に光ります。
+            context.drawLayer { layer in
+                layer.addFilter(.blur(radius: haloBlurRadius))
+                for shape in shapes where shape.ink == .body {
+                    layer.fill(shape.path, with: .color(halo))
+                }
+            }
+        }
+
+        for shape in shapes {
             context.fill(shape.path, with: .color(shape.ink == .body ? cat : eye))
         }
     }
