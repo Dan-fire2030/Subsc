@@ -21,7 +21,7 @@
 | SKU | `subsc-ios-20260727` |
 | プライマリ言語 | 日本語 |
 | 現在のバージョン | 1.0.0 |
-| 現在のビルド | 14（2026-08-09にApple側の受領に成功） |
+| 現在のビルド | 15（2026-08-09にApple側の受領に成功） |
 
 ## 管理画面
 
@@ -232,6 +232,50 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - **設定画面のアイコン素材（`AppIconPreview`）がリデザイン前の旧アイコンのまま。** ホーム画面の `AppIcon` だけを差し替えていた。**未修正**（ビットマップ生成のためCodexへ委譲する）
 
 **独立レビューは2026-08-08にメインスレッドが実施しました**（Codexが使用上限だったため、harutoさんの指示による）。保存プロパティ・CloudKitスキーマの変更が無いこと、削除した機能の残骸が無いこと、`project.pbxproj` が壊れていないこと（`plutil -lint`）を確認済みです。指摘事項は `.spec/TODO.md` の「レビューで挙がった宿題」にあります。
+
+### ビルド15（2026-08-09）
+
+2026-08-09にバージョン1.0.0、ビルド15をアップロードしました。Apple側の受領に成功しました（`Upload succeeded.` / `** EXPORT SUCCEEDED **`）。
+
+- Archiveの場所：`~/Library/Developer/Xcode/Archives/2026-08-09/Subsc 15.xcarchive`
+- 確認済み：`CFBundleShortVersionString = 1.0.0` / `CFBundleVersion = 15` / `com.tonaria.subsc` / 表示名「つきねこ」
+- ブランチ：`feat/search-scroll-to-item`（**mainへは未マージ**）
+
+#### 直したこと：通知をタップするとクラッシュする
+
+**ビルド14で通知が届くようになった当日に発覚しました。** `.ips` をArchiveのdSYMで記号化して原因を確定しています（推測では直していません）。
+
+```
+Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:didReceive:)
+  → -[UIApplication _updateSnapshotAndStateRestorationWithAction:windowScene:]
+  → -[UIApplication _performBlockAfterCATransactionCommitSynchronizes:]
+  → NSAssertionHandler → abort（SIGABRT）
+落ちたスレッド：com.apple.root.user-initiated-qos.cooperative（メインではない）
+```
+
+`UNUserNotificationCenterDelegate` を **`async` 版**で実装していたため、UIKitへ返す完了処理が**関数の再開先＝協調スレッドプールから呼ばれて**いました。UIKitはそこでスナップショットと状態復元を行うため、メイン以外だとアサーションで落ちます。
+
+**素直な直し方は2つとも塞がっています。**
+
+- `await MainActor.run { }` を挟んでも効きません。関数自身の再開先が変わらないためです
+- `@MainActor` を付けた `async` 版はコンパイルできません。`UNNotification` などがSendableでなくMainActorへ渡せないためです
+
+**完了ハンドラ版（`withCompletionHandler:`）を実装し、`Task { @MainActor in }` から自分で呼ぶ**形にしました。
+
+併せて、**デリゲートの割り当てを `.task` から `init` へ移しました**。`.task` はビューが現れた後、つまり起動が終わった後に走ります。Appleは「起動が終わるまでに割り当てること」を求めており、遅れると**アプリが起動していない状態で通知のボタンを押した応答を取りこぼします**。
+
+ユニットテストは486件すべて通過、Releaseビルドの警告はゼロです。
+
+**このビルドで確認したい項目です。**
+
+1. **通知をタップして、クラッシュせずにアプリが開くか**（今回直した箇所そのもの）
+2. **アプリを完全に終了した状態で、返済日通知の「返済した」を押して記録されるか**（デリゲートの割り当てを早めた箇所）
+3. ビルド13〜14ぶんの未検証項目（停止中の借入がある状態での起動時のCPUと発熱、検索、
+   ダークでの猫、チュートリアル、アイコンの実寸、iOS 17〜25のフォールバック、停止からの再開）
+
+#### 通知の配信はビルド14で直っていることを確認済み
+
+実機で通知が届き、「N件の通知を予約できませんでした」の警告も出ませんでした（＝予約が64件の枠に収まっている）。
 
 ### ビルド14（2026-08-09）
 
