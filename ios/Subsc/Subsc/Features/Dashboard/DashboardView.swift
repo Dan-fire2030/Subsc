@@ -14,7 +14,6 @@ struct DashboardView: View {
     /// 停止・再開のあとで通知を組み直すのに使います。
     /// **既定値で `reconcile` を呼ぶと、利用者が選んだ「何日前」が無視されます。**
     @Environment(LoanNotificationSettings.self) var loanNotificationSettings
-    @Environment(\.dismissSearch) private var dismissSearch
     @Environment(\.modelContext) var modelContext
     @Query(sort: \Subscription.renewalDate) var subscriptions: [Subscription]
     @Query(sort: \Loan.createdAt) var loans: [Loan]
@@ -31,7 +30,9 @@ struct DashboardView: View {
         // computed property のまま複数箇所から読むと、そのたびに
         // `DashboardListBuilder` の絞り込みと並べ替えが走り、借入ごとに
         // `LoanSummary` まで作り直されます（2026-08-08のレビュー指摘）。
-        let upcoming = upcomingItems
+        let searching = isSearching
+        // 検索中は時間軸を出さないので、組み立てる必要もありません。
+        let upcoming = searching ? [] : upcomingItems
         let visible = visibleItems
 
         return NavigationStack {
@@ -46,56 +47,64 @@ struct DashboardView: View {
                         .listRowSeparator(.hidden)
                     }
                 } else {
-                    Section {
-                        ReportCard(
-                            subscriptions: subscriptionsInSelectedTypes,
-                            loans: loansInSelectedTypes,
-                            costTypeFilter: costTypeFilter,
-                            catMood: catMood
-                        )
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    }
-
-                    UpcomingChargeSection(notices: upcomingCharges)
-
-                    if !upcoming.isEmpty {
-                        // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
-                        Section("これから出ていく") {
-                            UpcomingTimeline(items: upcoming)
-                                .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 2, trailing: 20))
+                    // **検索中は一覧より上をすべて畳みます（2026-08-09）。**
+                    // 一覧はこの画面のいちばん下にあるため、絞り込んでも結果は画面の外にあり、
+                    // 探し当てるたびに手でスクロールする必要がありました。
+                    // 上を消せば、結果はそのまま検索欄の下に出ます。
+                    if !searching {
+                        Section {
+                            ReportCard(
+                                subscriptions: subscriptionsInSelectedTypes,
+                                loans: loansInSelectedTypes,
+                                costTypeFilter: costTypeFilter,
+                                catMood: catMood
+                            )
+                                .listRowInsets(EdgeInsets())
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                         }
-                    }
 
-                    Section {
-                        Picker("表示", selection: $filter) {
-                            ForEach(SubscriptionFilter.allCases) { filter in
-                                Text(filter.rawValue).tag(filter)
+                        UpcomingChargeSection(notices: upcomingCharges)
+
+                        if !upcoming.isEmpty {
+                            // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
+                            Section("これから出ていく") {
+                                UpcomingTimeline(items: upcoming)
+                                    .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 2, trailing: 20))
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
                             }
                         }
-                        .pickerStyle(.segmented)
-                        .listRowInsets(
-                            EdgeInsets(
-                                top: 8,
-                                leading: 16,
-                                bottom: 8,
-                                trailing: 16
+
+                        // **検索中は隠します。** 状態の絞り込みは検索中に外れるため
+                        // （`effectiveStateFilter`）、出したままだと効いていない選択が残ります。
+                        Section {
+                            Picker("表示", selection: $filter) {
+                                ForEach(SubscriptionFilter.allCases) { filter in
+                                    Text(filter.rawValue).tag(filter)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .listRowInsets(
+                                EdgeInsets(
+                                    top: 8,
+                                    leading: 16,
+                                    bottom: 8,
+                                    trailing: 16
+                                )
                             )
-                        )
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                        }
                     }
 
                     Section(listSectionTitle) {
                         if visible.isEmpty {
                             ContentUnavailableView(
-                                query.isEmpty ? filter.emptyStateTitle : "見つかりませんでした",
-                                systemImage: query.isEmpty
-                                    ? "line.3.horizontal.decrease.circle"
-                                    : "magnifyingglass",
+                                searching ? "見つかりませんでした" : filter.emptyStateTitle,
+                                systemImage: searching
+                                    ? "magnifyingglass"
+                                    : "line.3.horizontal.decrease.circle",
                                 description: Text(emptyStateDescription)
                             )
                             .glassListRow()
@@ -122,25 +131,25 @@ struct DashboardView: View {
                 prompt: "費目名・カテゴリ・メモ"
             )
             .modifier(MinimizableSearchToolbarModifier())
+            // **`searchCompletion` で確定させます（2026-08-09）。**
+            // 以前は `query = item.name` のあと `dismissSearch()` を呼んでいましたが、
+            // `dismissSearch` は「検索フィールドの文字を消す」と規定されています。
+            // 入れた直後に消していたため、**候補を選んでも一覧が絞り込まれませんでした**。
             .searchSuggestions {
                 ForEach(searchSuggestions) { item in
-                    Button {
-                        query = item.name
-                        dismissSearch()
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(item.name)
-                                Text(item.searchSubtitle)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Circle()
-                                .fill(suggestionColor(for: item))
-                                .frame(width: 12, height: 12)
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.name)
+                            Text(item.searchSubtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
+                    } icon: {
+                        Circle()
+                            .fill(suggestionColor(for: item))
+                            .frame(width: 12, height: 12)
                     }
+                    .searchCompletion(item.name)
                 }
             }
             .toolbar {

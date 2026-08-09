@@ -49,15 +49,15 @@ extension DashboardView {
     /// 検索中は検索の話を優先します。**種別で絞り込んでいることを見落として
     /// 「無くなった」と思われる**ことがあるため、絞り込み中はその旨を必ず添えます。
     var emptyStateDescription: String {
-        let base = query.isEmpty
-            ? filter.emptyStateDescription
-            : "検索条件を変えてみてください。"
+        let base = isSearching
+            ? "検索条件を変えてみてください。"
+            : filter.emptyStateDescription
         guard costTypeFilter.isNarrowed else { return base }
         return "\(base)\nいまは「\(costTypeFilter.title)」で絞り込んでいます。"
     }
 
-    /// 一覧の見出しです。種別で絞り込んでいるときは、何を見ているかを見出しで示します。
+    /// 一覧の見出しです。検索中と、種別で絞り込んでいるときに何を見ているかを示します。
     var listSectionTitle: String {
-        costTypeFilter.isNarrowed ? costTypeFilter.title : "費目一覧"
+        DashboardListHeading.title(costTypeFilter: costTypeFilter, isSearching: isSearching)
     }
 }

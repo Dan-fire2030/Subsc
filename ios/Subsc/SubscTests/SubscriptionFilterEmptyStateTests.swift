@@ -44,3 +44,46 @@ final class SubscriptionFilterEmptyStateTests: XCTestCase {
         XCTAssertTrue(description.contains("＋"), "追加の入口が案内されていません：\(description)")
     }
 }
+
+/// 一覧の見出しのテストです。
+///
+/// 検索中はレポートや「これから出ていく」を隠して一覧だけを出すため、
+/// **見出しが「いま何を見ているのか」を伝える唯一の手掛かり**になります。
+final class DashboardListHeadingTests: XCTestCase {
+    /// 検索していないときは、これまでどおり一覧の見出しです。
+    func testTitleWithoutASearch() {
+        XCTAssertEqual(
+            DashboardListHeading.title(costTypeFilter: .all, isSearching: false),
+            "費目一覧"
+        )
+    }
+
+    /// 種別で絞っているときは、何を見ているかを見出しに出します。
+    func testTitleShowsTheCostTypeWhenNarrowed() {
+        XCTAssertEqual(
+            DashboardListHeading.title(costTypeFilter: .only(.loan), isSearching: false),
+            CostTypeFilter.only(.loan).title
+        )
+    }
+
+    /// **検索中は「検索結果」に切り替えます。** 上のセクションが消えるため、
+    /// 見出しが変わらないと絞り込まれたことに気づけません。
+    func testTitleSwitchesWhileSearching() {
+        XCTAssertEqual(
+            DashboardListHeading.title(costTypeFilter: .all, isSearching: true),
+            "検索結果"
+        )
+    }
+
+    /// 検索中でも種別で絞っていれば、その旨を添えます。
+    /// 添えないと「あるはずのものが出ない」理由が画面から消えます。
+    func testTitleKeepsTheCostTypeWhileSearching() {
+        let title = DashboardListHeading.title(costTypeFilter: .only(.loan), isSearching: true)
+
+        XCTAssertTrue(title.contains("検索結果"), "検索中であることが分かりません：\(title)")
+        XCTAssertTrue(
+            title.contains(CostTypeFilter.only(.loan).title),
+            "種別で絞っていることが分かりません：\(title)"
+        )
+    }
+}

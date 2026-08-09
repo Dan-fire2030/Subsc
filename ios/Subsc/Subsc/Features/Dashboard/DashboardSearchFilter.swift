@@ -90,6 +90,21 @@ enum CostTypeFilter: Hashable, Identifiable, CaseIterable {
     }
 }
 
+/// 一覧セクションの見出しです。
+///
+/// **検索中はレポートと「これから出ていく」を隠して一覧だけを出す**ため、
+/// 見出しが「いま何を見ているのか」を伝える唯一の手掛かりになります。
+enum DashboardListHeading {
+    static func title(costTypeFilter: CostTypeFilter, isSearching: Bool) -> String {
+        switch (isSearching, costTypeFilter.isNarrowed) {
+        case (true, true): "検索結果（\(costTypeFilter.title)）"
+        case (true, false): "検索結果"
+        case (false, true): costTypeFilter.title
+        case (false, false): "費目一覧"
+        }
+    }
+}
+
 /// iOS 26 でのみ検索バーの最小化を有効にします。
 ///
 /// `searchToolbarBehavior` は iOS 26 で追加された API のため、

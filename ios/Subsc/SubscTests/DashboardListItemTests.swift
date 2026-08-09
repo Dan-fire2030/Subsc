@@ -266,6 +266,77 @@ final class DashboardListItemTests: XCTestCase {
         XCTAssertTrue(miss.isEmpty)
     }
 
+    // MARK: - 検索中の絞り込み範囲
+
+    /// 前後の空白だけの入力は「検索していない」と見なします。
+    /// 空白で画面から情報が消えると、打ち間違えただけで見失います。
+    func testWhitespaceOnlyQueryIsNotASearch() {
+        XCTAssertTrue(DashboardListBuilder.isSearching(query: "動"))
+        XCTAssertFalse(DashboardListBuilder.isSearching(query: ""))
+        XCTAssertFalse(DashboardListBuilder.isSearching(query: " \n "))
+    }
+
+    /// **検索中は状態の絞り込みを外します。**
+    /// 候補（`suggestions`）は状態を見ないため、一覧側だけ絞ると
+    /// 「候補に出たのに選ぶと見つかりません」になります。
+    func testSearchingWidensTheStateFilterToAll() {
+        XCTAssertEqual(DashboardListBuilder.effectiveStateFilter(.active, query: "動画"), .all)
+        XCTAssertEqual(DashboardListBuilder.effectiveStateFilter(.history, query: "動画"), .all)
+    }
+
+    /// 検索していないときは、利用者が選んだ絞り込みをそのまま使います。
+    func testTheChosenStateFilterSurvivesWithoutAQuery() {
+        XCTAssertEqual(DashboardListBuilder.effectiveStateFilter(.active, query: ""), .active)
+        XCTAssertEqual(DashboardListBuilder.effectiveStateFilter(.paused, query: "   "), .paused)
+    }
+
+    /// **候補に出たものは一覧にも出ること。** 「利用中」を選んだまま停止中の費目を検索した
+    /// ときに、候補には出るのに一覧が空になる食い違いを防ぎます。
+    func testSuggestedPausedItemAlsoAppearsInTheList() {
+        let paused = makeSubscription(name: "停止中の動画", renewalOn: date(2026, 2, 10))
+        paused.state = .paused
+
+        let suggestions = DashboardListBuilder.suggestions(
+            subscriptions: [paused],
+            loans: [],
+            costTypeFilter: .all,
+            query: "動画",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+        let items = DashboardListBuilder.items(
+            subscriptions: [paused],
+            loans: [],
+            stateFilter: DashboardListBuilder.effectiveStateFilter(.active, query: "動画"),
+            costTypeFilter: .all,
+            query: "動画",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(suggestions.map(\.name), ["停止中の動画"])
+        XCTAssertEqual(items.map(\.name), suggestions.map(\.name))
+    }
+
+    /// **種別の絞り込みは検索中も効かせます。** ツールバーに出たままなので、
+    /// 勝手に外すと画面の表示と結果が食い違います。
+    func testSearchingKeepsTheCostTypeFilter() throws {
+        let subscription = makeSubscription(name: "ローン契約メモ", renewalOn: date(2026, 2, 10))
+        let loan = try makeSynchronizedLoan(name: "自動車ローン")
+
+        let items = DashboardListBuilder.items(
+            subscriptions: [subscription],
+            loans: [loan],
+            stateFilter: DashboardListBuilder.effectiveStateFilter(.active, query: "ローン"),
+            costTypeFilter: .only(.loan),
+            query: "ローン",
+            now: Fixture.now,
+            calendar: Fixture.calendar
+        )
+
+        XCTAssertEqual(items.map(\.name), ["自動車ローン"])
+    }
+
     /// 識別子は種別ごとに接頭辞を付けます。**費目と借入で `clientID` が衝突しても別物として扱う**ためです。
     func testIdentifiersArePrefixedByKind() throws {
         let sharedID = UUID().uuidString

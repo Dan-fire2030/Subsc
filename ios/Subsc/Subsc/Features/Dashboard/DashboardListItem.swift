@@ -107,6 +107,29 @@ enum DashboardListBuilder {
         return sorted(subscriptionItems + loanItems)
     }
 
+    /// 検索語が入っているか。**前後の空白だけの入力は検索と見なしません。**
+    /// 空白を1つ打った瞬間にレポートが消えると、打ち間違えただけで画面を見失います。
+    static func isSearching(query: String) -> Bool {
+        !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// 一覧に効かせる状態（利用中／停止中／履歴）の絞り込みです。
+    ///
+    /// **検索中は絞り込みを外します。** 理由は2つあります。
+    /// 候補（`suggestions`）は状態を見ないため、一覧側だけ絞ると
+    /// 「候補に出たのに選ぶと見つかりません」になります。
+    /// また検索中はピッカーを画面から隠すため、絞り込みが効いたままだと
+    /// 出てこない理由が画面のどこにも残りません。
+    ///
+    /// **種別（`CostTypeFilter`）は外しません。** ツールバーに出たままなので、
+    /// 勝手に外すと画面の表示と結果が食い違います。
+    static func effectiveStateFilter(
+        _ filter: SubscriptionFilter,
+        query: String
+    ) -> SubscriptionFilter {
+        isSearching(query: query) ? .all : filter
+    }
+
     /// 検索フィールドに出す候補です。
     ///
     /// **費目と借入の両方を対象にします。** 片方しか出さないと、打っている最中に

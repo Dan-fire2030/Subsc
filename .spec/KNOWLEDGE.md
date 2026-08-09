@@ -500,3 +500,34 @@ Diff View のヘッダ `@@ -1,132 +1,134 @@` が示す**追加2行・削除な�
   print(min(rows)/3, max(rows)/3)
   ```
 - 今回これで「ボタンは y=753..817pt」と分かった。目視換算では 839 を押しており、**ボタンの外**だった
+
+### 2026-08-09：`dismissSearch` は検索フィールドの文字を消す
+- **`.searchSuggestions` の候補をタップしても一覧が絞り込まれていなかった。** 原因はこの2行。
+  ```swift
+  query = item.name
+  dismissSearch()   // ← 直後にこれが query を空へ戻していた
+  ```
+- Appleの規定は3つで、**2つ目が効いてしまう**。
+  「Sets `isSearching` to `false`」／**「Clears any text from the search field」**／
+  「Removes focus from the search field」
+- 正しいのは `.searchCompletion(item.name)`。候補を確定させる用途にAppleが用意している口で、
+  文字を消さない。`Button` + `dismissSearch` の組み合わせは、
+  **押した瞬間に検索を取り消す**という意味になる
+- **ドキュメントのHTMLはJavaScript描画で読めない。** JSONを直接叩けば本文が取れる
+  ```bash
+  curl -s "https://developer.apple.com/tutorials/data/documentation/swiftui/environmentvalues/dismisssearch.json"
+  ```
+- この不具合は**ユニットテストでは捕まらない**（ビューの結線であってロジックではない）。
+  同じ形の「状態を書いた直後にフレームワークへ制御を渡す」箇所は、実際に触って確かめるしかない
+
+### 2026-08-09：検索結果が画面外にあると、検索は使われない
+- ホーム画面の一覧は**レポート・支払い予告・これから出ていく・状態のピッカーの下**にあり、
+  検索で1件に絞っても結果は画面の外だった。毎回手でスクロールさせていた
+- 直し方は自動スクロール（`ScrollViewReader`）ではなく、**検索中に上のセクションを畳む**こと。
+  スクロールはキーボードの開閉と競合して位置がずれる。畳めば結果は必ず検索欄の直下に出る
+- **隠すなら、隠した絞り込みは効かせてはいけない。** 状態のピッカーを畳んだので、
+  検索中は状態の絞り込みも外した（`DashboardListBuilder.effectiveStateFilter`）。
+  候補は元から状態を見ないため、揃えたことで
+  「候補に出たのに選ぶと見つかりません」も同時に消えた
+- 種別（`CostTypeFilter`）は**ツールバーに出たままなので外さない**。
+  画面に出ている絞り込みを裏で無視すると、表示と結果が食い違う

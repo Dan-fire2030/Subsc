@@ -15,12 +15,21 @@ extension DashboardView {
         costTypeFilter.matches(.loan) ? loans : []
     }
 
+    /// 検索語が入っているか。**画面の作りを切り替える鍵**です。
+    /// これが立っている間はレポート・これから出ていく・状態の絞り込みを隠し、
+    /// 一覧だけを画面の上へ出します。
+    var isSearching: Bool {
+        DashboardListBuilder.isSearching(query: query)
+    }
+
     /// 一覧に並べる要素です。**費目と借入を「次の期日」で1本に混ぜます。**
+    ///
+    /// 検索中は状態の絞り込みを外します（理由は `effectiveStateFilter` に書いています）。
     var visibleItems: [DashboardListItem] {
         DashboardListBuilder.items(
             subscriptions: subscriptions,
             loans: loans,
-            stateFilter: filter,
+            stateFilter: DashboardListBuilder.effectiveStateFilter(filter, query: query),
             costTypeFilter: costTypeFilter,
             query: query
         )
