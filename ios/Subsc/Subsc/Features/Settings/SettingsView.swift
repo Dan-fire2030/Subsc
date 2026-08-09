@@ -69,7 +69,7 @@ struct SettingsView: View {
                                     .stroke(.primary.opacity(0.12), lineWidth: 0.8)
                             }
                             .accessibilityHidden(true)
-                        Text("つきねこ")
+                        Text(AppInfo.displayName)
                             .font(.headline)
                     }
                     .padding(.vertical, 4)
@@ -195,7 +195,7 @@ struct SettingsView: View {
         }
     }
 
-    /// 設定アプリのSubscのページを開きます。
+    /// 設定アプリのこのアプリのページを開きます。
     /// iOSは一度許可を断られると再度ダイアログを出さないため、ここからしか許可を戻せません。
     private func openSystemSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else {
@@ -211,7 +211,7 @@ struct SettingsView: View {
     }
 
     private var settingsAppFailureMessage: String {
-        "設定アプリを開けませんでした。ホーム画面の「設定」からSubscを選んでください。"
+        "設定アプリを開けませんでした。ホーム画面の「設定」から\(AppInfo.displayName)を選んでください。"
     }
 
     private func updateNotificationStatus() async {

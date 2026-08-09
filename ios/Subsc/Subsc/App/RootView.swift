@@ -111,7 +111,7 @@ struct RootView: View {
             if loan.isPaused {
                 // 予定表を組み直せなくても、他の借入の処理は続けます。
                 // 開くたびに呼ばれるので、次の起動でやり直せます。
-                try? LoanPaymentStore.deferPastDue(on: loan)
+                _ = try? LoanPaymentStore.deferPastDue(on: loan)
             } else {
                 LoanPaymentStore.settlePastDue(on: loan)
             }

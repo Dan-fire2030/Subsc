@@ -6,6 +6,29 @@ enum CloudSyncConfiguration {
     static let containerIdentifier = "iCloud.com.tonaria.subsc"
 }
 
+/// アプリ自身についての情報です。
+enum AppInfo {
+    /// 端末上の表示名です。
+    ///
+    /// **画面の文言へアプリ名を直接書きません。** 同じ取りこぼしを2度やっているためです。
+    /// 「Subsc」→「つきねこ」の変更で、2026-08-08にホーム画面のタイトル・設定画面のヘッダー・
+    /// 起動失敗時の案内の3箇所を、2026-08-09に通知設定を開けなかったときの案内の1箇所を
+    /// 取り残しました。**4箇所目はビルド12として出荷済みです。**
+    ///
+    /// 出どころを `Info.plist` の `CFBundleDisplayName` ただ1つに縛れば、
+    /// 名前を変えたときに書き換えるのはビルド設定だけで済みます。
+    static let displayName: String = {
+        // `CFBundleDisplayName` が無いビルド設定でも空文字を出さないよう、名前へ順に落とします。
+        for key in ["CFBundleDisplayName", "CFBundleName"] {
+            if let name = Bundle.main.object(forInfoDictionaryKey: key) as? String,
+               !name.isEmpty {
+                return name
+            }
+        }
+        return "つきねこ"
+    }()
+}
+
 @main
 struct SubscApp: App {
     private let modelContainer: ModelContainer
@@ -76,7 +99,7 @@ private struct StartupFailureView: View {
         ContentUnavailableView {
             Label("データを開けませんでした", systemImage: "exclamationmark.icloud.fill")
         } description: {
-            Text("iCloudの状態を確認して、つきねこを再起動してください。データが削除されることはありません。")
+            Text("iCloudの状態を確認して、\(AppInfo.displayName)を再起動してください。データが削除されることはありません。")
         } actions: {
             Text(errorDescription)
                 .font(.caption)

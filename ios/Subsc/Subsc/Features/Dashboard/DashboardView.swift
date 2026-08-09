@@ -123,7 +123,7 @@ struct DashboardView: View {
             }
             .listStyle(.insetGrouped)
             .liquidGlassScreen()
-            .navigationTitle("つきねこ")
+            .navigationTitle(AppInfo.displayName)
             .navigationBarTitleDisplayMode(.inline)
             .searchable(
                 text: $query,
