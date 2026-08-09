@@ -135,9 +135,8 @@ struct AmountEntryEditorView: View {
             return
         }
 
-        Task {
-            await NotificationService.reschedule(for: subscription)
-        }
+        // 記録すると月末リマインドが不要になりますが、取り消しは `RootView` の
+        // 再同期に任せます（`AmountEntryStore.record` が `updatedAt` を進めます）。
         dismiss()
     }
 

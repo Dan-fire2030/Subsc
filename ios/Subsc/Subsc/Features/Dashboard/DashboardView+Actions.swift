@@ -43,9 +43,7 @@ extension DashboardView {
             operationError = "利用状況を保存できませんでした。"
             return
         }
-        Task {
-            await NotificationService.reschedule(for: subscription)
-        }
+        // 状態が変わると `RootView` の再同期が走るため、ここでは予約に触れません。
     }
 
     /// 借入の返済を止める・再開します。

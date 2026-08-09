@@ -242,9 +242,39 @@ extension SubscriptionFormView {
         } header: {
             Text("通知")
         } footer: {
-            Text("iOSのローカル通知として、アプリを閉じている時も配信されます。")
+            Text(notificationFooter)
         }
         .glassListRow()
+    }
+
+    /// 通知セクションの説明です。
+    ///
+    /// **直近の更新に間に合わない設定を、黙って受け取りません。**
+    /// 過ぎた時刻は予約できないため計画から外れますが、画面は通知ONのままで、
+    /// 利用者には何も起きていないように見えていました。
+    var notificationFooter: String {
+        let base = "iOSのローカル通知として、アプリを閉じている時も配信されます。"
+        guard notificationsEnabled else { return base }
+
+        let time = Calendar.current.dateComponents([.hour, .minute], from: notificationTime)
+        guard !NotificationService.hasNotifiableTime(
+            renewalDate: renewalDate,
+            hour: time.hour ?? 9,
+            minute: time.minute ?? 0,
+            leadDays: Array(leadDays),
+            leadHours: Array(leadHours),
+            now: .now
+        ) else { return base }
+
+        if leadDays.isEmpty, leadHours.isEmpty {
+            return "\(base)\n\n通知タイミングが選ばれていないため、通知は届きません。"
+        }
+        return """
+            \(base)
+
+            この設定では、次の更新までに通知の時刻が過ぎているため、直近の1回は届きません。\
+            通知タイミングを早めるか、通知時刻を先にしてください。次の更新以降は届きます。
+            """
     }
 
     var otherSection: some View {

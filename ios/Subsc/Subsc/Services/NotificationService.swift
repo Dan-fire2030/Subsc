@@ -3,8 +3,15 @@ import UserNotifications
 
 @MainActor
 enum NotificationService {
+    /// **iOSが1つのアプリに保持できる予約の数です。** 超えたぶんは例外にならず、黙って捨てられます。
+    /// この数を超える計画を立ててはいけません。
     private static let maximumPendingRequests = 64
-    private static let renewalCyclesPerSubscription = 12
+    /// 1つの費目について、何回先の更新まで予約しておくかです。
+    ///
+    /// **12から3へ減らしました（2026-08-09）。** 費目11件で候補が204件になり、
+    /// 64件の枠を大きく食い潰していました。**先まで押さえても意味がありません。**
+    /// アプリを開くたびに組み直すので、遠い将来の予約は他の費目の枠を奪うだけです。
+    private static let renewalCyclesPerSubscription = 3
     /// 月末リマインドに割り当てる予約枠です。
     /// iOSの予約数には上限があるため、更新日通知を圧迫しないように取り分を決めています。
     private static let reminderBudget = 16
@@ -12,6 +19,17 @@ enum NotificationService {
     struct SyncResult: Equatable {
         let scheduled: Int
         let failed: Int
+        /// 予約したはずなのに、読み戻したら入っていなかった件数です。
+        ///
+        /// **上限超過は例外になりません。** `add` は成功を返したまま、iOS側が黙って捨てます。
+        /// 数えて返さないと、通知が来ないことに誰も気づけません（実際に気づけませんでした）。
+        let missing: Int
+
+        init(scheduled: Int, failed: Int, missing: Int = 0) {
+            self.scheduled = scheduled
+            self.failed = failed
+            self.missing = missing
+        }
     }
 
     struct PlannedNotification: Equatable {
@@ -66,39 +84,11 @@ enum NotificationService {
         }
     }
 
-    static func reschedule(for subscription: Subscription) async {
-        let center = UNUserNotificationCenter.current()
-        let pending = await center.pendingNotificationRequests()
-        guard !Task.isCancelled else { return }
-
-        let now = Date.now
-        let renewals = plannedNotifications(subscriptions: [subscription], now: now)
-        // 金額を記録した直後にもここを通るため、リマインドも組み直します。
-        // 記録済みの月は計画から外れ、下の掃除で取り消されます。
-        let reminders = ReminderPlanner.plannedReminders(
-            subscriptions: [subscription],
-            now: now,
-            limit: reminderBudget
-        )
-        let result = await add(notifications: renewals + reminders)
-        guard !Task.isCancelled, result.failed == 0 else { return }
-
-        // この費目の予約だけを対象にし、さらに名前空間ごとに掃除します。
-        let ownIdentifiers = NotificationIdentifier.all(
-            pending: pending.map(\.identifier),
-            clientID: subscription.clientID
-        )
-        let obsoleteIdentifiers = NotificationIdentifier.obsolete(
-            pending: ownIdentifiers,
-            desired: Set(renewals.map(\.identifier)),
-            in: .renewal
-        ) + NotificationIdentifier.obsolete(
-            pending: ownIdentifiers,
-            desired: Set(reminders.map(\.identifier)),
-            in: .reminder
-        )
-        center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
-    }
+    // **1つの費目だけを予約し直す口は廃止しました（2026-08-09）。**
+    // 全体の枠（64件）を見ずにその費目のぶんを積み増すため、枠が埋まっている端末では
+    // 追加したぶんが黙って捨てられていました。**費目を1件足した直後の通知が届かない**
+    // という不具合の原因です。保存・記録・停止のどの操作でも `updatedAt` か `stateRaw` が
+    // 変わるので、`RootView` の再同期（`reconcile`）が必ず走ります。そちらへ一本化します。
 
     static func reconcile(
         subscriptions: [Subscription],
@@ -133,9 +123,6 @@ enum NotificationService {
             now: now,
             limit: maximumPendingRequests - reminders.count - loanPayments.count
         )
-        let result = await add(notifications: renewals + reminders + loanPayments)
-        guard !Task.isCancelled, result.failed == 0 else { return result }
-
         let pendingIdentifiers = pending.map(\.identifier)
         // 名前空間ごとに掃除します。まとめて消すと、片方の再スケジュールが
         // もう片方の予約を巻き添えにします。
@@ -152,8 +139,32 @@ enum NotificationService {
             desired: Set(loanPayments.map(\.identifier)),
             in: .loan
         )
+
+        // **消してから足します（2026-08-09に順序を入れ替えました）。**
+        // 逆にすると、その瞬間だけ「古い予約＋新しい予約」を同時に抱えることになり、
+        // 64件を超えたぶんが黙って捨てられます。**新しく足した費目の通知が消える**
+        // 原因でした。先に空けてから入れれば、抱える数が上限を超えません。
         center.removePendingNotificationRequests(withIdentifiers: obsoleteIdentifiers)
-        return result
+
+        let planned = renewals + reminders + loanPayments
+        let result = await add(notifications: planned)
+        guard !Task.isCancelled else { return result }
+
+        // **入ったことを読み戻して確かめます。** 上限超過は例外にならないため、
+        // 数えないと「予約したつもりで届かない」に気づけません。
+        let missing = await missingCount(desired: Set(planned.map(\.identifier)))
+        return SyncResult(scheduled: result.scheduled, failed: result.failed, missing: missing)
+    }
+
+    /// 予約したはずの識別子のうち、実際には入っていなかった件数です。
+    private static func missingCount(desired: Set<String>) async -> Int {
+        guard !desired.isEmpty else { return 0 }
+        let pending = Set(
+            await UNUserNotificationCenter.current()
+                .pendingNotificationRequests()
+                .map(\.identifier)
+        )
+        return desired.subtracting(pending).count
     }
 
     /// 費目を削除したときに、その費目の予約を取り消します。
@@ -216,26 +227,22 @@ enum NotificationService {
         )
 
         return renewalDates.flatMap { renewalDate -> [PlannedNotification] in
-            var targetComponents = calendar.dateComponents(
-                [.year, .month, .day],
-                from: renewalDate
-            )
-            targetComponents.hour = subscription.notificationHour
-            targetComponents.minute = subscription.notificationMinute
-            guard let targetDate = calendar.date(from: targetComponents) else { return [] }
+            guard let targetDate = renewalTargetDate(
+                renewalDate: renewalDate,
+                hour: subscription.notificationHour,
+                minute: subscription.notificationMinute,
+                calendar: calendar
+            ) else { return [] }
 
             let cycleKey = targetDate.formatted(
                 .iso8601.year().month().day().time(includingFractionalSeconds: false)
             )
-            let offsets: [(String, Date)] =
-                subscription.leadDays.compactMap { day in
-                    calendar.date(byAdding: .day, value: -day, to: targetDate)
-                        .map { ("day-\(day)", $0) }
-                } +
-                subscription.leadHours.compactMap { hour in
-                    calendar.date(byAdding: .hour, value: -hour, to: targetDate)
-                        .map { ("hour-\(hour)", $0) }
-                }
+            let offsets = leadOffsets(
+                from: targetDate,
+                leadDays: subscription.leadDays,
+                leadHours: subscription.leadHours,
+                calendar: calendar
+            )
 
             return offsets.compactMap { suffix, date in
                 guard date > now else { return nil }
@@ -252,6 +259,68 @@ enum NotificationService {
                 )
             }
         }
+    }
+
+    /// 更新日と通知時刻から、その回の基準時刻を組み立てます。
+    private static func renewalTargetDate(
+        renewalDate: Date,
+        hour: Int,
+        minute: Int,
+        calendar: Calendar
+    ) -> Date? {
+        var components = calendar.dateComponents([.year, .month, .day], from: renewalDate)
+        components.hour = hour
+        components.minute = minute
+        return calendar.date(from: components)
+    }
+
+    /// 基準時刻から「何日前・何時間前」を引いた時刻の一覧です。
+    private static func leadOffsets(
+        from targetDate: Date,
+        leadDays: [Int],
+        leadHours: [Int],
+        calendar: Calendar
+    ) -> [(String, Date)] {
+        leadDays.compactMap { day in
+            calendar.date(byAdding: .day, value: -day, to: targetDate)
+                .map { ("day-\(day)", $0) }
+        } +
+        leadHours.compactMap { hour in
+            calendar.date(byAdding: .hour, value: -hour, to: targetDate)
+                .map { ("hour-\(hour)", $0) }
+        }
+    }
+
+    /// **その更新日について、これから予約できる通知時刻があるか**を返します。
+    ///
+    /// 過ぎた時刻は予約できないため、計画からは黙って外れます。
+    /// 外れたこと自体を画面で知らせたいので、判定をここへ切り出しています。
+    /// **知らせないと、「8/9の14時に、8/10更新・前日13:30で登録」したときに
+    /// 通知がONのまま1件も予約されず、利用者は気づけません。**
+    static func hasNotifiableTime(
+        renewalDate: Date,
+        hour: Int,
+        minute: Int,
+        leadDays: [Int],
+        leadHours: [Int],
+        now: Date,
+        calendar: Calendar = .current
+    ) -> Bool {
+        guard !leadDays.isEmpty || !leadHours.isEmpty else { return false }
+        guard let targetDate = renewalTargetDate(
+            renewalDate: renewalDate,
+            hour: hour,
+            minute: minute,
+            calendar: calendar
+        ) else { return false }
+
+        return leadOffsets(
+            from: targetDate,
+            leadDays: leadDays,
+            leadHours: leadHours,
+            calendar: calendar
+        )
+        .contains { $0.1 > now }
     }
 
     /// 更新予告の本文です。

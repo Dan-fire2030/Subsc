@@ -93,9 +93,10 @@ extension SubscriptionFormView {
 
         do {
             try modelContext.save()
-            Task {
-                await NotificationService.reschedule(for: target)
-            }
+            // **ここで個別に予約し直しません（2026-08-09）。**
+            // 1つの費目だけを対象にすると全体の枠（64件）を超え、追加したぶんが
+            // 黙って捨てられていました。`updatedAt` が変わるので `RootView` の
+            // 再同期が走り、全費目まとめて枠の中で組み直されます。
             dismiss()
         } catch {
             modelContext.rollback()

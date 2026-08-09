@@ -332,3 +332,217 @@ final class ReminderPlannerTests: XCTestCase {
         XCTAssertEqual(planned.map(\.date), [date(2026, 7, 31, 9), date(2026, 8, 31, 9)])
     }
 }
+
+
+/// harutoさんの報告（2026-08-09）の再現です。
+/// 8/10更新の費目を登録し、通知を「前日の13:30」に設定したが、8/9 13:30に届かなかった。
+@MainActor
+final class RenewalNotificationReproTests: XCTestCase {
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Tokyo") ?? .gmt
+        return calendar
+    }
+
+    private func date(_ y: Int, _ m: Int, _ d: Int, _ h: Int = 0, _ min: Int = 0) -> Date {
+        DateComponents(calendar: calendar, year: y, month: m, day: d, hour: h, minute: min).date!
+    }
+
+    /// 8/9の12:00に登録した時点で、8/9 13:30の予約が作られること。
+    func testDayBeforeNotificationIsPlanned() {
+        let subscription = Subscription(
+            name: "テスト",
+            originalAmount: 1_000,
+            renewalDate: date(2026, 8, 10),
+            notificationsEnabled: true,
+            notificationHour: 13,
+            notificationMinute: 30,
+            leadDays: [1]
+        )
+
+        let planned = NotificationService.plannedNotifications(
+            subscriptions: [subscription],
+            now: date(2026, 8, 9, 12, 0),
+            calendar: calendar
+        )
+
+        let expected = date(2026, 8, 9, 13, 30)
+        XCTAssertTrue(
+            planned.contains { $0.date == expected },
+            "8/9 13:30 の予約がありません。作られた予約：\(planned.map { ($0.date, $0.identifier) })"
+        )
+    }
+}
+
+
+/// 予約が iOS の上限（64件）を超えないことを縛るテストです。
+///
+/// **これを縛っていなかったために、費目を1件足した直後の通知が届きませんでした（2026-08-09）。**
+/// 費目11件で予約したい候補は204件あり、枠を大きく超えていました。
+/// 超過は例外にならず黙って捨てられるので、**件数は数えて縛るしかありません。**
+@MainActor
+final class NotificationBudgetTests: XCTestCase {
+    /// iOSが1つのアプリに保持できる予約の数です。
+    private let systemLimit = 64
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Tokyo") ?? .gmt
+        return calendar
+    }
+
+    private func date(_ y: Int, _ m: Int, _ d: Int, _ h: Int = 0, _ min: Int = 0) -> Date {
+        DateComponents(calendar: calendar, year: y, month: m, day: d, hour: h, minute: min).date!
+    }
+
+    /// harutoさんの端末と同じ規模（費目11件・一部は1/3/7日前）で、
+    /// 更新日通知の計画が枠に収まること。
+    func testPlannedRenewalsStayWithinTheBudget() {
+        let subscriptions = (1...11).map { index -> Subscription in
+            Subscription(
+                name: "費目\(index)",
+                originalAmount: 1_000,
+                renewalDate: date(2026, 9, min(index, 28)),
+                notificationsEnabled: true,
+                leadDays: index <= 3 ? [1, 3, 7] : [1]
+            )
+        }
+
+        let planned = NotificationService.plannedNotifications(
+            subscriptions: subscriptions,
+            now: date(2026, 8, 9, 12, 0),
+            limit: 36,
+            calendar: calendar
+        )
+
+        XCTAssertLessThanOrEqual(planned.count, 36)
+        XCTAssertLessThanOrEqual(planned.count, systemLimit)
+    }
+
+    /// **どの費目も、いちばん近い1件だけは必ず予約されること。**
+    /// 枠が足りないときに一部の費目が丸ごと無視されると、その費目の通知は永遠に来ません。
+    func testEverySubscriptionKeepsItsSoonestNotification() {
+        let subscriptions = (1...11).map { index -> Subscription in
+            Subscription(
+                name: "費目\(index)",
+                originalAmount: 1_000,
+                renewalDate: date(2026, 9, min(index, 28)),
+                notificationsEnabled: true,
+                leadDays: [1, 3, 7]
+            )
+        }
+
+        let planned = NotificationService.plannedNotifications(
+            subscriptions: subscriptions,
+            now: date(2026, 8, 9, 12, 0),
+            limit: 36,
+            calendar: calendar
+        )
+
+        let covered = Set(planned.map(\.clientID))
+        XCTAssertEqual(
+            covered.count,
+            subscriptions.count,
+            "予約が1件も作られない費目があります。枠の配り方が偏っています。"
+        )
+    }
+
+    /// 先読みするサイクル数を増やしすぎると、他の費目の枠を奪います。
+    /// **1つの費目が枠を独占しないこと。**
+    func testASingleSubscriptionDoesNotMonopolizeTheBudget() {
+        let subscription = Subscription(
+            name: "毎月",
+            originalAmount: 1_000,
+            renewalDate: date(2026, 8, 20),
+            notificationsEnabled: true,
+            leadDays: [1]
+        )
+
+        let planned = NotificationService.plannedNotifications(
+            subscriptions: [subscription],
+            now: date(2026, 8, 9, 12, 0),
+            calendar: calendar
+        )
+
+        XCTAssertLessThanOrEqual(
+            planned.count,
+            5,
+            "1つの費目で\(planned.count)件を占めています。費目が増えると枠が足りません。"
+        )
+    }
+}
+
+/// 「直近の更新に間に合わない」を画面で知らせるための判定です。
+@MainActor
+final class NotifiableTimeTests: XCTestCase {
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Tokyo") ?? .gmt
+        return calendar
+    }
+
+    private func date(_ y: Int, _ m: Int, _ d: Int, _ h: Int = 0, _ min: Int = 0) -> Date {
+        DateComponents(calendar: calendar, year: y, month: m, day: d, hour: h, minute: min).date!
+    }
+
+    /// 8/9の12:00に「8/10更新・前日13:30」なら、まだ間に合います。
+    func testStillNotifiableBeforeTheLeadTime() {
+        XCTAssertTrue(
+            NotificationService.hasNotifiableTime(
+                renewalDate: date(2026, 8, 10),
+                hour: 13,
+                minute: 30,
+                leadDays: [1],
+                leadHours: [],
+                now: date(2026, 8, 9, 12, 0),
+                calendar: calendar
+            )
+        )
+    }
+
+    /// **8/9の14:00に同じ設定を入れると、直近の1回は間に合いません。**
+    /// ここを黙って捨てていたため、通知ONなのに1件も予約されない状態が起きえました。
+    func testNotNotifiableAfterTheLeadTimeHasPassed() {
+        XCTAssertFalse(
+            NotificationService.hasNotifiableTime(
+                renewalDate: date(2026, 8, 10),
+                hour: 13,
+                minute: 30,
+                leadDays: [1],
+                leadHours: [],
+                now: date(2026, 8, 9, 14, 0),
+                calendar: calendar
+            )
+        )
+    }
+
+    /// タイミングを1つも選んでいなければ、通知は届きません。
+    func testNoLeadTimesMeansNoNotification() {
+        XCTAssertFalse(
+            NotificationService.hasNotifiableTime(
+                renewalDate: date(2026, 8, 10),
+                hour: 13,
+                minute: 30,
+                leadDays: [],
+                leadHours: [],
+                now: date(2026, 8, 9, 12, 0),
+                calendar: calendar
+            )
+        )
+    }
+
+    /// 間に合わない日単位があっても、時間単位が生きていれば届きます。
+    func testHourLeadCanStillBeNotifiable() {
+        XCTAssertTrue(
+            NotificationService.hasNotifiableTime(
+                renewalDate: date(2026, 8, 10),
+                hour: 13,
+                minute: 30,
+                leadDays: [1],
+                leadHours: [2],
+                now: date(2026, 8, 9, 14, 0),
+                calendar: calendar
+            )
+        )
+    }
+}
