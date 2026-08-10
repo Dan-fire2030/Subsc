@@ -1,82 +1,76 @@
-# HANDOFF - 2026-08-08 22:25
+# HANDOFF - 2026-08-09 21:10
 
-> **ビルド12のArchiveは完成し、アップロードだけが残っている。**
-> 失敗の原因は **Appleの定期メンテナンス**（日本時間 8/8 21:30〜翌00:00）で、こちら側に不具合はない。
-> **明けてから再送するだけで終わる。Archiveの作り直しは不要。**
+> **今日でTestFlightのビルドを4本（12〜15）出し、`main` へ90コミットをマージした。**
+> リデザインもチュートリアルも通知の修正も、**すべて `main` に入っている**。
+> ブランチは `main`、**未pushゼロ・作業ツリーはクリーン**。
 >
-> ブランチ `feat/onboarding-tutorial`、**`github` へ push 済み・未pushゼロ**。
+> **残っているのは「実機確認」と「審査提出の準備」で、コードの宿題はほぼ無い。**
+> 提出の最上流は**「つきねこ」の商標確認**。名前が動くと掲載物が全部やり直しになる。
 >
-> **今日の最大の失敗：Appleのエラー文言を信じて原因を2回誤診した。**
-> 「年末年始のため受付停止」「No Accounts with App Store Connect Access」はどちらも的外れだった。
+> **今日の教訓：不具合は別の不具合に隠れる。**
+> 通知が1件も配信されていなかったため、タップ経路のクラッシュは長期間表に出ず、
+> **配信を直した当日に初めて出た。** 1つ直したら、その先の経路が初めて通ることを意識する。
 
 ## 使用ツール
 
-Claude Code（Opus 5）。
-Codex CLI（`codex:codex-rescue` サブエージェント経由）を**アイコンのPNG化に1回だけ使用**。
-Gemini CLI は未使用。
-
+Claude Code（Opus 5）。**Codexは未使用**（今日から「画像生成のみ」へ方針変更したため）。
 シミュレーターは **iPhone 17 Pro `45C04581-A59B-45D3-B443-0B7C3987FD9F`**。
 
 ---
 
 ## 現在のタスクと進捗
 
-### 完了：黒猫マスコットのSwiftUI移植
+**残タスクの正本は `.spec/TODO.md`**（2026-08-09に実態へ合わせて作り直した）。
+以前の一覧はチェックが実態とずれていたので `.spec/archive/TODO-2026-08-09.md` へ退避した。
 
-- [x] **検討成果40ファイルの保全**（`655ffab`）
-      `.output/design-system/brand/`。**採用・不採用の別は同ディレクトリの `README.md` に書いた**
-- [x] **猫6状態の移植**（`1d1cf10`）
-      SVGのパスデータを文字列のまま持ち、`CatPathParser`（絶対座標の `M`/`C`/`Z` のみ）で読む。
-      `addCurve` を書き写す案は1状態200〜320本あり非現実的だった。
-      `static let` で1度だけ読むので描画のたびの解釈も起きない。
-      色はハードコードせず `BlackCatPalette.cat` / `.catEye` を渡している
-- [x] **パーサーのテスト11件**。実機画面でソースSVGと一致することをライト・ダーク両方で確認済み
-- [x] **`currentPoint` の2乗オーダーを解消**（`64dabfd`）
+### 完了：通知が届かない不具合（★今日いちばん重い）
 
-### 完了：起動後にCPUが100%へ張り付く不具合の修正（★猫とは無関係の既存バグ）
+- [x] **原因はローカル通知の64件上限。** iOSは1アプリ64件までしか予約を保持せず、
+      **超過分は例外にならず黙って捨てられる**（`add` は成功を返す）。
+      費目1件につき12回先まで予約しており、**費目11件で候補204件**あった
+- [x] 壊していたのは枠そのものではなく**枠を回避する2経路**
+      - `reconcile` が**追加してから削除**していた（一瞬だけ上限の2.2倍を要求）→ **削除を先に**
+      - 保存時の `reschedule(for:)` が**その費目だけ**を見て積み増していた → **廃止**し
+        `RootView` の `reconcile` へ一本化（保存・記録・停止のいずれも `updatedAt` か
+        `stateRaw` が変わるので再同期は必ず走ることを確認済み）
+- [x] 先読みを **12→3サイクル**へ。**予約後に読み戻して欠落を数え、画面で伝える**
+- [x] 過ぎた時刻を黙って捨てるのをやめ、フォームの説明文で事前に知らせる
+- [x] **実機で配信を確認済み**（ビルド14）。上限の警告は出ていない＝枠に収まっている
 
-- [x] **原因特定と修正**（`3193508`）、**データの形を増やしたテスト**（`76f9e25`）
-- 仕組み：`RootView` の `.task(id: notificationSyncID)` が鍵に `Loan.updatedAt` を含む一方、
-  そのタスクから呼ばれる `LoanPaymentStore.synchronize` が**差分の有無に関わらず**
-  `loan.updatedAt = .now` を書いていた。**タスクが自分の再発火条件を書き換える自己再帰**
-- 発火条件：**停止中の借入が1件でもあること**（`deferPastDue` → `synchronize` を通るため）
-- 実測：起動直後に `reconcileSubscriptions` が**501回**。SwiftDataへの書き込みが止まらず、
-  **CloudKitへの同期も延々と発生していた**
-- 直し方：`synchronize` を「**値が違うときだけ書く**」形に。行の各項目・`isClosed`・
-  関係の組み直し・`updatedAt` の全てに適用
-- 検証：**修正後は冷えた起動を計18試行して一度も再現せず**（修正前は5回中2〜3回）
+### 完了：通知をタップするとクラッシュ（★`.ips` から確定させた）
 
-### 完了：アプリアイコンの差し替え
+- [x] `.ips` をArchiveのdSYMで記号化。`LoanNotificationResponder.userNotificationCenter(_:didReceive:)`
+      → `-[UIApplication _updateSnapshotAndStateRestoration...]` → `NSAssertionHandler` → `abort`。
+      **落ちたスレッドは `com.apple.root.user-initiated-qos.cooperative`（メインではない）**
+- [x] デリゲートを **`async` 版**で書いていたため、UIKitへ返す完了処理が
+      **関数の再開先＝協調スレッドプールから呼ばれて**いた
+- [x] **`await MainActor.run` を挟んでも直らない**（再開先が変わらない）。
+      **`@MainActor` を付けた `async` 版はコンパイルできない**（引数がSendableでない）。
+      → **完了ハンドラ版を実装し `Task { @MainActor in }` から自分で呼ぶ**
+- [x] デリゲートの割り当てを `.task` から **`init`** へ（起動が終わるまでに割り当てる必要がある）
+- [x] **実機で解消を確認済み**（ビルド15）
 
-- [x] **`app-icon-v2.svg` → 1024×1024 PNG**（生成はCodexへ委譲）。
-      `sips` と `file` でサイズ・アルファなし・sRGBを**自分で実測確認**
-- [x] **`AppIcon.appiconset` と `AppIconPreview.imageset` の両方**を差し替え（`62bc84c`）。
-      **md5が生成元と3つとも一致**することを確認。ビルド11の「設定画面だけ旧アイコン」は解消
-- [x] シミュレーターのホーム画面と設定画面の両方で新アイコンを確認
+### 完了：その他
 
-### 完了：ドキュメント
+- [x] **検索**：`dismissSearch` が検索文字を消すため**候補を選んでも絞り込まれていなかった**。
+      `searchCompletion` へ差し替え。検索中は一覧より上を畳み、状態の絞り込みを外す
+- [x] **ダークで猫が見えない**（コントラスト **1.04:1**）。体は墨のまま、
+      同じシルエットをぼかして背後へ敷く。**回帰テスト4件で数値を縛った**
+- [x] **チュートリアルに猫の状態のページ**を追加（レポートの次。全5ページ）
+- [x] **旧アプリ名の4箇所目**を修正し、`AppInfo.displayName` で出どころを1つに縛った
+- [x] **Codexは画像生成のみ**へ方針変更（共通ルール・make_projectスキル・AGENTS.md・
+      MEMORY・`codex-usage-guard.sh` の5箇所を揃えた）
+- [x] **審査前の全体レビュー**。掲載文言の機能主張は**すべて実装と一致**していた
+- [x] **main へ fast-forward マージ**（90コミット／161ファイル／+11,919 −3,142）。
+      **7/29以来の「mainが長期間放置」が解消**
 
-- [x] `.spec/TODO.md` / `.spec/KNOWLEDGE.md` / `.agent/memory/MEMORY.md`（`f52a61e`）
-- [x] `AppStore/RELEASE_RUNBOOK.md`（`f9334dc` → `97fabd4` → `ad6d589`）
+### 未完了
 
-### 未完了：TestFlight ビルド12のアップロード ← **次にやる唯一のこと**
+**`.spec/TODO.md` を見ること。** 要点だけ：
 
-- [x] ビルド番号 11 → 12（`c27733d`）
-- [x] ユニットテスト全通過
-- [x] **CloudKitスキーマの反映は不要**（ビルド11以降 `@Model` の保存プロパティに増減なしを確認）
-- [x] **Archive成功**。`CFBundleShortVersionString = 1.0.0` / `CFBundleVersion = 12` /
-      `com.tonaria.subsc`、`Assets.car` に `AppIcon` と `AppIconPreview` が両方1024×1024、
-      事前レンダリングの120pxアイコンが新意匠であることまで**中身を開いて確認済み**
-- [ ] **アップロード（Appleのメンテナンスで失敗）**
-
-### 未完了（繰り越し）
-
-- [ ] **実機での確認**（harutoさんの作業）
-- [ ] **main へのマージ**（harutoさんの判断で実機確認の後）
-- [ ] **「つきねこ」の商標確認**（J-PlatPat）
-- [ ] `PrivacyPolicy-ja.md` のアプリ名差し替え（公開済みURLの文書）
-- [ ] Codexによる adversarial review
-- [ ] App Store Connect の掲載情報入力、スクリーンショット撮影
+- **実機確認**：最優先は**停止中の借入がある状態での起動時のCPUと発熱**（ビルド12からの繰り越し）
+- **審査ブロッカー**：①ポリシー未公開（Pages未有効化）②ポリシーの旧名5箇所
+  ③**商標確認（最上流）** ④ASC入力13項目 ⑤スクリーンショット ⑥サポートURLとメール
 
 ---
 
@@ -84,55 +78,38 @@ Gemini CLI は未使用。
 
 ### 成功したアプローチ
 
-- **★間欠的な不具合は、試行を繰り返して割合で見る。** 3条件×5試行のスクリプトを回して初めて
-  「どの条件でも同じ割合で出る＝自分の変更と無関係」が分かった。1回ずつの比較では誤診する
-- **★CPUの判定は累積CPU時間の差分で行う。** `ps -o %cpu` は減衰平均で当てにならない
+- **★不具合は数字で切り分ける。** 通知は「予約計算だけを再現するテスト」を先に書いて
+  **計算は正しいと確定させてから**後段に絞った。決め手は**コードの数字を数えた**こと
+  （候補204件 vs 上限64件）。実機の予約一覧は見られないので、読むだけでは届かなかった
+- **★クラッシュは推測せず `.ips` を取り寄せる。** 記号化まで数分。
+  読みだけで当たりを付けようとした段階では**見当違いの箇所を疑っていた**
   ```bash
-  A=$(ps -p $PID -o time=); sleep 10; B=$(ps -p $PID -o time=)   # 差分を秒へ直して率を出す
+  atos -o "<archive>/dSYMs/App.app.dSYM/Contents/Resources/DWARF/App" -arch arm64 \
+       -l 0x100000000 $((0x100000000 + <imageOffset>))
   ```
-  **起動直後は正常でも40〜50%出る。** 10秒で0へ落ちれば正常、平坦に100%が続けばループ
-- **★犯人捜しは `Self._printChanges()` が決定打。** 何が変わって再評価されているかが直接出る。
-  `xcrun simctl launch --console` で拾う。`sample` はどこで時間を使ったかしか分からず遠回りだった
-  ```
-  RootView: \Loan.updatedAt changed.        ← これが延々と繰り返される
-  DashboardView: \Loan.updatedAt, @self changed.
-  ReportPager: @self changed.
-  ```
-  さらに疑う値を `print` して**異なり数を数える**と確定できた（505回中503通り＝毎回変わっている）
-- **条件を揃えて比べる。** 最初「変更後は冷えた状態、変更前は温まった状態」で比べて誤診した。
-  シミュレーターは起動直後で挙動が変わる
-- **SwiftDataの中身はSQLiteで直接見られる。** 発火条件（停止中の借入の有無）の確認に使った
+- **★目視で分からない欠陥は数値でテストに縛る。** 猫のコントラスト（1.04:1）は
+  「黒っぽい」としか見えず、比を測って初めて分かった。回帰テストにした
+- **同じ取りこぼしを2度したら、その場を直さず構造を変える。** 旧アプリ名は
+  `Info.plist` を唯一の出どころにして、以後ビルド設定だけで全画面が追随する形にした
+- **Appleのステータスは `.js` で取れる**（HTMLはJS描画、`.json` は404）
   ```bash
-  DB=$(find ~/Library/Developer/CoreSimulator/Devices/<udid>/data/Containers/Data/Application -name default.store | head -1)
-  sqlite3 -header "$DB" "select ZCLIENTID, ZISPAUSED, ZISCLOSED from ZLOAN;"
+  curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js | head -c 3000
   ```
-- **Archiveの中身のアイコンを開いて確認した。** `Assets.car` を `assetutil --info` で見て、
-  事前レンダリングされた `AppIcon60x60@2x.png` を実際に目視した。
-  ビルド11の混入事故と同じことを繰り返さないため
-- **Codexの報告は自分で検証した。** PNGのサイズ・アルファ・色空間を `sips` と `file` で実測
 
 ### 失敗したアプローチ・つまずき
 
-- **★【最重要】Appleのエラー文言から原因を読もうとして2回誤診した。**
-  アップロードが `No Accounts with App Store Connect Access` で落ち、
-  併記された「年末年始のため受付停止。12月29日以降に再試行を」（**8月なのに**）を見て、
-  ① 年会費の失効 → ② 別のApple IDでログイン、と順に外した。
-  **正解はAppleの定期メンテナンス。** メンバーシップもアカウントも正常だった。
-  **メンテナンス中は、無関係な認証エラーの形で落ちる。**
-  → **アップロードが理由不明で落ちたら、アカウントを疑う前にステータスフィードを見る**
-- **★Appleのステータスページ（HTML）はJavaScript描画で読めない。** `.json` は404。
-  **正しいのは `.js`**（302で `www.apple.com` 側へ転送される）
-  ```bash
-  curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js | head -c 2000
-  ```
-- **★「変更前は0%だった」を2回の観測で結論づけた。** 実際は変更前も同じ割合で出ていた。
-  ユーザーへ「あなたの変更が原因で確定」と誤って報告し、後で撤回している
-- **`file://` はBrowserパネルで開けない**（about:blankになる）。
-  スクラッチ配下を `python3 -m http.server` で配ってから `http://127.0.0.1:<port>/` で開いた
-- **`mcp__Claude_Code_iOS_Simulator__control` の `attach` が「already attached」を返しても、
-  実際にパネルが出ていないことがある。** `detach`→`attach` し、
-  `~/Library/Logs/Claude/main.log` に `ios h264 stream` が出ているかで判定する
-- **`sips` はSVGを扱えない。** ビットマップ生成はCodexへ委譲するルールなので、そもそも自前でやらない
+- **★通知のデリゲートで、素直な直し方が2つとも塞がっていた。**
+  `await MainActor.run` を挟む→効かない／`@MainActor` を付ける→コンパイル不可。
+  **試して初めて分かった。** 残る道は完了ハンドラ版だけだった
+- **`ColorHex` は6桁しか解釈しない。** 透明色（`#00000000`）を作ろうとして黒になった。
+  ダークだけ描く実装は「色を透明にする」ではなく**描画そのものを省く**形にした
+- **`~/Library/Group Containers/.../shared-pasteboard/` はTCCで読めない。**
+  `.ips` は `~/Downloads` など通常の場所へ移してもらう必要がある
+- **`git check-ignore` はディレクトリ名だけだと当たらないことがある。**
+  `.verify-*/` は無視されているのに「されていない」と一度誤判定した。
+  **配下の実ファイルで確かめる**
+- **RELEASE_RUNBOOK の識別情報が3件古かった**（掲載名・サブタイトル・現在のビルド）。
+  ビルド12の受領を記録したときに、識別情報テーブルの更新を漏らしていた
 
 ---
 
@@ -140,27 +117,15 @@ Gemini CLI は未使用。
 
 1. **状態の確認**
    ```bash
-   git branch --show-current                    # → feat/onboarding-tutorial
-   git log --oneline github/feat/onboarding-tutorial..HEAD | wc -l   # → 0（push済み）
-   grep -n CURRENT_PROJECT_VERSION ios/Subsc/Subsc.xcodeproj/project.pbxproj  # → 12
-   ls ~/Library/Developer/Xcode/Archives/2026-08-08/                # → Archiveがある
+   git branch --show-current                 # → main
+   git log --oneline -1                      # → 91859bb
+   git status --short                        # → 空
+   grep -n CURRENT_PROJECT_VERSION ios/Subsc/Subsc.xcodeproj/project.pbxproj  # → 15
    ```
-2. **Appleのメンテナンスが明けているか確認する**
-   ```bash
-   curl -sL https://developer.apple.com/system-status/data/system_status_en_US.js | head -c 2000
-   ```
-3. **アップロードを再送する。Archiveの作り直しは不要**
-   ```bash
-   cd ios/Subsc && xcodebuild -exportArchive \
-     -archivePath ~/Library/Developer/Xcode/Archives/2026-08-08/"Subsc 2026-08-08 22.10.xcarchive" \
-     -exportOptionsPlist AppStore/UploadOptions.plist \
-     -exportPath /tmp/subsc-export12 -allowProvisioningUpdates
-   ```
-   **`** EXPORT SUCCEEDED **` と `Upload succeeded.` の両方**を確認する
-4. **RELEASE_RUNBOOK を更新する。** ビルド12の節は「Archiveまで完了、アップロードは未完了」と
-   書いてあるので、**受領できたら書き換える**。「既知のリリース時トラブル」の
-   メンテナンスの項は記録として残す
-5. push（`github`）→ harutoさんへ実機確認を依頼
+2. **`.spec/TODO.md` を読む。** 残タスクの正本はここ
+3. **harutoさんに商標確認（J-PlatPat）の状況を聞く。** 提出準備の最上流
+4. 商標が動かない前提でよければ、**プライバシーポリシーの旧名5箇所の修正と
+   公開用HTMLの用意**（`docs/` 配下）に着手してよい。**Pagesの有効化はharutoさんの作業**
 
 ---
 
@@ -168,48 +133,40 @@ Gemini CLI は未使用。
 
 ### 未コミット・未マージのまま残しているもの
 
-- **作業ツリーはクリーン**（このHANDOFFのコミットを除く）。**未pushもゼロ**
-- **`feat/onboarding-tutorial` は main へ未マージ。** harutoさんの判断で実機確認の後
+- **無し。** `main` に統合済み、未pushゼロ、作業ツリーはクリーン
+- 取り込み済みのブランチ3本（`design/black-cat-redesign` / `feat/onboarding-tutorial` /
+  `feat/search-scroll-to-item`）は**残したまま**。削除するかはharutoさんの判断
 
 ### 人間にしかできない作業
 
-- **実機でのTestFlight確認。** 優先順位つきで下記「未検証の項目」を参照
-- **Apple ID / iCloud のパスワードと2要素認証コードの入力**（今回は不要と判明したが、
-  Xcodeのアカウントが切れた場合は必要）
-- **「つきねこ」の商標確認**（J-PlatPat または弁理士）
-- **App Store用スクリーンショットの撮影**（撮影はharutoさん、加工はCodex）
+- **実機でのTestFlight確認**（`.spec/TODO.md` の A を参照）
+- **「つきねこ」の商標確認**
+- **GitHub Pages の有効化**
+- **App Store用スクリーンショットの撮影**
 - **「審査へ提出」ボタン**
-
-### ビルド12で未検証の項目（実機で確認したい順）
-
-1. **停止中の借入がある状態での起動時のCPUと発熱。** 今回直した不具合そのもの。
-   シミュレーターでは18試行して再現しないが、**実機は未確認**
-2. **アイコンの実寸表示**（29pt、明るい／暗い壁紙での馴染み）
-3. **iOS 17〜25のフォールバック表示**（ずっと未検証）
-4. **チュートリアルの最大文字サイズでの見え方**（一度失敗している箇所）
-5. **停止からの再開（`resume`）の画面動作**
 
 ### 壊してはいけない前提
 
-- **保存データの形を変えない。** `@Model` の保存プロパティ、CloudKitのRecord Type名・フィールド名
-  （**今日の変更でも一切変えていない。CloudKit反映は不要**）
+- **保存データの形を変えない。** `@Model` の保存プロパティ、CloudKitのRecord Type名・
+  フィールド名（**ビルド11以降ずっと変えていない。CloudKit反映は不要**）
 - **Bundle ID `com.tonaria.subsc`** / **Team ID `2ZR6Z7NP8H`** / **App ID `6795086857`**
-- **`synchronize` で無条件に `updatedAt` を書かない**（今日直した無限ループの原因）
+- **通知の予約は「削除してから追加」。** 逆にすると上限を超えて黙って捨てられる
+- **通知デリゲートを `async` 版で書かない。** 完了ハンドラ版でメインから呼ぶ
+- **1つの費目だけを対象に通知を予約し直さない**（全体の枠を無視することになる）
+- **`synchronize` で無条件に `updatedAt` を書かない**（8/8に直した無限ループの原因）
 - **`ReportPager` の重複した `makePage` 呼び出しを1回にまとめない**（CPU100%になる）
 - **`ScrollView(.horizontal)` + `LazyHStack` + `containerRelativeFrame` +
   `.scrollTargetBehavior(.paging)` の組み合わせを使わない**
-- **アイコンを差し替えるときは `AppIcon` と `AppIconPreview` の両方を更新する**
+- **アイコンは `AppIcon` と `AppIconPreview` の両方**を更新する
 - **`CatArtworkData.swift` を手で編集しない。** 元のSVGを直して機械的に写し直す
-- **年払いを再び1/12へならさない。** グラフに光沢・落ち影・縁を戻さない。
-  猫の口調で文言を書かない
+- **画面の文言にアプリ名を直接書かない。** `AppInfo.displayName` を通す
+- 年払いを再び1/12へならさない。グラフに光沢・落ち影・縁を戻さない。猫の口調で書かない
 - pbxprojへの新規ファイル登録は手作業。**次の空き番は 161。`+` を含むパスは引用符が要る**
 
 ### 検証用に残しているデータ・一時的な状態
 
-- **シミュレーターの検証データ：費目9件＋借入2件（うち1件が停止中）、8月の合計 ¥16,356。**
-  **停止中の1件が今回の無限ループの再現条件なので、消さないこと**
-- **シミュレーターの外観はダークへ戻してある**
-- **Archiveは `~/Library/Developer/Xcode/Archives/2026-08-08/` にある**（スクラッチではないので消えない）
-- **再現プローブとDerivedDataはスクラッチ配下。セッションが変わると消える。**
-  プローブは「shutdown → boot → install → launch → 8秒待つ → 10秒間の累積CPU差分」を
-  繰り返すだけなので、必要なら作り直す
+- **シミュレーターの検証データ：費目11件・借入2件（うち1件が停止中）。**
+  **停止中の1件は無限ループの再現条件なので消さないこと**
+- Archiveは `~/Library/Developer/Xcode/Archives/2026-08-09/` に13・14・15がある
+- `.verify-*` に古いビルド出力が945MB（gitignore済み）
+- 実機のクラッシュログ：`~/Downloads/Subsc-2026-08-09-150011.ips`（原因究明済み）
