@@ -1,6 +1,6 @@
 # TODO - タスクリスト
 
-最終整理：2026-08-09
+最終整理：2026-08-10
 ブランチ：**`main`**（黒猫リデザインからビルド15までを 2026-08-09 に fast-forward でマージ済み）
 現在のビルド：**15**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）
 
@@ -10,9 +10,9 @@
 
 ---
 
-## 進行中：カレンダー画面（2026-08-09・`feat/calendar-screen`）
+## 進行中：カレンダー画面（2026-08-10・`feat/calendar-screen`）
 
-SPEC：`.spec/SPEC.md`（2026-08-09 確定）／見た目：`.output/design-system/components/calendar.html`（承認済み）
+SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-system/components/calendar.html`（承認済み）
 
 **新規ファイルが7枚前後になる。pbxprojへの登録は手作業（次の空き番は 161。`+` を含むパスは引用符が要る）。**
 
@@ -53,7 +53,7 @@ SPEC：`.spec/SPEC.md`（2026-08-09 確定）／見た目：`.output/design-syst
 - [ ] ライト・ダーク両方で確認（実機で）
 - [ ] **最大文字サイズ**で確認（マスが潰れないか）
 - [x] **`@Model` に触っていないことを確認**（CloudKit反映が不要である裏取り）
-- [x] シミュレーターで見た目を確認（harutoさん・2026-08-09「いい感じ。意図通り」）
+- [x] シミュレーターで見た目を確認（harutoさん・2026-08-10「いい感じ。意図通り」）
 - [ ] ビルド16としてTestFlightへ（承認を得てから）
 
 ---

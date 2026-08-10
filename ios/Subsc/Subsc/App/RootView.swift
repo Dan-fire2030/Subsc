@@ -69,7 +69,7 @@ struct RootView: View {
                 .tabItem {
                     Label("設定", systemImage: "gearshape.fill")
                 }
-                // **カレンダーを足したので 1 から 2 へずらしました（2026-08-09）。**
+                // **カレンダーを足したので 1 から 2 へずらしました（2026-08-10）。**
                 .tag(2)
         }
         .tint(theme.buttonColor)
