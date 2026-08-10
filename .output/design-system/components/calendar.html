@@ -1,0 +1,325 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カレンダー</title>
+<style>
+  /* 値は実装（BlackCatPalette.swift）と一致させている。ここを変えたら実装も直す。 */
+  :root {
+    --bg:#FAF8F4; --surface:#FFFFFF; --surface-2:#EFEAE1; --border:#E4DED3;
+    --track:#EAE4DA; --text:#16151A; --muted:#6B6672; --accent:#C8901F;
+    --glass-tint:rgba(255,255,255,.55); --glass-edge:rgba(255,255,255,.85);
+    --glass-shade:rgba(22,21,26,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0B0B0F; --surface:#16161C; --surface-2:#101015; --border:#22222B;
+      --track:#1F1F28; --text:#F5F3EF; --muted:#9A94A2; --accent:#E8B44A;
+      --glass-tint:rgba(94,94,112,.28); --glass-edge:rgba(245,243,239,.22);
+      --glass-shade:rgba(0,0,0,.35);
+    }
+  }
+  /* 費目カテゴリの色（両モード共通。色そのものが費目の識別子のため） */
+  .c-watch{--dot:#7FB3D5} .c-listen{--dot:#9B8FD9} .c-read{--dot:#7FC8A9}
+  .c-work{--dot:#E0A66B} .c-living{--dot:#D98FA6} .c-network{--dot:#C4B37F}
+  .c-loan{--dot:#8FA8C4}
+
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px; background:var(--bg); color:var(--text);
+         font-family:-apple-system,"Hiragino Sans",system-ui,sans-serif; line-height:1.6; }
+  h1 { font-size:20px; margin:0 0 4px; letter-spacing:.04em; }
+  .lede { color:var(--muted); font-size:14px; max-width:66ch; margin:0 0 24px; }
+  h2 { font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+       margin:34px 0 12px; font-weight:600; }
+  .note { color:var(--muted); font-size:13px; max-width:66ch; margin:0 0 14px; }
+  .row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+  .phone { width:375px; max-width:100%; background:var(--bg); border:1px solid var(--border);
+           border-radius:32px; padding:14px 12px 18px; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  /* ── ナビゲーションバー ───────────────────────── */
+  .navbar { display:flex; align-items:center; justify-content:space-between;
+            padding:4px 6px 12px; }
+  .month { font-size:17px; font-weight:700; letter-spacing:.02em; }
+  .arrows { display:flex; gap:2px; }
+  .arrow { width:32px; height:32px; display:grid; place-items:center; color:var(--muted);
+           font-size:15px; }
+
+  /* ── Liquid Glass のスイッチ ──────────────────── */
+  /* 面を1枚のガラスとして扱い、縁の光だけで段差を作る。塗りつぶさない。 */
+  .glass-switch { position:relative; display:inline-flex; align-items:center; gap:6px;
+                  padding:6px 12px 6px 10px; border-radius:999px;
+                  background:var(--glass-tint);
+                  -webkit-backdrop-filter:blur(14px) saturate(180%);
+                  backdrop-filter:blur(14px) saturate(180%);
+                  border:.5px solid var(--glass-edge);
+                  box-shadow:0 1px 2px var(--glass-shade),
+                             inset 0 .5px 0 var(--glass-edge);
+                  font-size:12px; font-weight:600; letter-spacing:.02em; color:var(--text); }
+  .glass-switch.on { color:var(--accent); }
+  .glass-switch .knob { width:26px; height:15px; border-radius:999px; background:var(--track);
+                        position:relative; flex:none; }
+  .glass-switch .knob::after { content:""; position:absolute; top:1.5px; left:1.5px;
+                               width:12px; height:12px; border-radius:999px;
+                               background:var(--muted); transition:none; }
+  .glass-switch.on .knob { background:color-mix(in srgb, var(--accent) 34%, transparent); }
+  .glass-switch.on .knob::after { left:12.5px; background:var(--accent); }
+
+  /* ── 曜日と日付 ─────────────────────────────── */
+  .weekdays, .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .weekdays div { text-align:center; font-size:11px; color:var(--muted); padding:2px 0 6px;
+                  letter-spacing:.06em; }
+  .weekdays .sun { color:#D98FA6; } .weekdays .sat { color:#7FB3D5; }
+
+  .day { min-height:56px; border-radius:12px; padding:5px 4px 4px; text-align:center;
+         display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .day.compact { min-height:44px; }
+  .day .d { font-size:13px; line-height:1.1; }
+  /* 過ぎた日は淡く落とす。「もう出ていった」と「これから出ていく」を分ける。 */
+  .day.past { opacity:.48; }
+  .day.other { opacity:.22; }
+  /* 今日は金の輪。塗らずに輪だけで示す。 */
+  .day.today .d { color:var(--accent); font-weight:700; }
+  .day.today { box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+  /* 選択した日は面で示す */
+  .day.sel { background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); }
+
+  .dots { display:flex; gap:3px; justify-content:center; align-items:center; min-height:6px; }
+  .dot { width:5px; height:5px; border-radius:99px; background:var(--dot); }
+  /* 未入力の変動費は「塗らない輪」。他の点と質感で区別し、色の意味は保つ。 */
+  .dot.hollow { background:transparent; box-shadow:inset 0 0 0 1.5px var(--dot); }
+  .more { font-size:9px; color:var(--muted); }
+
+  .amt { font-size:10px; color:var(--muted); line-height:1.1; }
+  .cnt { font-size:9px; color:var(--muted); background:var(--surface-2);
+         border-radius:99px; padding:0 5px; line-height:1.5; }
+
+  /* ── 選択日の一覧 ───────────────────────────── */
+  .sheet { margin-top:14px; padding:0 2px; }
+  .sheet h3 { font-size:12px; letter-spacing:.08em; color:var(--muted); margin:0 0 8px;
+              font-weight:600; }
+  .item { display:flex; align-items:center; gap:10px; padding:9px 2px; }
+  .cap { width:4px; height:28px; border-radius:99px; background:var(--dot); flex:none; }
+  .nm { font-size:14px; }
+  .sub { font-size:11px; color:var(--muted); }
+  .val { margin-left:auto; text-align:right; }
+  .val .m { font-size:14px; font-weight:600; }
+  .val .u { font-size:10px; color:var(--muted); }
+  .pill { font-size:10px; color:var(--muted); border:1px solid var(--border);
+          border-radius:99px; padding:0 6px; margin-left:6px; }
+  .empty { font-size:13px; color:var(--muted); padding:14px 2px; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted);
+            margin:10px 2px 0; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+</style>
+</head>
+<body>
+
+<h1>カレンダー</h1>
+<p class="lede">
+  「ホーム」と「設定」のあいだに置く3枚目の画面。費目の更新日・借入の返済日・変動費の未入力を、
+  月のかたちで一望する。<strong>色の点は常に出し、金額と件数は切り替えで足す。</strong>
+  日をタップすると同じ画面の下に明細が出る。
+</p>
+
+<h2>切り替えオフ — 色の点だけ</h2>
+<p class="note">
+  既定はこちら。マスが狭いiPhoneでも潰れず、月全体の「密なところ／空いているところ」が形で分かる。
+</p>
+
+<div class="row">
+  <div class="phone">
+    <div class="navbar">
+      <div class="month">2026年8月</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="glass-switch"><span class="knob"></span>金額</div>
+        <div class="arrows"><div class="arrow">‹</div><div class="arrow">›</div></div>
+      </div>
+    </div>
+
+    <div class="weekdays">
+      <div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div>
+    </div>
+
+    <div class="grid">
+      <div class="day compact other"><div class="d">26</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">27</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">28</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">29</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">30</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">31</div><div class="dots"></div></div>
+      <div class="day compact past"><div class="d">1</div><div class="dots"></div></div>
+
+      <div class="day compact past"><div class="d">2</div><div class="dots"><i class="dot c-network"></i></div></div>
+      <div class="day compact past"><div class="d">3</div><div class="dots"></div></div>
+      <div class="day compact past"><div class="d">4</div><div class="dots"><i class="dot c-work"></i></div></div>
+      <div class="day compact past"><div class="d">5</div><div class="dots"></div></div>
+      <div class="day compact past"><div class="d">6</div><div class="dots"></div></div>
+      <div class="day compact past"><div class="d">7</div><div class="dots"><i class="dot c-living"></i></div></div>
+      <div class="day compact past"><div class="d">8</div><div class="dots"></div></div>
+
+      <div class="day compact today"><div class="d">9</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">10</div><div class="dots"><i class="dot c-watch"></i></div></div>
+      <div class="day compact"><div class="d">11</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">12</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">13</div><div class="dots"><i class="dot c-watch"></i></div></div>
+      <div class="day compact"><div class="d">14</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">15</div><div class="dots"><i class="dot c-living hollow"></i></div></div>
+
+      <div class="day compact"><div class="d">16</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">17</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">18</div><div class="dots"><i class="dot c-read"></i></div></div>
+      <div class="day compact"><div class="d">19</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">20</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">21</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">22</div><div class="dots"></div></div>
+
+      <div class="day compact"><div class="d">23</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">24</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">25</div><div class="dots"><i class="dot c-network hollow"></i></div></div>
+      <div class="day compact"><div class="d">26</div><div class="dots"><i class="dot c-listen"></i></div></div>
+      <div class="day compact"><div class="d">27</div><div class="dots"><i class="dot c-loan"></i></div></div>
+      <div class="day compact"><div class="d">28</div><div class="dots"></div></div>
+      <div class="day compact"><div class="d">29</div><div class="dots"></div></div>
+
+      <div class="day compact"><div class="d">30</div><div class="dots"><i class="dot c-watch"></i><i class="dot c-listen"></i><i class="dot c-read"></i></div></div>
+      <div class="day compact"><div class="d">31</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">1</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">2</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">3</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">4</div><div class="dots"></div></div>
+      <div class="day compact other"><div class="d">5</div><div class="dots"></div></div>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot c-watch"></i> 費目の更新日</span>
+      <span><i class="dot c-loan"></i> 返済日</span>
+      <span><i class="dot c-living hollow"></i> 変動費が未入力</span>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="navbar">
+      <div class="month">2026年8月</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="glass-switch on"><span class="knob"></span>金額</div>
+        <div class="arrows"><div class="arrow">‹</div><div class="arrow">›</div></div>
+      </div>
+    </div>
+
+    <div class="weekdays">
+      <div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div>
+    </div>
+
+    <div class="grid">
+      <div class="day other"><div class="d">26</div></div>
+      <div class="day other"><div class="d">27</div></div>
+      <div class="day other"><div class="d">28</div></div>
+      <div class="day other"><div class="d">29</div></div>
+      <div class="day other"><div class="d">30</div></div>
+      <div class="day other"><div class="d">31</div></div>
+      <div class="day past"><div class="d">1</div></div>
+
+      <div class="day past"><div class="d">2</div><div class="dots"><i class="dot c-network"></i></div><div class="amt num">¥4,980</div></div>
+      <div class="day past"><div class="d">3</div></div>
+      <div class="day past"><div class="d">4</div><div class="dots"><i class="dot c-work"></i></div><div class="amt num">¥1,180</div></div>
+      <div class="day past"><div class="d">5</div></div>
+      <div class="day past"><div class="d">6</div></div>
+      <div class="day past"><div class="d">7</div><div class="dots"><i class="dot c-living"></i></div><div class="amt num">¥6,420</div></div>
+      <div class="day past"><div class="d">8</div></div>
+
+      <div class="day today"><div class="d">9</div></div>
+      <div class="day"><div class="d">10</div><div class="dots"><i class="dot c-watch"></i></div><div class="amt num">¥1,980</div></div>
+      <div class="day"><div class="d">11</div></div>
+      <div class="day"><div class="d">12</div></div>
+      <div class="day"><div class="d">13</div><div class="dots"><i class="dot c-watch"></i></div><div class="amt num">¥890</div></div>
+      <div class="day"><div class="d">14</div></div>
+      <div class="day"><div class="d">15</div><div class="dots"><i class="dot c-living hollow"></i></div><div class="amt">未入力</div></div>
+
+      <div class="day"><div class="d">16</div></div>
+      <div class="day"><div class="d">17</div></div>
+      <div class="day"><div class="d">18</div><div class="dots"><i class="dot c-read"></i></div><div class="amt num">¥1,500</div></div>
+      <div class="day"><div class="d">19</div></div>
+      <div class="day"><div class="d">20</div></div>
+      <div class="day"><div class="d">21</div></div>
+      <div class="day"><div class="d">22</div></div>
+
+      <div class="day"><div class="d">23</div></div>
+      <div class="day"><div class="d">24</div></div>
+      <div class="day"><div class="d">25</div><div class="dots"><i class="dot c-network hollow"></i></div><div class="amt">未入力</div></div>
+      <div class="day"><div class="d">26</div><div class="dots"><i class="dot c-listen"></i></div><div class="amt num">¥1,080</div></div>
+      <div class="day"><div class="d">27</div><div class="dots"><i class="dot c-loan"></i></div><div class="amt num">¥52,300</div></div>
+      <div class="day"><div class="d">28</div></div>
+      <div class="day"><div class="d">29</div></div>
+
+      <div class="day sel"><div class="d">30</div><div class="dots"><i class="dot c-watch"></i><i class="dot c-listen"></i><i class="dot c-read"></i></div><div class="amt num">¥3,240</div><div class="cnt num">3件</div></div>
+      <div class="day"><div class="d">31</div></div>
+      <div class="day other"><div class="d">1</div></div>
+      <div class="day other"><div class="d">2</div></div>
+      <div class="day other"><div class="d">3</div></div>
+      <div class="day other"><div class="d">4</div></div>
+      <div class="day other"><div class="d">5</div></div>
+    </div>
+
+    <div class="sheet">
+      <h3>8月30日（日）・3件・¥3,240</h3>
+      <div class="item">
+        <i class="cap c-watch"></i>
+        <div><div class="nm">Netflix</div><div class="sub">エンタメ</div></div>
+        <div class="val"><div class="m num">¥1,980</div><div class="u">月額</div></div>
+      </div>
+      <div class="item">
+        <i class="cap c-listen"></i>
+        <div><div class="nm">Apple Music</div><div class="sub">音楽</div></div>
+        <div class="val"><div class="m num">¥1,080</div><div class="u">月額</div></div>
+      </div>
+      <div class="item">
+        <i class="cap c-read"></i>
+        <div><div class="nm">iCloud+<span class="pill">停止中</span></div><div class="sub">ツール</div></div>
+        <div class="val"><div class="m num">¥180</div><div class="u">月額</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>切り替えオン — 金額と件数を足す</h2>
+<p class="note">
+  右上のスイッチ1つで、金額の合計と件数のバッジをまとめて出し入れする。選んだ状態は覚えておく。
+  <strong>件数は2件以上のときだけ出す。</strong>1件のときは金額がそのまま件数の意味を持つため、
+  「1件」と書くと同じことを二度言うことになる。
+</p>
+<p class="note">
+  金額を出す状態でも<strong>マスの高さは変えない。</strong>切り替えるたびに月の形が動くと、
+  同じ月を見ている感覚が切れる。オフのときは高さぶんの余白がそのまま空く。
+</p>
+
+<h2>日をタップしたとき</h2>
+<p class="note">
+  カレンダーの下にその日の明細が出る（上の右側を参照）。見出しに<strong>日付・件数・合計</strong>を置き、
+  行はホームの一覧と同じ作り（左端の色の印・名前・カテゴリ・金額）にする。
+  <strong>停止中の費目も出す</strong>が、金額は合計に含めない。
+</p>
+<div class="row">
+  <div class="phone">
+    <div class="sheet" style="margin-top:0">
+      <h3>8月9日（日）</h3>
+      <div class="empty">この日に出ていくお金はありません。</div>
+    </div>
+  </div>
+</div>
+
+<h2>決めごと</h2>
+<p class="note">
+  ・<strong>週の始まりは端末の設定に従う</strong>（自前で持つと他アプリと食い違う）<br>
+  ・<strong>過ぎた日は淡く落とす</strong>（不透明度48%）。今日は金の輪だけで示し、塗りつぶさない<br>
+  ・<strong>点は最大3つまで</strong>並べ、それ以上は「+2」のように残数を出す<br>
+  ・<strong>変動費の未入力は塗らない輪</strong>。色の意味（どの費目か）を保ったまま、質感だけで区別する<br>
+  ・<strong>この画面から費目は追加しない。</strong>追加の入口はホームの「＋」に一本化する<br>
+  ・スイッチはiOS 26ではLiquid Glass、iOS 17〜25では従来のボタンにフォールバックする
+</p>
+
+</body>
+</html>
