@@ -58,11 +58,19 @@ struct RootView: View {
                 }
                 .tag(0)
 
+            // **ホームと設定のあいだに置きます。** 見る頻度がこの順だからです。
+            CalendarView()
+                .tabItem {
+                    Label("カレンダー", systemImage: "calendar")
+                }
+                .tag(1)
+
             SettingsView()
                 .tabItem {
                     Label("設定", systemImage: "gearshape.fill")
                 }
-                .tag(1)
+                // **カレンダーを足したので 1 から 2 へずらしました（2026-08-09）。**
+                .tag(2)
         }
         .tint(theme.buttonColor)
         .modifier(AdaptiveTabBarModifier())

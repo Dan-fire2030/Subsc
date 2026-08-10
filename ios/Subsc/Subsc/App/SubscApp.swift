@@ -38,6 +38,9 @@ struct SubscApp: App {
     /// チュートリアルを出すかどうかです。`UserDefaults` に閉じており、
     /// **CloudKitのスキーマには影響しません。**
     @State private var onboarding = OnboardingStore()
+    /// カレンダーのマスに金額と件数を出すかどうかです。`UserDefaults` に閉じており、
+    /// **CloudKitのスキーマには影響しません。**
+    @State private var calendarDisplay = CalendarDisplayStore()
     /// 通知の受け口です。**強参照で持ち続けないと、`delegate` が解放されて応答が届きません。**
     ///
     /// **`init` で作って持ちます（2026-08-09）。** 以前は `.task` の中で作っていましたが、
@@ -93,6 +96,7 @@ struct SubscApp: App {
             .environment(theme)
             .environment(loanNotificationSettings)
             .environment(onboarding)
+            .environment(calendarDisplay)
         }
     }
 }

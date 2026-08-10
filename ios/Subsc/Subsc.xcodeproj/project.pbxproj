@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001650000000000000165 /* CalendarDisplayStore.swift */; };
+		AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001660000000000000166 /* CalendarDisplayToggle.swift */; };
+		AA0001670000000000000167 /* CalendarMonthGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001670000000000000167 /* CalendarMonthGrid.swift */; };
+		AA0001680000000000000168 /* CalendarDayList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001680000000000000168 /* CalendarDayList.swift */; };
+		AA0001690000000000000169 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001690000000000000169 /* CalendarView.swift */; };
 		AA0001610000000000000161 /* CalendarDayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001610000000000000161 /* CalendarDayItem.swift */; };
 		AA0001620000000000000162 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001620000000000000162 /* CalendarDay.swift */; };
 		AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001630000000000000163 /* CalendarMonthBuilder.swift */; };
@@ -173,6 +178,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB0001650000000000000165 /* CalendarDisplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayStore.swift; sourceTree = "<group>"; };
+		BB0001660000000000000166 /* CalendarDisplayToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayToggle.swift; sourceTree = "<group>"; };
+		BB0001670000000000000167 /* CalendarMonthGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGrid.swift; sourceTree = "<group>"; };
+		BB0001680000000000000168 /* CalendarDayList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayList.swift; sourceTree = "<group>"; };
+		BB0001690000000000000169 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		BB0001610000000000000161 /* CalendarDayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayItem.swift; sourceTree = "<group>"; };
 		BB0001620000000000000162 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
 		BB0001630000000000000163 /* CalendarMonthBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthBuilder.swift; sourceTree = "<group>"; };
@@ -403,6 +413,7 @@
 		DD0000050000000000000005 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001650000000000000165 /* CalendarDisplayStore.swift */,
 				BB0001210000000000000121 /* LoanNotificationSettings.swift */,
 				BB0000030000000000000003 /* Subscription.swift */,
 				BB0000240000000000000024 /* ColorHex.swift */,
@@ -468,6 +479,10 @@
 		DD0000240000000000000024 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001660000000000000166 /* CalendarDisplayToggle.swift */,
+				BB0001670000000000000167 /* CalendarMonthGrid.swift */,
+				BB0001680000000000000168 /* CalendarDayList.swift */,
+				BB0001690000000000000169 /* CalendarView.swift */,
 				BB0001610000000000000161 /* CalendarDayItem.swift */,
 				BB0001620000000000000162 /* CalendarDay.swift */,
 				BB0001630000000000000163 /* CalendarMonthBuilder.swift */,
@@ -769,6 +784,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */,
+				AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */,
+				AA0001670000000000000167 /* CalendarMonthGrid.swift in Sources */,
+				AA0001680000000000000168 /* CalendarDayList.swift in Sources */,
+				AA0001690000000000000169 /* CalendarView.swift in Sources */,
 				AA0001610000000000000161 /* CalendarDayItem.swift in Sources */,
 				AA0001620000000000000162 /* CalendarDay.swift in Sources */,
 				AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */,

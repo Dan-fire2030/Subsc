@@ -152,3 +152,53 @@ final class TutorialPageTests: XCTestCase {
         }
     }
 }
+
+/// カレンダーの表示設定のテストです。
+///
+/// **選んだ状態が次の起動でも残ること**を縛ります。毎回オフへ戻ると、
+/// 金額を見たい人は開くたびに切り替えることになります。
+final class CalendarDisplayStoreTests: XCTestCase {
+    private var suiteName = ""
+    private var defaults: UserDefaults!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "calendar-display-\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        super.tearDown()
+    }
+
+    /// **既定は「出さない」。** 色の点だけのほうが月全体の形を掴みやすいためです。
+    func testDefaultsToHidingAmounts() {
+        XCTAssertFalse(CalendarDisplayStore(defaults: defaults).showsAmounts)
+    }
+
+    /// 切り替えた状態が次の起動でも残ること。
+    func testChoiceSurvivesRelaunch() {
+        let store = CalendarDisplayStore(defaults: defaults)
+        store.showsAmounts = true
+
+        XCTAssertTrue(CalendarDisplayStore(defaults: defaults).showsAmounts)
+    }
+
+    /// 戻した状態も残ること。**片道だけ保存する作りになっていないか**を確かめます。
+    func testTurningBackOffAlsoSurvives() {
+        let store = CalendarDisplayStore(defaults: defaults)
+        store.showsAmounts = true
+        store.showsAmounts = false
+
+        XCTAssertFalse(CalendarDisplayStore(defaults: defaults).showsAmounts)
+    }
+
+    /// 保存値が壊れていても既定へ倒れること。起動を止めないためです。
+    func testBrokenValueFallsBackToTheDefault() {
+        defaults.set("こわれた値", forKey: "calendar.showsAmounts")
+
+        XCTAssertFalse(CalendarDisplayStore(defaults: defaults).showsAmounts)
+    }
+}
