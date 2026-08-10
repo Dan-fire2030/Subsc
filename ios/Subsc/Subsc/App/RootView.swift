@@ -10,7 +10,7 @@ struct RootView: View {
     @Query(sort: \Subscription.updatedAt) private var subscriptions: [Subscription]
     @Query(sort: \Loan.updatedAt) private var loans: [Loan]
     @State private var selectedTab = 0
-    @State private var operationError: String?
+    @State private var operationAlert: OperationAlert?
 
     private var notificationFingerprint: String {
         subscriptions.map {
@@ -86,16 +86,19 @@ struct RootView: View {
             guard scenePhase == .active else { return }
             await reconcileSubscriptions()
         }
+        // **見出しは中身に合わせます。** 通知を予約できなかったことを
+        // 「データを同期できませんでした」と伝えると、原因の見当がまるで違う方向へ向きます。
         .alert(
-            "データを同期できませんでした",
+            operationAlert?.title ?? "",
             isPresented: Binding(
-                get: { operationError != nil },
-                set: { if !$0 { operationError = nil } }
-            )
-        ) {
+                get: { operationAlert != nil },
+                set: { if !$0 { operationAlert = nil } }
+            ),
+            presenting: operationAlert
+        ) { _ in
             Button("閉じる", role: .cancel) {}
-        } message: {
-            Text(operationError ?? "")
+        } message: { alert in
+            Text(alert.message)
         }
     }
 
@@ -108,7 +111,10 @@ struct RootView: View {
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
-                operationError = "更新日の保存に失敗しました。通信状態とiCloudの状態を確認してください。"
+                operationAlert = OperationAlert(
+                    title: "データを保存できませんでした",
+                    message: "更新日の保存に失敗しました。通信状態とiCloudの状態を確認してください。"
+                )
             }
         }
 
@@ -132,18 +138,32 @@ struct RootView: View {
             loanHour: loanNotificationSettings.hour
         )
         if result.failed > 0 {
-            operationError = "\(result.failed)件の通知を設定できませんでした。通知設定を確認してください。"
+            operationAlert = OperationAlert(
+                title: "通知を設定できませんでした",
+                message: "\(result.failed)件の通知を設定できませんでした。通知設定を確認してください。"
+            )
         } else if result.missing > 0 {
             // **予約できなかったことを黙って見過ごしません（2026-08-09）。**
             // iOSは1つのアプリに64件までしか予約を保持せず、超過分は例外にならずに
             // 捨てられます。実際にこれで「登録した費目の通知が来ない」が起きました。
-            operationError = """
-                \(result.missing)件の通知を予約できませんでした。\
-                iOSが1つのアプリに保持できる通知は64件までです。\
-                費目ごとの通知タイミングを減らすか、使っていない費目を停止してください。
-                """
+            operationAlert = OperationAlert(
+                title: "通知を予約しきれませんでした",
+                message: """
+                    \(result.missing)件の通知を予約できませんでした。\
+                    iOSが1つのアプリに保持できる通知は64件までです。\
+                    費目ごとの通知タイミングを減らすか、使っていない費目を停止してください。
+                    """
+            )
         }
     }
+}
+
+/// 画面に出す知らせです。**見出しと本文を一緒に持ちます。**
+/// 本文だけを持ち回すと、見出しが実態と合わなくなります。
+struct OperationAlert: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
 }
 
 struct AppLiquidGlassBackground: View {

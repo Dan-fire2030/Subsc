@@ -157,13 +157,22 @@ enum NotificationService {
     }
 
     /// 予約したはずの識別子のうち、実際には入っていなかった件数です。
+    ///
+    /// **許可されていないときは数えません（2026-08-09に追加）。**
+    /// 許可が無いと予約は保持されず、読み戻すと全件が「欠けている」と数えられます。
+    /// そのまま知らせると、**上限超過でもないのに「通知タイミングを減らせ」と案内**して
+    /// しまい、原因と無関係な対処へ誘導します（実際にシミュレーターで54件と出ました）。
+    ///
+    /// 許可が無いこと自体は設定画面が扱うため、ここでは黙って0を返します。
     private static func missingCount(desired: Set<String>) async -> Int {
         guard !desired.isEmpty else { return 0 }
-        let pending = Set(
-            await UNUserNotificationCenter.current()
-                .pendingNotificationRequests()
-                .map(\.identifier)
-        )
+
+        let center = UNUserNotificationCenter.current()
+        let status = await center.notificationSettings().authorizationStatus
+        // `.provisional` は静かに届く許可なので、予約は保持されます。数える対象に含めます。
+        guard status == .authorized || status == .provisional else { return 0 }
+
+        let pending = Set(await center.pendingNotificationRequests().map(\.identifier))
         return desired.subtracting(pending).count
     }
 
