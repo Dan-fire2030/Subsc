@@ -35,32 +35,12 @@ enum ReportCalculator {
         now: Date = .now,
         calendar: Calendar = .current
     ) -> PaymentReport {
-        let active = subscriptions.filter { subscription in
-            // **停止は「今」の状態であって、過去の事実ではありません。**
-            // 過ぎ去った期間からも消すと、その月に実際に払っていた記録まで
-            // 無かったことになり、あとから見返した合計が変わってしまいます。
-            // いつ停止したかは記録していないため、期間が過去かどうかだけで判断します。
-            if subscription.state != .active,
-               !isPastPeriod(period, cursor: cursor, now: now, calendar: calendar) {
-                return false
-            }
-            if let startDate = subscription.startDate,
-               startDate >= periodEnd(period, cursor: cursor, calendar: calendar) {
-                return false
-            }
-            if let endDate = subscription.endDate,
-               endDate < periodStart(period, cursor: cursor, calendar: calendar) {
-                return false
-            }
-            return true
+        let active = subscriptions.filter {
+            includes($0, period: period, cursor: cursor, now: now, calendar: calendar)
         }
 
-        // 停止中の借入も費目と同じ規則で扱います。**過ぎ去った期間には効かせません。**
-        // 見え方を費目と揃えるため、判定の仕方も上の `active` に合わせています
-        // （`pausedOn` は繰り延べの計算に使い、ここでは使いません）。
-        let payingLoans = loans.filter { loan in
-            guard loan.isPaused else { return true }
-            return isPastPeriod(period, cursor: cursor, now: now, calendar: calendar)
+        let payingLoans = loans.filter {
+            includes($0, period: period, cursor: cursor, now: now, calendar: calendar)
         }
 
         let loanEntries = payingLoans.compactMap {
@@ -92,6 +72,51 @@ enum ReportCalculator {
             total: combined.reduce(0) { $0 + $1.amount },
             entries: combined
         )
+    }
+
+    /// その期間の計上対象に含めるかどうかです。
+    ///
+    /// **停止は「今」の状態であって、過去の事実ではありません。**
+    /// 過ぎ去った期間からも消すと、その月に実際に払っていた記録まで無かったことになり、
+    /// あとから見返した合計が変わってしまいます。
+    /// いつ停止したかは記録していないため、期間が過去かどうかだけで判断します。
+    ///
+    /// **公開しているのはカレンダーへ同じ規則を配るためです（2026-08-09）。**
+    /// 「その月に計上するか」の判断を2箇所に書くと、同じ月を見ているのに
+    /// レポートとカレンダーで数字が食い違います。
+    static func includes(
+        _ subscription: Subscription,
+        period: ReportPeriod,
+        cursor: Date,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        if subscription.state != .active,
+           !isPastPeriod(period, cursor: cursor, now: now, calendar: calendar) {
+            return false
+        }
+        if let startDate = subscription.startDate,
+           startDate >= periodEnd(period, cursor: cursor, calendar: calendar) {
+            return false
+        }
+        if let endDate = subscription.endDate,
+           endDate < periodStart(period, cursor: cursor, calendar: calendar) {
+            return false
+        }
+        return true
+    }
+
+    /// 借入も費目と同じ規則で扱います。**停止は過ぎ去った期間には効かせません。**
+    /// （`pausedOn` は繰り延べの計算に使い、ここでは使いません）
+    static func includes(
+        _ loan: Loan,
+        period: ReportPeriod,
+        cursor: Date,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        guard loan.isPaused else { return true }
+        return isPastPeriod(period, cursor: cursor, now: now, calendar: calendar)
     }
 
     /// その期間に返済する額（元金＋利息）を1件のレポート項目にします。

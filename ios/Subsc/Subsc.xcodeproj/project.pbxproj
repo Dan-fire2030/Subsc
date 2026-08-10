@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0001610000000000000161 /* CalendarDayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001610000000000000161 /* CalendarDayItem.swift */; };
+		AA0001620000000000000162 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001620000000000000162 /* CalendarDay.swift */; };
+		AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001630000000000000163 /* CalendarMonthBuilder.swift */; };
+		AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */; };
 		AA0000010000000000000001 /* SubscApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000000000001 /* SubscApp.swift */; };
 		AA0000020000000000000002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000020000000000000002 /* RootView.swift */; };
 		AA0000170000000000000017 /* StorageMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000220000000000000022 /* StorageMode.swift */; };
@@ -169,6 +173,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB0001610000000000000161 /* CalendarDayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayItem.swift; sourceTree = "<group>"; };
+		BB0001620000000000000162 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
+		BB0001630000000000000163 /* CalendarMonthBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthBuilder.swift; sourceTree = "<group>"; };
+		BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthBuilderTests.swift; sourceTree = "<group>"; };
 		BB0000010000000000000001 /* SubscApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscApp.swift; sourceTree = "<group>"; };
 		BB0000020000000000000002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		BB0000220000000000000022 /* StorageMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageMode.swift; sourceTree = "<group>"; };
@@ -457,6 +465,16 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		DD0000240000000000000024 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				BB0001610000000000000161 /* CalendarDayItem.swift */,
+				BB0001620000000000000162 /* CalendarDay.swift */,
+				BB0001630000000000000163 /* CalendarMonthBuilder.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
 		DD0000070000000000000007 /* Features */ = {
 			isa = PBXGroup;
 			children = (
@@ -465,6 +483,7 @@
 				DD0000120000000000000012 /* Settings */,
 				DD0000200000000000000020 /* Loans */,
 				DD0000230000000000000023 /* Onboarding */,
+				DD0000240000000000000024 /* Calendar */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -533,6 +552,7 @@
 		DD0000100000000000000010 /* SubscTests */ = {
 			isa = PBXGroup;
 			children = (
+				BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */,
 				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
 				BB00011230000000000000123 /* LoanPauseTests.swift */,
 				BB00011240000000000000124 /* YearlyBillingTests.swift */,
@@ -749,6 +769,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001610000000000000161 /* CalendarDayItem.swift in Sources */,
+				AA0001620000000000000162 /* CalendarDay.swift in Sources */,
+				AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */,
 				AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */,
 				AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */,
 				AA0001080000000000000108 /* LoanHistoryView.swift in Sources */,
@@ -853,6 +876,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */,
 				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,
 				AA00011230000000000000123 /* LoanPauseTests.swift in Sources */,
 				AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */,
