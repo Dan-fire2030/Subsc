@@ -2,7 +2,7 @@
 
 最終整理：2026-08-11
 ブランチ：**`main`**（ビルド16をTestFlightへ投入済み）
-現在のビルド：**16**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）
+現在のビルド：**17**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）
 
 前サイクル（カレンダー画面／ビルド16の投入／公開ページの用意）の一覧は
 `.spec/archive/TODO-2026-08-11.md` にある。
@@ -70,7 +70,8 @@ pbxprojへの登録は手作業（**次の空き番は 176**。175まで使用�
 - [x] **`@Model` に触っていないことを確認**
 - [ ] **harutoさんが動かして確認**（2026-08-11に担当を決定）。確認項目は下記
 - [ ] `main` へマージ
-- [ ] ビルド17としてTestFlightへ（承認を得てから）
+- [x] **ビルド17としてTestFlightへ**（2026-08-11・Apple側の受領に成功）。
+      確認したい項目は `AppStore/RELEASE_RUNBOOK.md` のビルド17の節にある
 
 ---
 
