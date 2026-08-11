@@ -117,8 +117,10 @@ UTF-8合計：93バイト（日本語28文字＝84バイト＋半角カンマ9�
       （2026-08-11に公開。**URL中の `Subsc` はリポジトリ名。アプリ名ではないので変えない**）
 - [x] サポート公開URL：<https://dan-fire2030.github.io/Subsc/support.html>
 - [x] サポート用メールアドレス：`haruto_1224@icloud.com`
-- [ ] App Store用スクリーンショット6枚（**撮影手順は `RELEASE_RUNBOOK.md` の
-      「スクリーンショットの撮影手順」が正本**。iPhone 17 Pro・1179×2556・加工不要）
+- [x] **App Store用スクリーンショット6枚**（2026-08-11 完成）。
+      `.output/appstore/screenshots/` に配置。**1206×2622・PNG・アルファなし**。
+      実機の実画面に見出しを載せたもので、**描き起こした画像は1枚も無い**。
+      内容と撮り直しの注意は同ディレクトリの `README.md`
 - [ ] 年齢区分の質問回答
 - [ ] App Privacyの回答
 - [ ] App Review担当者の連絡先
