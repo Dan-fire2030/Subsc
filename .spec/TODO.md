@@ -87,13 +87,11 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 **誰が何をやるか（自動／手動の区分）は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md` の
 「提出までの担当区分」が正本。** ここには複製しない。
 
-- [ ] **1. プライバシーポリシーを公開する**
-      **公開用HTMLは 2026-08-11 に用意済み**（`docs/index.html` / `privacy.html` /
-      `support.html` / `style.css`）。**残るは GitHub Pages の有効化だけで、これはharutoさんの作業**。
-      `gh api repos/Dan-fire2030/Subsc/pages` は依然404。
-      有効化は「main ブランチの `/docs`」を配信元に選ぶ。想定URLは
-      `https://dan-fire2030.github.io/Subsc/privacy.html` と `.../support.html`。
-      **有効化されたら、エージェントが実際に開けることを確認する**
+- [x] **1. プライバシーポリシーを公開した**（2026-08-11）。
+      harutoさんが GitHub Pages を有効化（`main` の `/docs`）、`status: built`。
+      **エージェントが4URLとも HTTP 200 と中身を実測して確認済み**（HTTPS強制も有効）。
+      - プライバシーポリシー：<https://dan-fire2030.github.io/Subsc/privacy.html>
+      - サポート：<https://dan-fire2030.github.io/Subsc/support.html>
 - [x] **2. `PrivacyPolicy-ja.md` の旧アプリ名5箇所を「つきねこ」へ**（2026-08-11）。
       最終更新日を2026年8月11日へ、お問い合わせ欄に連絡先を記載。
       **商標が未確認のため、名前が変わったら `docs/*.html` の「つきねこ」を全置換する**

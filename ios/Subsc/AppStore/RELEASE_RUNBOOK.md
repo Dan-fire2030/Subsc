@@ -508,9 +508,9 @@ harutoさんの報告（8/10更新の費目を前日13:30の通知で登録し�
 
 ### App Store Connect
 
-- [ ] プライバシーポリシー公開URL
-- [ ] サポート公開URL
-- [ ] サポート用メールアドレス
+- [x] プライバシーポリシー公開URL（2026-08-11・<https://dan-fire2030.github.io/Subsc/privacy.html>）
+- [x] サポート公開URL（2026-08-11・<https://dan-fire2030.github.io/Subsc/support.html>）
+- [x] サポート用メールアドレス（2026-08-11・`haruto_1224@icloud.com`）
 - [ ] iPhone用スクリーンショット
 - [ ] 掲載名・サブタイトルを固定費管理向けへ変更（文言は`AppStore/Metadata-ja.md`）
 - [ ] 概要・キーワード・カテゴリ
