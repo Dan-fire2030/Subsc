@@ -351,12 +351,20 @@ enum DashboardListBuilder {
         now: Date,
         calendar: Calendar
     ) -> Bool {
+        // **アーカイブ中は「アーカイブ」の段だけに出します。**
+        // 「すべて」にも出さないのは、アーカイブが「一覧から消したもの」だからです。
+        // ここに出すと退けた意味がなくなります。判定はどの段よりも先に行います。
+        let isArchived = ArchivePolicy.isArchived(subscription.archivedAt)
+        guard filter != .archived else { return isArchived }
+        guard !isArchived else { return false }
+
         let isHistory = subscription.endDate.map { $0 < calendar.startOfDay(for: now) } ?? false
         switch filter {
         case .all: return true
         case .active: return subscription.state == .active && !isHistory
         case .paused: return subscription.state == .paused && !isHistory
         case .history: return isHistory
+        case .archived: return false
         }
     }
 
@@ -378,11 +386,17 @@ enum DashboardListBuilder {
         summary: LoanSummary,
         filter: SubscriptionFilter
     ) -> Bool {
+        // 費目と同じ規則です。アーカイブ中は「アーカイブ」の段だけに出します。
+        let isArchived = ArchivePolicy.isArchived(loan.archivedAt)
+        guard filter != .archived else { return isArchived }
+        guard !isArchived else { return false }
+
         switch filter {
         case .all: return true
         case .active: return !summary.isCompleted && !loan.isPaused
         case .paused: return !summary.isCompleted && loan.isPaused
         case .history: return summary.isCompleted
+        case .archived: return false
         }
     }
 

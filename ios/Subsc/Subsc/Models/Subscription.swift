@@ -53,6 +53,15 @@ final class Subscription {
     var renewalDate: Date = Date.now
     var startDate: Date?
     var endDate: Date?
+    /// アーカイブした日時です。**`nil` はアーカイブしていない状態**を表します。
+    ///
+    /// **状態（enum）ではなく日時で持ちます。** 30日の期限を測るのにアーカイブした日が要り、
+    /// 状態を別に持つと日時と食い違いえます。日時1つで「アーカイブ中か」と「あと何日か」が決まります。
+    ///
+    /// **Optionalにしています。** CloudKitミラーリングは非Optionalかつ既定値なしを許しません。
+    /// なお**Optionalは値を保存するまでCloudKit側にフィールドが作られません**。
+    /// Production反映の前に、実際にアーカイブして保存し Console に出ることを確認します。
+    var archivedAt: Date?
     var websiteURL: String = ""
     var notes: String = ""
     var colorHex: String = "#007AFF"

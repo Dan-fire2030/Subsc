@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001650000000000000165 /* CalendarDisplayStore.swift */; };
+		AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001780000000000000178 /* ArchiveExclusionTests.swift */; };
+		AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001770000000000000177 /* ArchivePolicyTests.swift */; };
+		AA0001760000000000000176 /* ArchivePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001760000000000000176 /* ArchivePolicy.swift */; };
 		AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001720000000000000172 /* DashboardListOrganizationTests.swift */; };
 		AA0001710000000000000171 /* DashboardSortStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001710000000000000171 /* DashboardSortStore.swift */; };
 		AA0001700000000000000170 /* DashboardSortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001700000000000000170 /* DashboardSortOrder.swift */; };
@@ -185,6 +188,9 @@
 
 /* Begin PBXFileReference section */
 		BB0001650000000000000165 /* CalendarDisplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayStore.swift; sourceTree = "<group>"; };
+		BB0001780000000000000178 /* ArchiveExclusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveExclusionTests.swift; sourceTree = "<group>"; };
+		BB0001770000000000000177 /* ArchivePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicyTests.swift; sourceTree = "<group>"; };
+		BB0001760000000000000176 /* ArchivePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicy.swift; sourceTree = "<group>"; };
 		BB0001720000000000000172 /* DashboardListOrganizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListOrganizationTests.swift; sourceTree = "<group>"; };
 		BB0001710000000000000171 /* DashboardSortStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSortStore.swift; sourceTree = "<group>"; };
 		BB0001700000000000000170 /* DashboardSortOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSortOrder.swift; sourceTree = "<group>"; };
@@ -427,6 +433,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0001650000000000000165 /* CalendarDisplayStore.swift */,
+				BB0001760000000000000176 /* ArchivePolicy.swift */,
 				BB0001710000000000000171 /* DashboardSortStore.swift */,
 				BB0001210000000000000121 /* LoanNotificationSettings.swift */,
 				BB0000030000000000000003 /* Subscription.swift */,
@@ -584,6 +591,8 @@
 			isa = PBXGroup;
 			children = (
 				BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */,
+				BB0001780000000000000178 /* ArchiveExclusionTests.swift */,
+				BB0001770000000000000177 /* ArchivePolicyTests.swift */,
 				BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */,
 				BB0001720000000000000172 /* DashboardListOrganizationTests.swift */,
 				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
@@ -803,6 +812,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */,
+				AA0001760000000000000176 /* ArchivePolicy.swift in Sources */,
 				AA0001710000000000000171 /* DashboardSortStore.swift in Sources */,
 				AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */,
 				AA0001670000000000000167 /* CalendarMonthGrid.swift in Sources */,
@@ -919,6 +929,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */,
+				AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */,
+				AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */,
 				AA0001750000000000000175 /* CalendarMonthPickerRangeTests.swift in Sources */,
 				AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */,
 				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,

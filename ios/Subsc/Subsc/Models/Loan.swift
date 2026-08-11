@@ -78,6 +78,13 @@ final class Loan {
     ///
     /// **`isPaused` が真のときは必ず値が入ります。** 停止・再開では両方を同時に書き換えます。
     var pausedOn: Date?
+    /// アーカイブした日時です。**`nil` はアーカイブしていない状態**を表します。
+    ///
+    /// **停止（`isPaused`）とは別物です。** 停止は「返済を止めている契約」で一覧に残りますが、
+    /// アーカイブは「一覧から退けたもの」で、30日後に消えます。
+    ///
+    /// **アーカイブしても返済予定表（`payments`）は消しません。** 消すと復元できなくなります。
+    var archivedAt: Date?
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 

@@ -6,6 +6,11 @@ enum SubscriptionFilter: String, CaseIterable, Identifiable {
     case active = "利用中"
     case paused = "停止中"
     case history = "履歴"
+    /// アーカイブした（＝一覧から退けた）ものだけを出します。
+    ///
+    /// **他の段には出しません。** 「すべて」にも出さないのは、アーカイブが
+    /// 「一覧から消したもの」だからです。ここに出すと消した意味がなくなります。
+    case archived = "アーカイブ"
 
     var id: String { rawValue }
 }
@@ -18,6 +23,7 @@ extension SubscriptionFilter {
         case .active: "利用中のものがありません"
         case .paused: "停止中の費目はありません"
         case .history: "履歴はまだありません"
+        case .archived: "アーカイブは空です"
         }
     }
 
@@ -36,6 +42,8 @@ extension SubscriptionFilter {
             "費目を左へスワイプすると停止できます。借入・ローンに停止はありません。"
         case .history:
             "終了日を過ぎた費目と、完済した借入・ローンがここに入ります。"
+        case .archived:
+            "一覧から退けたものがここに入ります。30日で自動的に削除され、それまでは復元できます。"
         }
     }
 }

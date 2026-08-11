@@ -91,6 +91,11 @@ enum ReportCalculator {
         now: Date = .now,
         calendar: Calendar = .current
     ) -> Bool {
+        // **アーカイブ中は、過ぎ去った期間も含めてすべて外します（2026-08-11）。**
+        // 停止中と違い、アーカイブは「一覧から消したもの」です。
+        // レポートやカレンダーに残っていると、消したはずのものが数字に効きます。
+        if ArchivePolicy.isArchived(subscription.archivedAt) { return false }
+
         if subscription.state != .active,
            !isPastPeriod(period, cursor: cursor, now: now, calendar: calendar) {
             return false
@@ -115,6 +120,9 @@ enum ReportCalculator {
         now: Date = .now,
         calendar: Calendar = .current
     ) -> Bool {
+        // 費目と同じく、アーカイブ中は過ぎ去った期間も含めてすべて外します。
+        if ArchivePolicy.isArchived(loan.archivedAt) { return false }
+
         guard loan.isPaused else { return true }
         return isPastPeriod(period, cursor: cursor, now: now, calendar: calendar)
     }
