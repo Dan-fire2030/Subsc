@@ -84,6 +84,9 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 
 **3の商標が最上流。** 名前が動くと 1・2・4・5 がすべてやり直しになる。
 
+**誰が何をやるか（自動／手動の区分）は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md` の
+「提出までの担当区分」が正本。** ここには複製しない。
+
 - [ ] **1. プライバシーポリシーを公開する**
       `gh api repos/Dan-fire2030/Subsc/pages` が404で、**GitHub Pages が未有効化**。
       公開URLは審査提出の必須項目。文書とHTMLの用意はエージェント、有効化はharutoさん
