@@ -1,0 +1,131 @@
+/* つきねこ 公開ページの共通スタイル
+   配色は ios/Subsc/Subsc/Design/BlackCatPalette.swift と揃えている。
+   端末のライト／ダーク設定に追従する。 */
+
+:root {
+  --bg: #FAF8F4;
+  --surface: #FFFFFF;
+  --border: #E4DED3;
+  --text: #16151A;
+  --muted: #6B6672;
+  --accent: #C8901F;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0B0B0F;
+    --surface: #16161C;
+    --border: #22222B;
+    --text: #F5F3EF;
+    --muted: #9A94A2;
+    --accent: #E8B44A;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 32px 20px 64px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  line-height: 1.85;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+header {
+  max-width: 720px;
+  margin: 0 auto 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+h1 {
+  font-size: 1.6rem;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 44px 0 12px;
+  padding-top: 4px;
+  letter-spacing: 0.01em;
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 28px 0 8px;
+}
+
+p { margin: 0 0 16px; }
+
+ul { padding-left: 1.3em; margin: 0 0 16px; }
+
+li { margin-bottom: 10px; }
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+a:hover { text-decoration: none; }
+
+.updated {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.lead {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin: 0 0 8px;
+}
+
+.lead p:last-child { margin-bottom: 0; }
+
+.contact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-top: 16px;
+}
+
+.contact p:last-child { margin-bottom: 0; }
+
+.mail {
+  font-size: 1.05rem;
+  word-break: break-all;
+}
+
+nav.links {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+nav.links a { margin-right: 20px; }
+
+footer {
+  max-width: 720px;
+  margin: 56px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+strong { font-weight: 600; }

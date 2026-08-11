@@ -88,9 +88,15 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 「提出までの担当区分」が正本。** ここには複製しない。
 
 - [ ] **1. プライバシーポリシーを公開する**
-      `gh api repos/Dan-fire2030/Subsc/pages` が404で、**GitHub Pages が未有効化**。
-      公開URLは審査提出の必須項目。文書とHTMLの用意はエージェント、有効化はharutoさん
-- [ ] **2. `PrivacyPolicy-ja.md` の旧アプリ名5箇所を「つきねこ」へ**（1と同時に行う）
+      **公開用HTMLは 2026-08-11 に用意済み**（`docs/index.html` / `privacy.html` /
+      `support.html` / `style.css`）。**残るは GitHub Pages の有効化だけで、これはharutoさんの作業**。
+      `gh api repos/Dan-fire2030/Subsc/pages` は依然404。
+      有効化は「main ブランチの `/docs`」を配信元に選ぶ。想定URLは
+      `https://dan-fire2030.github.io/Subsc/privacy.html` と `.../support.html`。
+      **有効化されたら、エージェントが実際に開けることを確認する**
+- [x] **2. `PrivacyPolicy-ja.md` の旧アプリ名5箇所を「つきねこ」へ**（2026-08-11）。
+      最終更新日を2026年8月11日へ、お問い合わせ欄に連絡先を記載。
+      **商標が未確認のため、名前が変わったら `docs/*.html` の「つきねこ」を全置換する**
 - [ ] **3. 「つきねこ」の商標確認**（J-PlatPat または弁理士）— harutoさん
 - [ ] **4. App Store Connect の入力13項目**
       公開URL2つ／サポート用メール／スクリーンショット／掲載名・サブタイトル／
@@ -100,7 +106,9 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
       「審査へ提出」ボタンは押さない**
 - [ ] **5. App Store用スクリーンショット** — 撮影はharutoさん、加工はCodex。
       **リデザイン後の画面で、借入の画面を含めて撮り直す**
-- [ ] **6. サポート公開URLとサポート用メールアドレスを決める** — harutoさん
+- [x] **6. サポート用メールアドレスを決めた**（2026-08-11・`haruto_1224@icloud.com`）。
+      サポート公開URLは `docs/support.html` を用意済みで、**Pages有効化で確定する**。
+      **このアドレスは Apple Account のログインと同じ**である旨をharutoさんへ伝えたうえでの決定
 
 ### C. harutoさんの判断待ち
 
