@@ -117,7 +117,9 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 - [x] **`UIBackgroundModes: remote-notification` の宣言を外した**（2026-08-11）。
       `aps-environment` が無く元から働いていなかったため、退行なし。
       プッシュで同期を受け取りたくなったら App ID に Push Notifications を足すところからやり直す
-- [ ] `.verify-*` に古いビルド出力が945MB（gitignore済みで実害はない）
+- [ ] **`ios/Subsc/.verify-*` と `.audit-*` に古いビルド出力が合計1.4GB**（gitignore済みで実害はない）。
+      **リポジトリ直下ではなく `ios/Subsc/` 配下にある。**
+      2026-08-11に一度「解消済み」と誤記した。直下で `ls .verify*` して無いのを見ただけだった
 
 ---
 
