@@ -56,15 +56,43 @@ extension DashboardView {
                 }
             }
         } label: {
-            Label(
-                "絞り込みと並び替え",
-                systemImage: costTypeFilter.isNarrowed
-                    ? "line.3.horizontal.decrease.circle.fill"
-                    : "line.3.horizontal.decrease.circle"
+            // **ツールバーから出したので、絵だけでは何のボタンか分かりません（2026-08-11）。**
+            // いま効いている条件を短く添えて、押す前に状態が読めるようにします。
+            HStack(spacing: 4) {
+                Image(
+                    systemName: costTypeFilter.isNarrowed
+                        ? "line.3.horizontal.decrease.circle.fill"
+                        : "line.3.horizontal.decrease.circle"
+                )
+                Text(menuSummary)
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+            }
+            .font(BlackCatType.label)
+            .foregroundStyle(BlackCatPalette.textMuted)
+            .padding(.horizontal, BlackCatSpacing.m)
+            .padding(.vertical, BlackCatSpacing.s)
+            .background(
+                Capsule(style: .continuous).fill(BlackCatPalette.surface)
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(BlackCatPalette.border, lineWidth: 0.7)
             )
         }
         .accessibilityIdentifier("cost-type-filter-menu")
+        .accessibilityLabel("絞り込みと並び替え")
         .accessibilityValue("\(costTypeFilter.title)・\(sortStore.order.title)")
+    }
+
+    /// ボタンに添える、いま効いている条件の要約です。
+    ///
+    /// **種別を絞っているときはその名前を優先します。** 絞り込みに気づかず
+    /// 「無くなった」と思われるのを避けるためです（`emptyStateDescription` と同じ考え方）。
+    var menuSummary: String {
+        costTypeFilter.isNarrowed
+            ? costTypeFilter.title
+            : sortStore.order.title
     }
 
     /// 一覧のセクションの見出しです。**件数と合計を添えます。**

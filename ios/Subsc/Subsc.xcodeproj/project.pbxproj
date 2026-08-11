@@ -140,6 +140,7 @@
 		AA000096000000000000096 /* LoanSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000096000000000000096 /* LoanSummary.swift */; };
 		AA000097000000000000097 /* LoanFormInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000097000000000000097 /* LoanFormInput.swift */; };
 		AA000098000000000000098 /* DashboardListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000098000000000000098 /* DashboardListItem.swift */; };
+		AA0001800000000000000180 /* DashboardFilterChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001800000000000000180 /* DashboardFilterChips.swift */; };
 		AA000099000000000000099 /* LoanSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000099000000000000099 /* LoanSummaryTests.swift */; };
 		AA0001000000000000000100 /* LoanFormInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001000000000000000100 /* LoanFormInputTests.swift */; };
 		AA0001010000000000000101 /* DashboardListItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001010000000000000101 /* DashboardListItemTests.swift */; };
@@ -326,6 +327,7 @@
 		BB000096000000000000096 /* LoanSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSummary.swift; sourceTree = "<group>"; };
 		BB000097000000000000097 /* LoanFormInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormInput.swift; sourceTree = "<group>"; };
 		BB000098000000000000098 /* DashboardListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListItem.swift; sourceTree = "<group>"; };
+		BB0001800000000000000180 /* DashboardFilterChips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardFilterChips.swift; sourceTree = "<group>"; };
 		BB000099000000000000099 /* LoanSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSummaryTests.swift; sourceTree = "<group>"; };
 		BB0001000000000000000100 /* LoanFormInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanFormInputTests.swift; sourceTree = "<group>"; };
 		BB0001010000000000000101 /* DashboardListItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListItemTests.swift; sourceTree = "<group>"; };
@@ -532,6 +534,7 @@
 			isa = PBXGroup;
 			children = (
 				BB000098000000000000098 /* DashboardListItem.swift */,
+				BB0001800000000000000180 /* DashboardFilterChips.swift */,
 				BB0001700000000000000170 /* DashboardSortOrder.swift */,
 				BB0000050000000000000005 /* ReportCalculator.swift */,
 				BB00011290000000000000129 /* UpcomingLargeCharge.swift */,
@@ -836,6 +839,7 @@
 				AA0001030000000000000103 /* LoanFormView.swift in Sources */,
 				AA0001020000000000000102 /* LoanRow.swift in Sources */,
 				AA000098000000000000098 /* DashboardListItem.swift in Sources */,
+				AA0001800000000000000180 /* DashboardFilterChips.swift in Sources */,
 				AA0001700000000000000170 /* DashboardSortOrder.swift in Sources */,
 				AA000097000000000000097 /* LoanFormInput.swift in Sources */,
 				AA000096000000000000096 /* LoanSummary.swift in Sources */,

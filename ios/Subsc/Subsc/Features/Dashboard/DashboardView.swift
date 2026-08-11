@@ -85,12 +85,15 @@ struct DashboardView: View {
                         // **検索中は隠します。** 状態の絞り込みは検索中に外れるため
                         // （`effectiveStateFilter`）、出したままだと効いていない選択が残ります。
                         Section {
-                            Picker("表示", selection: $filter) {
-                                ForEach(SubscriptionFilter.allCases) { filter in
-                                    Text(filter.rawValue).tag(filter)
-                                }
+                            VStack(alignment: .trailing, spacing: BlackCatSpacing.s) {
+                                // **セグメントからチップ列へ変えました（2026-08-11）。**
+                                // 「アーカイブ」を足して5段になり、幅が足りず省略されたためです。
+                                DashboardFilterChips(selection: $filter)
+
+                                // 種別の絞り込みと並び替えは、**一覧のすぐ上・右寄せ**へ置きます。
+                                // 一覧を直接変える操作なので、一覧のそばにあるほうが結び付きます。
+                                costTypeFilterMenu
                             }
-                            .pickerStyle(.segmented)
                             .listRowInsets(
                                 EdgeInsets(
                                     top: 8,
@@ -193,12 +196,9 @@ struct DashboardView: View {
                     .searchCompletion(item.name)
                 }
             }
+            // **絞り込みと並び替えはツールバーから外しました（2026-08-11）。**
+            // 一覧のすぐ上へ移したためです。左上は空けています。
             .toolbar {
-                if !hasNoRegistrations {
-                    ToolbarItem(placement: .topBarLeading) {
-                        costTypeFilterMenu
-                    }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     addMenu
                 }
