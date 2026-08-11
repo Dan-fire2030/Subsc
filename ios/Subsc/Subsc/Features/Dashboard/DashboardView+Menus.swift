@@ -24,75 +24,93 @@ extension DashboardView {
         .accessibilityIdentifier("add-menu")
     }
 
-    /// 種別の絞り込みと並び替えです。
+    /// 種別の絞り込みです。
     ///
-    /// 段の数が多く、セグメントに並べると読めなくなるためメニューにしています。
-    /// **並び替えもここへ入れます（2026-08-11）。** ツールバーに入口を増やすと、
-    /// 一覧に関わる操作が2箇所へ散らばります。
-    var costTypeFilterMenu: some View {
+    /// **並び替えとは別のボタンにしています（2026-08-11）。** 1つのメニューに同居させると、
+    /// いまどちらが効いているのかがボタンの見た目から読めませんでした。
+    var costTypeMenu: some View {
         Menu {
             Picker("種別", selection: $costTypeFilter) {
                 ForEach(CostTypeFilter.allCases) { option in
                     Label(option.title, systemImage: option.systemImage).tag(option)
                 }
             }
+        } label: {
+            menuLabel(
+                systemImage: costTypeFilter.isNarrowed
+                    ? "line.3.horizontal.decrease.circle.fill"
+                    : "line.3.horizontal.decrease.circle",
+                // **絞り込んでいるときはその種別名を出します。** 絞り込みに気づかず
+                // 「無くなった」と思われるのを避けるためです（`emptyStateDescription` と同じ考え方）。
+                title: costTypeFilter.isNarrowed ? costTypeFilter.title : "種別",
+                isActive: costTypeFilter.isNarrowed
+            )
+        }
+        .accessibilityIdentifier("cost-type-filter-menu")
+        .accessibilityLabel("種別で絞り込む")
+        .accessibilityValue(costTypeFilter.title)
+    }
 
-            Section("並び替え") {
-                ForEach(DashboardSortOrder.allCases) { order in
-                    Button {
-                        sortStore.select(order)
-                    } label: {
-                        // **選ばれている並びには印と向きを添えます。**
-                        // どちらの向きなのかが分からないと、押しても何が起きたか読めません。
-                        if sortStore.order == order {
-                            Label(
-                                "\(order.title)（\(order.directionTitle(isDescending: sortStore.isDescending))）",
-                                systemImage: sortStore.isDescending ? "chevron.down" : "chevron.up"
-                            )
-                        } else {
-                            Label(order.title, systemImage: order.systemImage)
-                        }
+    /// 並び替えです。
+    var sortMenu: some View {
+        Menu {
+            ForEach(DashboardSortOrder.allCases) { order in
+                Button {
+                    sortStore.select(order)
+                } label: {
+                    // **選ばれている並びには印と向きを添えます。**
+                    // どちらの向きなのかが分からないと、押しても何が起きたか読めません。
+                    if sortStore.order == order {
+                        Label(
+                            "\(order.title)（\(order.directionTitle(isDescending: sortStore.isDescending))）",
+                            systemImage: sortStore.isDescending ? "chevron.down" : "chevron.up"
+                        )
+                    } else {
+                        Label(order.title, systemImage: order.systemImage)
                     }
                 }
             }
         } label: {
-            // **ツールバーから出したので、絵だけでは何のボタンか分かりません（2026-08-11）。**
-            // いま効いている条件を短く添えて、押す前に状態が読めるようにします。
-            HStack(spacing: 4) {
-                Image(
-                    systemName: costTypeFilter.isNarrowed
-                        ? "line.3.horizontal.decrease.circle.fill"
-                        : "line.3.horizontal.decrease.circle"
-                )
-                Text(menuSummary)
-                Image(systemName: "chevron.down")
-                    .font(.caption2.weight(.semibold))
-            }
-            .font(BlackCatType.label)
-            .foregroundStyle(BlackCatPalette.textMuted)
-            .padding(.horizontal, BlackCatSpacing.m)
-            .padding(.vertical, BlackCatSpacing.s)
-            .background(
-                Capsule(style: .continuous).fill(BlackCatPalette.surface)
-            )
-            .overlay(
-                Capsule(style: .continuous)
-                    .stroke(BlackCatPalette.border, lineWidth: 0.7)
+            menuLabel(
+                // 向きが見た目で分かるよう、矢印の絵を出し分けます。
+                systemImage: sortStore.isDescending ? "arrow.down" : "arrow.up",
+                title: sortStore.order.title,
+                isActive: false
             )
         }
-        .accessibilityIdentifier("cost-type-filter-menu")
-        .accessibilityLabel("絞り込みと並び替え")
-        .accessibilityValue("\(costTypeFilter.title)・\(sortStore.order.title)")
+        .accessibilityIdentifier("sort-menu")
+        .accessibilityLabel("並び替え")
+        .accessibilityValue(
+            "\(sortStore.order.title)・\(sortStore.order.directionTitle(isDescending: sortStore.isDescending))"
+        )
     }
 
-    /// ボタンに添える、いま効いている条件の要約です。
+    /// 2つのボタンの見た目を揃えます。
     ///
-    /// **種別を絞っているときはその名前を優先します。** 絞り込みに気づかず
-    /// 「無くなった」と思われるのを避けるためです（`emptyStateDescription` と同じ考え方）。
-    var menuSummary: String {
-        costTypeFilter.isNarrowed
-            ? costTypeFilter.title
-            : sortStore.order.title
+    /// **ツールバーから出したので、絵だけでは何のボタンか分かりません。**
+    /// いま効いている条件を短く添えて、押す前に状態が読めるようにします。
+    func menuLabel(systemImage: String, title: String, isActive: Bool) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: systemImage)
+            Text(title)
+            Image(systemName: "chevron.down")
+                .font(.caption2.weight(.semibold))
+        }
+        .font(BlackCatType.label)
+        .foregroundStyle(isActive ? BlackCatPalette.text : BlackCatPalette.textMuted)
+        .padding(.horizontal, BlackCatSpacing.m)
+        .padding(.vertical, BlackCatSpacing.s)
+        .background(
+            Capsule(style: .continuous)
+                .fill(isActive ? BlackCatPalette.accent.opacity(0.18) : BlackCatPalette.surface)
+        )
+        .overlay(
+            Capsule(style: .continuous)
+                .stroke(
+                    isActive ? BlackCatPalette.accent : BlackCatPalette.border,
+                    lineWidth: isActive ? 1.2 : 0.7
+                )
+        )
     }
 
     /// 一覧のセクションの見出しです。**件数と合計を添えます。**

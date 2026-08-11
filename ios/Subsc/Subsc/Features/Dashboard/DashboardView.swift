@@ -92,7 +92,14 @@ struct DashboardView: View {
 
                                 // 種別の絞り込みと並び替えは、**一覧のすぐ上・右寄せ**へ置きます。
                                 // 一覧を直接変える操作なので、一覧のそばにあるほうが結び付きます。
-                                costTypeFilterMenu
+                                //
+                                // **2つを別のボタンにしています（2026-08-11）。**
+                                // 1つのメニューに同居させると、いまどちらが効いているのかが
+                                // ボタンの見た目から読めませんでした。
+                                HStack(spacing: BlackCatSpacing.s) {
+                                    costTypeMenu
+                                    sortMenu
+                                }
                             }
                             .listRowInsets(
                                 EdgeInsets(
@@ -135,10 +142,13 @@ struct DashboardView: View {
                             Button("アーカイブをすべて削除", role: .destructive) {
                                 isConfirmingDeleteAll = true
                             }
+                            // **上へ出します（2026-08-11）。** このボタンは一覧の最後にあるため、
+                            // 下へ出すと吹き出しが画面の外へはみ出し、ボタンが押せませんでした。
                             .deleteConfirmation(
                                 isPresented: $isConfirmingDeleteAll,
                                 title: "アーカイブを空にしますか？",
-                                message: "\(visible.count)件をまとめて削除します。この操作は取り消せません。"
+                                message: "\(visible.count)件をまとめて削除します。この操作は取り消せません。",
+                                arrowEdge: .bottom
                             ) {
                                 deleteAllArchived()
                             }

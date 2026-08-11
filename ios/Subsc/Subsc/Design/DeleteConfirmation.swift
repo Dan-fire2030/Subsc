@@ -15,13 +15,19 @@ private struct DeleteConfirmationModifier: ViewModifier {
     @Binding var isPresented: Bool
     let title: String
     let message: String
+    /// 吹き出しをどちら側へ出すか。
+    ///
+    /// **`.top` は元の下、`.bottom` は元の上**に出ます（矢印が付く辺を指す指定のため）。
+    /// **画面の下のほうにあるボタンでは `.bottom` を渡します。**
+    /// 下へ出すとボタンが画面の外へはみ出して押せなくなります（2026-08-11に発生）。
+    let arrowEdge: Edge
     let onDelete: () -> Void
 
     func body(content: Content) -> some View {
         content.popover(
             isPresented: $isPresented,
             attachmentAnchor: .rect(.bounds),
-            arrowEdge: .top
+            arrowEdge: arrowEdge
         ) {
             VStack(alignment: .leading, spacing: 14) {
                 Text(title)
@@ -63,11 +69,14 @@ extension View {
     ///   - isPresented: 出すかどうか
     ///   - title: 見出し。何を消すのかが分かる言葉にします
     ///   - message: 取り消せないことを伝える本文
+    ///   - arrowEdge: `.top` なら元の下、`.bottom` なら元の上に出ます。
+    ///     **画面の下のほうにあるボタンには `.bottom` を渡してください**（既定は `.top`）
     ///   - onDelete: 「削除」を選んだときに走る処理
     func deleteConfirmation(
         isPresented: Binding<Bool>,
         title: String,
         message: String,
+        arrowEdge: Edge = .top,
         onDelete: @escaping () -> Void
     ) -> some View {
         modifier(
@@ -75,6 +84,7 @@ extension View {
                 isPresented: isPresented,
                 title: title,
                 message: message,
+                arrowEdge: arrowEdge,
                 onDelete: onDelete
             )
         )
