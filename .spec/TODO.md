@@ -2,8 +2,8 @@
 
 最終整理：2026-08-11
 ブランチ：**`main`**（カレンダー画面まで 2026-08-11 に fast-forward でマージ済み・`github` へ push 済み）
-現在のビルド：**15**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）。
-**カレンダーは main に入ったがTestFlightへは未投入。**
+現在のビルド：**16**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）。
+**カレンダーを含むビルド16を 2026-08-11 にTestFlightへ投入済み。実機確認待ち。**
 
 前サイクル（黒猫リデザイン／起動時チュートリアル）の一覧は `.spec/archive/TODO-2026-08-09.md` にある。
 **チェックが付いていない項目が多く残っているが、大半は実態としては完了済み**だった。
@@ -59,7 +59,8 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 - [x] シミュレーターで見た目を確認（harutoさん・2026-08-10「いい感じ。意図通り」）
 - [x] **`main` へ fast-forward マージし `github` へ push**（2026-08-11）。
       マージ前にテスト503件の通過とマージ範囲（5コミット・カレンダー作業のみ）を確認済み
-- [ ] ビルド16としてTestFlightへ（承認を得てから）
+- [x] **ビルド16としてTestFlightへ**（2026-08-11・Apple側の受領に成功）。
+      確認したい項目は `AppStore/RELEASE_RUNBOOK.md` のビルド16の節にある
 
 ---
 
