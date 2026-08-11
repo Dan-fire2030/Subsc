@@ -2,7 +2,7 @@
 
 最終整理：2026-08-11
 ブランチ：**`main`**（ビルド16をTestFlightへ投入済み）
-現在のビルド：**18**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）
+現在のビルド：**19**（識別情報の唯一の情報源は `ios/Subsc/AppStore/RELEASE_RUNBOOK.md`）
 
 前サイクル（カレンダー画面／ビルド16の投入／公開ページの用意）の一覧は
 `.spec/archive/TODO-2026-08-11.md` にある。
@@ -62,6 +62,8 @@ pbxprojへの登録は手作業（**次の空き番は 176**。グループUID�
 - [ ] harutoさんが実機で確認
 - [x] `main` へマージ（2026-08-11・fast-forward）
 - [x] **ビルド18としてTestFlightへ**（2026-08-11・Apple側の受領に成功）
+- [x] **ビルド19としてTestFlightへ**（2026-08-11）。ビルド18の見た目の不具合2件を修正
+      （一括削除の確認が画面外へはみ出す／種別と並び替えが1つのボタンに同居）
 - [ ] harutoさんが実機で確認（項目は `AppStore/RELEASE_RUNBOOK.md` のビルド18の節）
 
 ---
