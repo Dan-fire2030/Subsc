@@ -24,8 +24,19 @@ struct CalendarView: View {
     /// 選んだ日（`startOfDay`）です。
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
     @State private var amountEditor: AmountEditorTarget?
+    @State private var isChoosingMonth = false
 
     private var calendar: Calendar { .current }
+
+    /// ホイールに出す年です。**登録されている期日に追従させます。**
+    private var selectableYears: [Int] {
+        CalendarMonthPickerRange.years(
+            from: subscriptions.map(\.renewalDate) + loans.compactMap {
+                LoanSummary.make(for: $0).nextDueDate
+            },
+            calendar: calendar
+        )
+    }
 
     private var days: [CalendarDay] {
         CalendarMonthBuilder.days(
@@ -84,6 +95,15 @@ struct CalendarView: View {
                     periodKey: target.periodKey
                 )
             }
+            .sheet(isPresented: $isChoosingMonth) {
+                CalendarMonthPicker(
+                    initialYear: calendar.component(.year, from: cursor),
+                    initialMonth: calendar.component(.month, from: cursor),
+                    years: selectableYears,
+                    calendar: calendar,
+                    onSelect: showMonth
+                )
+            }
         }
     }
 
@@ -91,9 +111,25 @@ struct CalendarView: View {
 
     private var monthHeader: some View {
         HStack(spacing: BlackCatSpacing.s) {
-            Text(cursor.formatted(.dateTime.year().month()))
-                .font(BlackCatType.title)
-                .foregroundStyle(BlackCatPalette.text)
+            // **見出しそのものを押せるようにします（2026-08-11）。**
+            // 矢印だけだと遠い月へ行くのに何度も押す必要がありました。
+            // 押せることが見た目で分かるよう、山形を添えています。
+            Button {
+                isChoosingMonth = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(cursor.formatted(.dateTime.year().month()))
+                        .font(BlackCatType.title)
+                        .foregroundStyle(BlackCatPalette.text)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(BlackCatPalette.textMuted)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("年月を選ぶ")
+            .accessibilityValue(cursor.formatted(.dateTime.year().month()))
+            .accessibilityIdentifier("calendar-month-header")
 
             if !isShowingCurrentMonth {
                 Button("今日") { goToToday() }
@@ -134,6 +170,20 @@ struct CalendarView: View {
         cursor = moved
         // **移動先の月にも選択を残します。** 選択が消えると下の一覧が空になり、
         // 何を見ていたのか分からなくなります。同じ日が無い月は末日へ寄せます。
+        selectedDate = clampedSelection(in: moved)
+    }
+
+    /// ホイールで選ばれた年月へ飛びます。
+    ///
+    /// **選択日の扱いは `shiftMonth` と同じ**にします。矢印で動いたときと
+    /// ホイールで飛んだときで挙動が違うと、同じ「月を変える」操作の結果が読めません。
+    private func showMonth(year: Int, month: Int) {
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = 1
+        guard let moved = calendar.date(from: components) else { return }
+        cursor = moved
         selectedDate = clampedSelection(in: moved)
     }
 

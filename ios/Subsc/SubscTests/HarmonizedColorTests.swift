@@ -152,3 +152,37 @@ final class BlackCatContrastTests: XCTestCase {
         return (max(left, right) + 0.05) / (min(left, right) + 0.05)
     }
 }
+
+/// 内訳シートの色が、グラフ本体と同じ寄せ方を通っていることを縛ります。
+///
+/// **2026-08-11まで、内訳シートだけが保存値の色で描いていました。**
+/// 同じ費目がグラフと内訳で違う色に見え、この画面だけ配色から浮いていました。
+final class ReportBreakdownColorTests: XCTestCase {
+    /// 旧プリセットで保存された費目は、内訳シートでも黒猫の色になります。
+    func testBreakdownUsesTheHarmonizedColor() {
+        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#007AFF"), "#7FB3D5")
+        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#34C759"), "#7FC8A9")
+    }
+
+    /// **保存値をそのまま使っていないこと**を明示的に縛ります。
+    /// ここが素通りに戻ると、この画面だけまた浮きます。
+    func testBreakdownDoesNotUseTheStoredColorDirectly() {
+        XCTAssertNotEqual(ReportChartPalette.breakdownBaseHex(for: "#007AFF"), "#007AFF")
+    }
+
+    /// グラフ本体と出どころが同じであることを縛ります。
+    func testBreakdownMatchesTheChartHarmonization() {
+        for hex in ["#007AFF", "#FF375F", "#AF52DE", "#7FB3D5", "#123456"] {
+            XCTAssertEqual(
+                ReportChartPalette.breakdownBaseHex(for: hex),
+                BlackCatPalette.harmonizedHex(from: hex),
+                "\(hex) でグラフと内訳の寄せ先が食い違っています"
+            )
+        }
+    }
+
+    /// **グラデーションの段は3つのままです。** 色をそろえるついでに作りを変えていないこと。
+    func testBreakdownKeepsItsThreeStops() {
+        XCTAssertEqual(ReportChartPalette.breakdownSwatchColors(for: "#007AFF").count, 3)
+    }
+}

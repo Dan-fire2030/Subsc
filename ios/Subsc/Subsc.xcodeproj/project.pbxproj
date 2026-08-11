@@ -8,12 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001650000000000000165 /* CalendarDisplayStore.swift */; };
+		AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001720000000000000172 /* DashboardListOrganizationTests.swift */; };
+		AA0001710000000000000171 /* DashboardSortStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001710000000000000171 /* DashboardSortStore.swift */; };
+		AA0001700000000000000170 /* DashboardSortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001700000000000000170 /* DashboardSortOrder.swift */; };
 		AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001660000000000000166 /* CalendarDisplayToggle.swift */; };
 		AA0001670000000000000167 /* CalendarMonthGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001670000000000000167 /* CalendarMonthGrid.swift */; };
 		AA0001680000000000000168 /* CalendarDayList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001680000000000000168 /* CalendarDayList.swift */; };
 		AA0001690000000000000169 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001690000000000000169 /* CalendarView.swift */; };
 		AA0001610000000000000161 /* CalendarDayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001610000000000000161 /* CalendarDayItem.swift */; };
 		AA0001620000000000000162 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001620000000000000162 /* CalendarDay.swift */; };
+		AA0001750000000000000175 /* CalendarMonthPickerRangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */; };
+		AA0001740000000000000174 /* CalendarMonthPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001740000000000000174 /* CalendarMonthPicker.swift */; };
 		AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001630000000000000163 /* CalendarMonthBuilder.swift */; };
 		AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */; };
 		AA0000010000000000000001 /* SubscApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000000000001 /* SubscApp.swift */; };
@@ -62,6 +67,7 @@
 		AA000111580000000000000158 /* CatArtworkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111580000000000000158 /* CatArtworkData.swift */; };
 		AA000111590000000000000159 /* CatPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111590000000000000159 /* CatPathParser.swift */; };
 		AA00011360000000000000136 /* CatCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011360000000000000136 /* CatCompanionView.swift */; };
+		AA0001730000000000000173 /* DeleteConfirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001730000000000000173 /* DeleteConfirmation.swift */; };
 		AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011310000000000000131 /* UpcomingChargeSection.swift */; };
 		AA0000260000000000000026 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000260000000000000026 /* ColorHexTests.swift */; };
 		AA0000270000000000000027 /* CategoryCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000270000000000000027 /* CategoryCatalogTests.swift */; };
@@ -179,12 +185,17 @@
 
 /* Begin PBXFileReference section */
 		BB0001650000000000000165 /* CalendarDisplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayStore.swift; sourceTree = "<group>"; };
+		BB0001720000000000000172 /* DashboardListOrganizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListOrganizationTests.swift; sourceTree = "<group>"; };
+		BB0001710000000000000171 /* DashboardSortStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSortStore.swift; sourceTree = "<group>"; };
+		BB0001700000000000000170 /* DashboardSortOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSortOrder.swift; sourceTree = "<group>"; };
 		BB0001660000000000000166 /* CalendarDisplayToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayToggle.swift; sourceTree = "<group>"; };
 		BB0001670000000000000167 /* CalendarMonthGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGrid.swift; sourceTree = "<group>"; };
 		BB0001680000000000000168 /* CalendarDayList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayList.swift; sourceTree = "<group>"; };
 		BB0001690000000000000169 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		BB0001610000000000000161 /* CalendarDayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayItem.swift; sourceTree = "<group>"; };
 		BB0001620000000000000162 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
+		BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthPickerRangeTests.swift; sourceTree = "<group>"; };
+		BB0001740000000000000174 /* CalendarMonthPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthPicker.swift; sourceTree = "<group>"; };
 		BB0001630000000000000163 /* CalendarMonthBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthBuilder.swift; sourceTree = "<group>"; };
 		BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthBuilderTests.swift; sourceTree = "<group>"; };
 		BB0000010000000000000001 /* SubscApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscApp.swift; sourceTree = "<group>"; };
@@ -233,6 +244,7 @@
 		BB000111580000000000000158 /* CatArtworkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArtworkData.swift; sourceTree = "<group>"; };
 		BB000111590000000000000159 /* CatPathParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParser.swift; sourceTree = "<group>"; };
 		BB00011360000000000000136 /* CatCompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionView.swift; sourceTree = "<group>"; };
+		BB0001730000000000000173 /* DeleteConfirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteConfirmation.swift; sourceTree = "<group>"; };
 		BB00011310000000000000131 /* UpcomingChargeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingChargeSection.swift; sourceTree = "<group>"; };
 		BB0000260000000000000026 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		BB0000270000000000000027 /* CategoryCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCatalogTests.swift; sourceTree = "<group>"; };
@@ -406,6 +418,7 @@
 				BB000111580000000000000158 /* CatArtworkData.swift */,
 				BB000111590000000000000159 /* CatPathParser.swift */,
 				BB00011360000000000000136 /* CatCompanionView.swift */,
+				BB0001730000000000000173 /* DeleteConfirmation.swift */,
 			);
 			path = Design;
 			sourceTree = "<group>";
@@ -414,6 +427,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0001650000000000000165 /* CalendarDisplayStore.swift */,
+				BB0001710000000000000171 /* DashboardSortStore.swift */,
 				BB0001210000000000000121 /* LoanNotificationSettings.swift */,
 				BB0000030000000000000003 /* Subscription.swift */,
 				BB0000240000000000000024 /* ColorHex.swift */,
@@ -485,6 +499,7 @@
 				BB0001690000000000000169 /* CalendarView.swift */,
 				BB0001610000000000000161 /* CalendarDayItem.swift */,
 				BB0001620000000000000162 /* CalendarDay.swift */,
+				BB0001740000000000000174 /* CalendarMonthPicker.swift */,
 				BB0001630000000000000163 /* CalendarMonthBuilder.swift */,
 			);
 			path = Calendar;
@@ -507,6 +522,7 @@
 			isa = PBXGroup;
 			children = (
 				BB000098000000000000098 /* DashboardListItem.swift */,
+				BB0001700000000000000170 /* DashboardSortOrder.swift */,
 				BB0000050000000000000005 /* ReportCalculator.swift */,
 				BB00011290000000000000129 /* UpcomingLargeCharge.swift */,
 				BB00011330000000000000133 /* CatMood.swift */,
@@ -568,6 +584,8 @@
 			isa = PBXGroup;
 			children = (
 				BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */,
+				BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */,
+				BB0001720000000000000172 /* DashboardListOrganizationTests.swift */,
 				BB0001220000000000000122 /* LoanNotificationLeadTests.swift */,
 				BB00011230000000000000123 /* LoanPauseTests.swift */,
 				BB00011240000000000000124 /* YearlyBillingTests.swift */,
@@ -785,12 +803,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */,
+				AA0001710000000000000171 /* DashboardSortStore.swift in Sources */,
 				AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */,
 				AA0001670000000000000167 /* CalendarMonthGrid.swift in Sources */,
 				AA0001680000000000000168 /* CalendarDayList.swift in Sources */,
 				AA0001690000000000000169 /* CalendarView.swift in Sources */,
 				AA0001610000000000000161 /* CalendarDayItem.swift in Sources */,
 				AA0001620000000000000162 /* CalendarDay.swift in Sources */,
+				AA0001740000000000000174 /* CalendarMonthPicker.swift in Sources */,
 				AA0001630000000000000163 /* CalendarMonthBuilder.swift in Sources */,
 				AA0001210000000000000121 /* LoanNotificationSettings.swift in Sources */,
 				AA0001090000000000000109 /* LoanPaymentEditorView.swift in Sources */,
@@ -802,6 +822,7 @@
 				AA0001030000000000000103 /* LoanFormView.swift in Sources */,
 				AA0001020000000000000102 /* LoanRow.swift in Sources */,
 				AA000098000000000000098 /* DashboardListItem.swift in Sources */,
+				AA0001700000000000000170 /* DashboardSortOrder.swift in Sources */,
 				AA000097000000000000097 /* LoanFormInput.swift in Sources */,
 				AA000096000000000000096 /* LoanSummary.swift in Sources */,
 				AA0000010000000000000001 /* SubscApp.swift in Sources */,
@@ -851,6 +872,7 @@
 				AA000111580000000000000158 /* CatArtworkData.swift in Sources */,
 				AA000111590000000000000159 /* CatPathParser.swift in Sources */,
 				AA00011360000000000000136 /* CatCompanionView.swift in Sources */,
+				AA0001730000000000000173 /* DeleteConfirmation.swift in Sources */,
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
@@ -897,6 +919,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */,
+				AA0001750000000000000175 /* CalendarMonthPickerRangeTests.swift in Sources */,
+				AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */,
 				AA0001220000000000000122 /* LoanNotificationLeadTests.swift in Sources */,
 				AA00011230000000000000123 /* LoanPauseTests.swift in Sources */,
 				AA00011240000000000000124 /* YearlyBillingTests.swift in Sources */,

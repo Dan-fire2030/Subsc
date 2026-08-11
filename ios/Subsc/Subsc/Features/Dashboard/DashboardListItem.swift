@@ -73,6 +73,35 @@ enum DashboardListItem: Identifiable {
         case .loan(let loan, _): loan.method.title
         }
     }
+
+    /// 一覧の行に出している金額です。
+    ///
+    /// **`SubscriptionRow` の表示と同じ値を返します。** 並び替えの基準と見出しの合計は
+    /// どちらもこれを使います。行に出ている数字と別の値で並べたり足したりすると、
+    /// 「大きい順のはずなのに小さいものが上にある」ように見えます。
+    ///
+    /// 停止中や変動費でも値を返します。`nextDueAmount` と違い、
+    /// **これは「次に出ていく額」ではなく「行に書いてある額」**だからです。
+    var listedAmount: Double {
+        switch self {
+        case .subscription(let subscription):
+            subscription.billingCycle == .yearly
+                ? subscription.yenAmount
+                : subscription.monthlyYen
+        case .loan(_, let summary):
+            summary.nextAmount
+        }
+    }
+
+    /// どのセクションへ入るかです。
+    var sectionKind: DashboardSectionKind {
+        switch self {
+        case .subscription(let subscription):
+            subscription.billingCycle == .yearly ? .yearly : .monthly
+        case .loan:
+            .loan
+        }
+    }
 }
 
 /// 一覧に並べる要素を組み立てます。
@@ -86,6 +115,8 @@ enum DashboardListBuilder {
         stateFilter: SubscriptionFilter,
         costTypeFilter: CostTypeFilter,
         query: String,
+        sortOrder: DashboardSortOrder = .dueDate,
+        isDescending: Bool = false,
         now: Date = .now,
         calendar: Calendar = .current
     ) -> [DashboardListItem] {
@@ -104,7 +135,34 @@ enum DashboardListBuilder {
             .filter { matchesQuery($0.0, query: normalizedQuery) }
             .map(DashboardListItem.loan)
 
-        return sorted(subscriptionItems + loanItems)
+        return sorted(
+            subscriptionItems + loanItems,
+            by: sortOrder,
+            isDescending: isDescending
+        )
+    }
+
+    /// 見出しごとに行をまとめます。
+    ///
+    /// **検索中はまとめません。** 探している最中に階層が増えると、目的の行が遠くなります。
+    /// その場合は見出しを出さない印として `kind` が `nil` の1セクションを返します。
+    ///
+    /// **中身が空のセクションは作りません。** 見出しだけが並ぶのを避けるためです。
+    /// 並び順は呼び出し前に決まっているので、ここでは順序に触れません。
+    static func sections(
+        from items: [DashboardListItem],
+        isSearching: Bool
+    ) -> [DashboardListSection] {
+        guard !items.isEmpty else { return [] }
+        guard !isSearching else {
+            return [DashboardListSection(kind: nil, items: items)]
+        }
+
+        return DashboardSectionKind.allCases.compactMap { kind in
+            let matching = items.filter { $0.sectionKind == kind }
+            guard !matching.isEmpty else { return nil }
+            return DashboardListSection(kind: kind, items: matching)
+        }
     }
 
     /// 検索語が入っているか。**前後の空白だけの入力は検索と見なしません。**
@@ -212,22 +270,76 @@ enum DashboardListBuilder {
         }
     }
 
-    /// 期日の昇順に並べ、**期日が無いものは末尾**へ送ります。
-    /// 同じ日付のときは名前で並べ、再描画のたびに順序が入れ替わらないようにします。
-    private static func sorted(_ items: [DashboardListItem]) -> [DashboardListItem] {
+    /// 選ばれた並び順で並べます。
+    ///
+    /// **どの並びでも、決着が付かないときは必ず名前で決めます。**
+    /// 順序が決まらない組が残ると、再描画のたびに行が入れ替わります。
+    ///
+    /// **名前の決着は向きを反転しても昇順のままにします。** ここまで反転させると、
+    /// 金額が同じ行だけが向きを変えるたびに入れ替わり、動きの理由が読めなくなります。
+    private static func sorted(
+        _ items: [DashboardListItem],
+        by order: DashboardSortOrder,
+        isDescending: Bool
+    ) -> [DashboardListItem] {
         items.sorted { first, second in
-            switch (first.nextDueDate, second.nextDueDate) {
-            case let (lhs?, rhs?):
-                if lhs != rhs { return lhs < rhs }
-                return first.name.localizedCompare(second.name) == .orderedAscending
-            case (nil, _?):
-                return false
-            case (_?, nil):
-                return true
-            case (nil, nil):
-                return first.name.localizedCompare(second.name) == .orderedAscending
+            // **期日が無いものは、向きにかかわらず末尾へ送ります。**
+            // 反転の対象に含めると「まだ予定表を作っていない借入」が先頭に来て、
+            // 一覧の意味が壊れます。向きを掛ける前にここで決着させます。
+            if order == .dueDate {
+                switch (first.nextDueDate, second.nextDueDate) {
+                case (nil, _?): return false
+                case (_?, nil): return true
+                default: break
+                }
+            }
+
+            switch compare(first, second, by: order) {
+            case .orderedSame:
+                return isAscendingByName(first, second)
+            case .orderedAscending:
+                return !isDescending
+            case .orderedDescending:
+                return isDescending
             }
         }
+    }
+
+    private static func compare(
+        _ first: DashboardListItem,
+        _ second: DashboardListItem,
+        by order: DashboardSortOrder
+    ) -> ComparisonResult {
+        switch order {
+        case .dueDate:
+            return compareDueDate(first, second)
+        case .amount:
+            if first.listedAmount == second.listedAmount { return .orderedSame }
+            return first.listedAmount < second.listedAmount ? .orderedAscending : .orderedDescending
+        case .name:
+            // 日本語の並びで比べます。文字コード順だと、ひらがな・カタカナ・漢字が
+            // 直感と違う順に出ます。
+            return first.name.localizedStandardCompare(second.name)
+        }
+    }
+
+    /// 期日順です。**期日が無い組は `sorted` で先に決着させている**ため、ここでは同着として扱います。
+    private static func compareDueDate(
+        _ first: DashboardListItem,
+        _ second: DashboardListItem
+    ) -> ComparisonResult {
+        guard let lhs = first.nextDueDate, let rhs = second.nextDueDate else {
+            return .orderedSame
+        }
+        if lhs == rhs { return .orderedSame }
+        return lhs < rhs ? .orderedAscending : .orderedDescending
+    }
+
+    private static func isAscendingByName(
+        _ first: DashboardListItem,
+        _ second: DashboardListItem
+    ) -> Bool {
+        first.name.localizedStandardCompare(second.name) == .orderedAscending
     }
 
     // MARK: - 費目

@@ -31,7 +31,9 @@ extension DashboardView {
             loans: loans,
             stateFilter: DashboardListBuilder.effectiveStateFilter(filter, query: query),
             costTypeFilter: costTypeFilter,
-            query: query
+            query: query,
+            sortOrder: sortStore.order,
+            isDescending: sortStore.isDescending
         )
     }
 

@@ -24,7 +24,11 @@ extension DashboardView {
         .accessibilityIdentifier("add-menu")
     }
 
-    /// 種別の絞り込みです。段の数が多く、セグメントに並べると読めなくなるためメニューにしています。
+    /// 種別の絞り込みと並び替えです。
+    ///
+    /// 段の数が多く、セグメントに並べると読めなくなるためメニューにしています。
+    /// **並び替えもここへ入れます（2026-08-11）。** ツールバーに入口を増やすと、
+    /// 一覧に関わる操作が2箇所へ散らばります。
     var costTypeFilterMenu: some View {
         Menu {
             Picker("種別", selection: $costTypeFilter) {
@@ -32,16 +36,55 @@ extension DashboardView {
                     Label(option.title, systemImage: option.systemImage).tag(option)
                 }
             }
+
+            Section("並び替え") {
+                ForEach(DashboardSortOrder.allCases) { order in
+                    Button {
+                        sortStore.select(order)
+                    } label: {
+                        // **選ばれている並びには印と向きを添えます。**
+                        // どちらの向きなのかが分からないと、押しても何が起きたか読めません。
+                        if sortStore.order == order {
+                            Label(
+                                "\(order.title)（\(order.directionTitle(isDescending: sortStore.isDescending))）",
+                                systemImage: sortStore.isDescending ? "chevron.down" : "chevron.up"
+                            )
+                        } else {
+                            Label(order.title, systemImage: order.systemImage)
+                        }
+                    }
+                }
+            }
         } label: {
             Label(
-                "種別で絞り込む",
+                "絞り込みと並び替え",
                 systemImage: costTypeFilter.isNarrowed
                     ? "line.3.horizontal.decrease.circle.fill"
                     : "line.3.horizontal.decrease.circle"
             )
         }
         .accessibilityIdentifier("cost-type-filter-menu")
-        .accessibilityValue(costTypeFilter.title)
+        .accessibilityValue("\(costTypeFilter.title)・\(sortStore.order.title)")
+    }
+
+    /// 一覧のセクションの見出しです。**件数と合計を添えます。**
+    ///
+    /// 合計はそのセクションに並んでいる行の金額の合計です。
+    /// レポートの集計を持ってくると、停止中や履歴を含む絞り込みのときに
+    /// **見出しがすぐ下の行と食い違います**。
+    @ViewBuilder
+    func sectionHeader(for section: DashboardListSection) -> some View {
+        if let kind = section.kind {
+            HStack(spacing: 6) {
+                Text(kind.title)
+                Spacer(minLength: 8)
+                Text("\(section.count)件")
+                Text(section.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
+            }
+            .accessibilityElement(children: .combine)
+        } else {
+            Text(listSectionTitle)
+        }
     }
 
     /// 該当が無いときの説明です。

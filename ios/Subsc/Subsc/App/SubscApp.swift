@@ -41,6 +41,8 @@ struct SubscApp: App {
     /// カレンダーのマスに金額と件数を出すかどうかです。`UserDefaults` に閉じており、
     /// **CloudKitのスキーマには影響しません。**
     @State private var calendarDisplay = CalendarDisplayStore()
+    /// 一覧の並び順の選択です。表示の好みなので `UserDefaults` に置いています。
+    @State private var dashboardSort = DashboardSortStore()
     /// 通知の受け口です。**強参照で持ち続けないと、`delegate` が解放されて応答が届きません。**
     ///
     /// **`init` で作って持ちます（2026-08-09）。** 以前は `.task` の中で作っていましたが、
@@ -97,6 +99,7 @@ struct SubscApp: App {
             .environment(loanNotificationSettings)
             .environment(onboarding)
             .environment(calendarDisplay)
+            .environment(dashboardSort)
         }
     }
 }

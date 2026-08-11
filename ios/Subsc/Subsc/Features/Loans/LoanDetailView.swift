@@ -44,6 +44,14 @@ struct LoanDetailView: View {
                 Button("借入を削除", role: .destructive) {
                     showsDeleteConfirmation = true
                 }
+                // **確認は押したボタンを元にして出します（2026-08-11）。**
+                .deleteConfirmation(
+                    isPresented: $showsDeleteConfirmation,
+                    title: "\(loan.name)を削除しますか？",
+                    message: "返済の記録もまとめて消えます。この操作は取り消せません。"
+                ) {
+                    delete()
+                }
             }
             .glassListRow()
         }
@@ -55,15 +63,6 @@ struct LoanDetailView: View {
         }
         .sheet(isPresented: $isEditing) {
             LoanFormView(loan: loan)
-        }
-        .confirmationDialog(
-            "\(loan.name)を削除しますか？",
-            isPresented: $showsDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("削除", role: .destructive) { delete() }
-        } message: {
-            Text("返済の記録もまとめて消えます。この操作は取り消せません。")
         }
         .alert(
             "操作を完了できませんでした",

@@ -42,6 +42,18 @@ extension DashboardView {
                 Label("編集", systemImage: "pencil")
             }
         }
+        // **確認の吹き出しは、消そうとしている行そのものを元にして出します（2026-08-11）。**
+        // 画面に1つだけ置くと、どの行に対する確認なのかが読み取れませんでした。
+        .deleteConfirmation(
+            isPresented: Binding(
+                get: { pendingDeletion?.clientID == subscription.clientID },
+                set: { if !$0 { pendingDeletion = nil } }
+            ),
+            title: "この費目を削除しますか？",
+            message: "「\(subscription.name)」の登録情報を削除します。この操作は取り消せません。"
+        ) {
+            confirmDeletion()
+        }
         .glassListRow()
     }
 

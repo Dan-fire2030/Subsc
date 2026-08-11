@@ -14,6 +14,8 @@ struct DashboardView: View {
     /// 停止・再開のあとで通知を組み直すのに使います。
     /// **既定値で `reconcile` を呼ぶと、利用者が選んだ「何日前」が無視されます。**
     @Environment(LoanNotificationSettings.self) var loanNotificationSettings
+    /// 一覧の並び順の選択です。`CalendarDisplayStore` と同じく `SubscApp` から注入します。
+    @Environment(DashboardSortStore.self) var sortStore
     @Environment(\.modelContext) var modelContext
     @Query(sort: \Subscription.renewalDate) var subscriptions: [Subscription]
     @Query(sort: \Loan.createdAt) var loans: [Loan]
@@ -98,8 +100,8 @@ struct DashboardView: View {
                         }
                     }
 
-                    Section(listSectionTitle) {
-                        if visible.isEmpty {
+                    if visible.isEmpty {
+                        Section(listSectionTitle) {
                             ContentUnavailableView(
                                 searching ? "見つかりませんでした" : filter.emptyStateTitle,
                                 systemImage: searching
@@ -108,14 +110,23 @@ struct DashboardView: View {
                                 description: Text(emptyStateDescription)
                             )
                             .glassListRow()
-                        } else {
-                            ForEach(visible) { item in
-                                switch item {
-                                case .subscription(let subscription):
-                                    subscriptionRow(subscription)
-                                case .loan(let loan, let summary):
-                                    loanRow(loan, summary: summary)
+                        }
+                    } else {
+                        // **支払い周期ごとに分けます（2026-08-11）。**
+                        // 月払いと年払いが隣り合うと、並んでいる金額の意味が揃いません。
+                        // 検索中は分けません（`sections` が1つにまとめて返します）。
+                        ForEach(DashboardListBuilder.sections(from: visible, isSearching: searching)) { section in
+                            Section {
+                                ForEach(section.items) { item in
+                                    switch item {
+                                    case .subscription(let subscription):
+                                        subscriptionRow(subscription)
+                                    case .loan(let loan, let summary):
+                                        loanRow(loan, summary: summary)
+                                    }
                                 }
+                            } header: {
+                                sectionHeader(for: section)
                             }
                         }
                     }
@@ -181,25 +192,6 @@ struct DashboardView: View {
                 Button("閉じる", role: .cancel) {}
             } message: {
                 Text(operationError ?? "")
-            }
-            .confirmationDialog(
-                "この費目を削除しますか？",
-                isPresented: Binding(
-                    get: { pendingDeletion != nil },
-                    set: { if !$0 { pendingDeletion = nil } }
-                ),
-                titleVisibility: .visible
-            ) {
-                Button("削除", role: .destructive) {
-                    confirmDeletion()
-                }
-                Button("キャンセル", role: .cancel) {
-                    pendingDeletion = nil
-                }
-            } message: {
-                if let pendingDeletion {
-                    Text("「\(pendingDeletion.name)」の登録情報を削除します。この操作は取り消せません。")
-                }
             }
         }
     }

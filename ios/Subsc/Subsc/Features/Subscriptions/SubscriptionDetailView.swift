@@ -136,6 +136,14 @@ struct SubscriptionDetailView: View {
                 Button("費目を削除", role: .destructive) {
                     showsDeleteConfirmation = true
                 }
+                // **確認は押したボタンを元にして出します（2026-08-11）。**
+                .deleteConfirmation(
+                    isPresented: $showsDeleteConfirmation,
+                    title: "\(subscription.name)を削除しますか？",
+                    message: "登録情報が消えます。この操作は取り消せません。"
+                ) {
+                    deleteSubscription()
+                }
             }
             .glassListRow()
         }
@@ -152,27 +160,6 @@ struct SubscriptionDetailView: View {
         }
         .sheet(item: $editingPeriod) { period in
             AmountEntryEditorView(subscription: subscription, periodKey: period.periodKey)
-        }
-        .confirmationDialog(
-            "\(subscription.name)を削除しますか？",
-            isPresented: $showsDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("削除", role: .destructive) {
-                let clientID = subscription.clientID
-                modelContext.delete(subscription)
-                do {
-                    try modelContext.save()
-                } catch {
-                    modelContext.rollback()
-                    operationError = "費目を削除できませんでした。"
-                    return
-                }
-                Task {
-                    await NotificationService.cancel(clientID: clientID)
-                }
-                dismiss()
-            }
         }
         .alert(
             "操作を完了できませんでした",
@@ -219,5 +206,26 @@ struct SubscriptionDetailView: View {
             return url
         }
         return URL(string: "https://\(value)")
+    }
+
+    /// 費目を削除します。
+    ///
+    /// **予約済みの通知も取り消します。** 費目が消えても通知だけ残ると、
+    /// 存在しないものの更新日が届きます。
+    /// 保存に失敗したら巻き戻し、何が起きたかを日本語で伝えます。
+    private func deleteSubscription() {
+        let clientID = subscription.clientID
+        modelContext.delete(subscription)
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            operationError = "費目を削除できませんでした。"
+            return
+        }
+        Task {
+            await NotificationService.cancel(clientID: clientID)
+        }
+        dismiss()
     }
 }

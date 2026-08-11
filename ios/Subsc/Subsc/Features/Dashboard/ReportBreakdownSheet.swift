@@ -13,11 +13,14 @@ struct ReportBreakdownSheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // **黒猫のパレットで敷きます（2026-08-11）。**
+                // ここは青・紫・青緑を直に書いており、**リデザインで唯一取り残されていました**。
+                // 段の作り（3色の斜めグラデーション）はそのままに、色の出どころだけを揃えています。
                 LinearGradient(
                     colors: [
-                        Color(red: 0.04, green: 0.34, blue: 0.82),
-                        Color(red: 0.25, green: 0.15, blue: 0.68),
-                        Color(red: 0.03, green: 0.52, blue: 0.72)
+                        BlackCatPalette.accent.opacity(0.32),
+                        BlackCatPalette.background,
+                        BlackCatPalette.surfaceElevated
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -92,11 +95,10 @@ private struct BreakdownRow: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [
-                            ColorHex.color(from: entry.colorHex),
-                            ColorHex.color(from: entry.colorHex).opacity(0.55),
-                            BlackCatPalette.surfaceElevated
-                        ],
+                        // **グラフ本体と同じ寄せ方を通します（2026-08-11）。**
+                        // ここだけ保存値で描いていたため、同じ費目がグラフと内訳で
+                        // 違う色に見えていました。段の作りは変えていません。
+                        colors: ReportChartPalette.breakdownSwatchColors(for: entry.colorHex),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
