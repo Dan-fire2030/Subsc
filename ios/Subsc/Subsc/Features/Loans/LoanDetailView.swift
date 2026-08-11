@@ -41,6 +41,30 @@ struct LoanDetailView: View {
             }
 
             Section {
+                // **アーカイブしても返済予定表は消しません。** 消すと復元できなくなります。
+                if ArchivePolicy.isArchived(loan.archivedAt) {
+                    Button("アーカイブから戻す") {
+                        loan.archivedAt = nil
+                        loan.updatedAt = .now
+                        saveOrReport("復元できませんでした。")
+                    }
+                } else {
+                    Button("アーカイブする") {
+                        loan.archivedAt = .now
+                        loan.updatedAt = .now
+                        if saveOrReport("アーカイブできませんでした。") { dismiss() }
+                    }
+                }
+            } footer: {
+                if let remaining = ArchivePolicy.remainingDays(archivedAt: loan.archivedAt) {
+                    Text("アーカイブ中です。あと\(remaining)日で自動的に削除されます。返済の記録は残っています。")
+                } else {
+                    Text("一覧から退けます。返済の記録は残り、30日で自動的に削除されるまで戻せます。")
+                }
+            }
+            .glassListRow()
+
+            Section {
                 Button("借入を削除", role: .destructive) {
                     showsDeleteConfirmation = true
                 }
@@ -267,6 +291,18 @@ struct LoanDetailView: View {
                 loanLead: loanNotificationSettings.lead,
                 loanHour: loanNotificationSettings.hour
             )
+        }
+    }
+
+    @discardableResult
+    private func saveOrReport(_ message: String) -> Bool {
+        do {
+            try modelContext.save()
+            return true
+        } catch {
+            modelContext.rollback()
+            operationError = message
+            return false
         }
     }
 

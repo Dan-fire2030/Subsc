@@ -133,6 +133,29 @@ struct SubscriptionDetailView: View {
             }
 
             Section {
+                // **アーカイブは削除の上に置きます。** 先に目に入るのが穏当なほうであるべきです。
+                // 確認は出しません（30日は戻せるため）。
+                if ArchivePolicy.isArchived(subscription.archivedAt) {
+                    Button("アーカイブから戻す") {
+                        subscription.archivedAt = nil
+                        subscription.updatedAt = .now
+                        saveOrReport("復元できませんでした。")
+                    }
+                } else {
+                    Button("アーカイブする") {
+                        archive()
+                    }
+                }
+            } footer: {
+                if let remaining = ArchivePolicy.remainingDays(archivedAt: subscription.archivedAt) {
+                    Text("アーカイブ中です。あと\(remaining)日で自動的に削除されます。")
+                } else {
+                    Text("一覧から退けます。30日で自動的に削除され、それまでは戻せます。")
+                }
+            }
+            .glassListRow()
+
+            Section {
                 Button("費目を削除", role: .destructive) {
                     showsDeleteConfirmation = true
                 }
@@ -206,6 +229,31 @@ struct SubscriptionDetailView: View {
             return url
         }
         return URL(string: "https://\(value)")
+    }
+
+    /// アーカイブへ退けます。**状態（利用中／停止中）は書き換えません。**
+    /// 復元したときに元の状態へ戻すためです。予約済みの通知は取り消します。
+    private func archive() {
+        let clientID = subscription.clientID
+        subscription.archivedAt = .now
+        subscription.updatedAt = .now
+        guard saveOrReport("アーカイブできませんでした。") else { return }
+        Task {
+            await NotificationService.cancel(clientID: clientID)
+        }
+        dismiss()
+    }
+
+    @discardableResult
+    private func saveOrReport(_ message: String) -> Bool {
+        do {
+            try modelContext.save()
+            return true
+        } catch {
+            modelContext.rollback()
+            operationError = message
+            return false
+        }
     }
 
     /// 費目を削除します。

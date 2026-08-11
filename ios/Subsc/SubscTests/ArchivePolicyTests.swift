@@ -186,3 +186,71 @@ final class ArchivePolicyTests: XCTestCase {
         ).date ?? .distantPast
     }
 }
+
+/// 期限切れの抽出のテストです。**実際に消す処理と分けてある**のは、ここだけテストできるようにするためです。
+final class ArchiveCleanerTests: XCTestCase {
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 9 * 3600) ?? .gmt
+        return calendar
+    }
+
+    /// **30日ちょうどは残し、31日目だけを抽出します。**
+    func testOnlyItemsPastThirtyDaysAreCollected() {
+        let justInTime = makeSubscription(name: "30日目", archivedAt: date(2026, 8, 11))
+        let expired = makeSubscription(name: "31日目", archivedAt: date(2026, 8, 10))
+        let fresh = makeSubscription(name: "今日", archivedAt: date(2026, 9, 10))
+
+        let targets = ArchiveCleaner.expired(
+            subscriptions: [justInTime, expired, fresh],
+            loans: [],
+            now: date(2026, 9, 10),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(targets.subscriptions.map(\.name), ["31日目"])
+    }
+
+    /// アーカイブしていないものは、どれだけ古くても対象になりません。
+    func testItemsThatAreNotArchivedAreNeverCollected() {
+        let old = makeSubscription(name: "古い費目", archivedAt: nil)
+
+        let targets = ArchiveCleaner.expired(
+            subscriptions: [old],
+            loans: [],
+            now: date(2030, 1, 1),
+            calendar: calendar
+        )
+
+        XCTAssertTrue(targets.subscriptions.isEmpty)
+    }
+
+    /// 借入も同じ規則で抽出されます。
+    func testLoansFollowTheSameRule() {
+        let loan = Loan(name: "退けたローン")
+        loan.archivedAt = date(2026, 8, 10)
+
+        let targets = ArchiveCleaner.expired(
+            subscriptions: [],
+            loans: [loan],
+            now: date(2026, 9, 10),
+            calendar: calendar
+        )
+
+        XCTAssertEqual(targets.loans.map(\.name), ["退けたローン"])
+    }
+
+    private func makeSubscription(name: String, archivedAt: Date?) -> Subscription {
+        let subscription = Subscription(
+            name: name,
+            originalAmount: 1_000,
+            renewalDate: date(2026, 8, 28)
+        )
+        subscription.archivedAt = archivedAt
+        return subscription
+    }
+
+    private func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+        DateComponents(calendar: calendar, year: year, month: month, day: day).date ?? .distantPast
+    }
+}

@@ -23,6 +23,24 @@ extension DashboardView {
             } label: {
                 Label("削除", systemImage: "trash")
             }
+
+            // **アーカイブは確認を出しません（2026-08-11）。** 30日は戻せるためです。
+            // 代わりに「復元」で戻せる知らせをその場に出します。
+            if ArchivePolicy.isArchived(subscription.archivedAt) {
+                Button {
+                    restore(subscription)
+                } label: {
+                    Label("復元", systemImage: "arrow.uturn.backward")
+                }
+                .tint(.blue)
+            } else {
+                Button {
+                    archive(subscription)
+                } label: {
+                    Label("アーカイブ", systemImage: "archivebox")
+                }
+                .tint(.gray)
+            }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
             Button {
@@ -57,6 +75,67 @@ extension DashboardView {
         .glassListRow()
     }
 
+    /// アーカイブ欄の1行です。
+    ///
+    /// **残り日数を必ず出します。** いつ消えるか分からないと、復元するかどうかを判断できません。
+    /// 期限が近いものは色を変えて、見落とさないようにします。
+    @ViewBuilder
+    func archivedRow(_ item: DashboardListItem) -> some View {
+        let archivedAt = item.archivedAt
+        let remaining = ArchivePolicy.remainingDays(archivedAt: archivedAt)
+        let isSoon = ArchivePolicy.isExpiringSoon(archivedAt: archivedAt)
+
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .fill(suggestionColor(for: item))
+                .frame(width: 4, height: 34)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.name)
+                    .font(BlackCatType.body)
+                    .foregroundStyle(BlackCatPalette.text)
+
+                Text(remainingDescription(remaining))
+                    .font(BlackCatType.label)
+                    .foregroundStyle(isSoon ? BlackCatPalette.caution : BlackCatPalette.textMuted)
+            }
+
+            Spacer(minLength: 8)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                pendingArchiveDeletion = item
+            } label: {
+                Label("削除", systemImage: "trash")
+            }
+
+            Button {
+                restoreItem(item)
+            } label: {
+                Label("復元", systemImage: "arrow.uturn.backward")
+            }
+            .tint(.blue)
+        }
+        .deleteConfirmation(
+            isPresented: Binding(
+                get: { pendingArchiveDeletion?.id == item.id },
+                set: { if !$0 { pendingArchiveDeletion = nil } }
+            ),
+            title: "完全に削除しますか？",
+            message: "「\(item.name)」を削除します。この操作は取り消せません。"
+        ) {
+            confirmArchiveDeletion()
+        }
+        .glassListRow()
+    }
+
+    /// 残り日数の言い方です。**0日を「あと0日」と書きません。**
+    /// 「今日中に消える」ことが伝わる言葉にします。
+    func remainingDescription(_ remaining: Int?) -> String {
+        guard let remaining else { return "" }
+        return remaining == 0 ? "まもなく削除されます" : "あと\(remaining)日で削除"
+    }
+
     /// 借入の1行です。
     ///
     /// **スワイプでの削除は付けていません。** 返済の記録がまとめて消えるため、
@@ -81,6 +160,25 @@ extension DashboardView {
                     )
                 }
                 .tint(loan.isPaused ? .green : .orange)
+            }
+        }
+        // **借入もアーカイブできます。** 削除と違い返済の記録は消えないので、
+        // スワイプに置いても取り返しがつかなくなりません。
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            if ArchivePolicy.isArchived(loan.archivedAt) {
+                Button {
+                    restore(loan)
+                } label: {
+                    Label("復元", systemImage: "arrow.uturn.backward")
+                }
+                .tint(.blue)
+            } else {
+                Button {
+                    archive(loan)
+                } label: {
+                    Label("アーカイブ", systemImage: "archivebox")
+                }
+                .tint(.gray)
             }
         }
         .contextMenu {

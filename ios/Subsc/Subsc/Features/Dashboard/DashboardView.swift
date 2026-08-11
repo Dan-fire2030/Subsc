@@ -26,6 +26,10 @@ struct DashboardView: View {
     @State var loanEditor: LoanEditor?
     @State var operationError: String?
     @State var pendingDeletion: Subscription?
+    /// アーカイブ直後に出す知らせです。確認を出さない代わりに、戻す手段をその場に置きます。
+    @State var lastArchived: ArchivedNotice?
+    @State var isConfirmingDeleteAll = false
+    @State var pendingArchiveDeletion: DashboardListItem?
 
     var body: some View {
         // **1回の描画で一度だけ求めます。**
@@ -111,6 +115,32 @@ struct DashboardView: View {
                             )
                             .glassListRow()
                         }
+                    } else if filter == .archived {
+                        // **アーカイブは支払い周期で分けません。** 退けたものの分類には意味がなく、
+                        // 見たいのは「何が入っていて、あと何日で消えるか」だけです。
+                        Section {
+                            ForEach(visible) { item in
+                                archivedRow(item)
+                            }
+                        } header: {
+                            Text("アーカイブ ・ \(visible.count)件")
+                        } footer: {
+                            Text("30日を過ぎると自動的に削除されます。削除はアプリを開いたときに行われます。")
+                        }
+
+                        Section {
+                            Button("アーカイブをすべて削除", role: .destructive) {
+                                isConfirmingDeleteAll = true
+                            }
+                            .deleteConfirmation(
+                                isPresented: $isConfirmingDeleteAll,
+                                title: "アーカイブを空にしますか？",
+                                message: "\(visible.count)件をまとめて削除します。この操作は取り消せません。"
+                            ) {
+                                deleteAllArchived()
+                            }
+                        }
+                        .glassListRow()
                     } else {
                         // **支払い周期ごとに分けます（2026-08-11）。**
                         // 月払いと年払いが隣り合うと、並んでいる金額の意味が揃いません。
@@ -172,6 +202,29 @@ struct DashboardView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     addMenu
                 }
+            }
+            // **期限切れはアーカイブ欄を開いたときにも消します。**
+            // 起動時だけだと、アプリを開きっぱなしで日をまたいだときに残ります。
+            .task(id: filter) {
+                guard filter == .archived else { return }
+                removeExpiredArchives()
+            }
+            // アーカイブに確認を出さない代わりに、戻す手段をその場へ置きます。
+            .alert(
+                "アーカイブしました",
+                isPresented: Binding(
+                    get: { lastArchived != nil },
+                    set: { if !$0 { lastArchived = nil } }
+                )
+            ) {
+                Button("復元") {
+                    if let subscription = lastArchived?.subscription { restore(subscription) }
+                    if let loan = lastArchived?.loan { restore(loan) }
+                    lastArchived = nil
+                }
+                Button("閉じる", role: .cancel) { lastArchived = nil }
+            } message: {
+                Text("「\(lastArchived?.name ?? "")」を30日間保管します。絞り込みの「アーカイブ」から戻せます。")
             }
             .sheet(item: $editor) { editor in
                 SubscriptionFormView(subscription: editor.subscription)

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001650000000000000165 /* CalendarDisplayStore.swift */; };
+		AA0001790000000000000179 /* ArchiveCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001790000000000000179 /* ArchiveCleaner.swift */; };
 		AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001780000000000000178 /* ArchiveExclusionTests.swift */; };
 		AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001770000000000000177 /* ArchivePolicyTests.swift */; };
 		AA0001760000000000000176 /* ArchivePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001760000000000000176 /* ArchivePolicy.swift */; };
@@ -188,6 +189,7 @@
 
 /* Begin PBXFileReference section */
 		BB0001650000000000000165 /* CalendarDisplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayStore.swift; sourceTree = "<group>"; };
+		BB0001790000000000000179 /* ArchiveCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveCleaner.swift; sourceTree = "<group>"; };
 		BB0001780000000000000178 /* ArchiveExclusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveExclusionTests.swift; sourceTree = "<group>"; };
 		BB0001770000000000000177 /* ArchivePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicyTests.swift; sourceTree = "<group>"; };
 		BB0001760000000000000176 /* ArchivePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicy.swift; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0001650000000000000165 /* CalendarDisplayStore.swift */,
+				BB0001790000000000000179 /* ArchiveCleaner.swift */,
 				BB0001760000000000000176 /* ArchivePolicy.swift */,
 				BB0001710000000000000171 /* DashboardSortStore.swift */,
 				BB0001210000000000000121 /* LoanNotificationSettings.swift */,
@@ -812,6 +815,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */,
+				AA0001790000000000000179 /* ArchiveCleaner.swift in Sources */,
 				AA0001760000000000000176 /* ArchivePolicy.swift in Sources */,
 				AA0001710000000000000171 /* DashboardSortStore.swift in Sources */,
 				AA0001660000000000000166 /* CalendarDisplayToggle.swift in Sources */,

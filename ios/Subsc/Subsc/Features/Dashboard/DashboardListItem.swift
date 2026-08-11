@@ -93,6 +93,14 @@ enum DashboardListItem: Identifiable {
         }
     }
 
+    /// アーカイブした日時です。アーカイブ欄で残り日数を出すのに使います。
+    var archivedAt: Date? {
+        switch self {
+        case .subscription(let subscription): subscription.archivedAt
+        case .loan(let loan, _): loan.archivedAt
+        }
+    }
+
     /// どのセクションへ入るかです。
     var sectionKind: DashboardSectionKind {
         switch self {

@@ -105,6 +105,13 @@ enum NotificationService {
         guard !Task.isCancelled else {
             return SyncResult(scheduled: 0, failed: 0)
         }
+        // **アーカイブ中はここで一度だけ外します（2026-08-11）。**
+        // 3つの計画（リマインド・返済・更新日）はどれも `archivedAt` を見ていません。
+        // 各計画で個別に外すと1つ忘れたときに気づけないため、**入口でまとめて落とします**。
+        // アーカイブしたものの通知が届くと、消したはずのものから連絡が来ることになります。
+        let subscriptions = subscriptions.filter { !ArchivePolicy.isArchived($0.archivedAt) }
+        let loans = loans.filter { !ArchivePolicy.isArchived($0.archivedAt) }
+
         // リマインドを先に確保し、残りの枠を更新日通知へ回します。
         let reminders = ReminderPlanner.plannedReminders(
             subscriptions: subscriptions,

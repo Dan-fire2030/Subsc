@@ -103,6 +103,23 @@ struct RootView: View {
     }
 
     private func reconcileSubscriptions() async {
+        // **期限を過ぎたアーカイブを、起動時に消します（2026-08-11）。**
+        // バックグラウンドで消す仕組みは無いため、**開いたときにしか走りません**。
+        // 更新日の繰り越しより先に行い、消すものへ余計な処理をしないようにします。
+        do {
+            try ArchiveCleaner.removeExpired(
+                subscriptions: subscriptions,
+                loans: loans,
+                context: modelContext
+            )
+        } catch {
+            modelContext.rollback()
+            operationAlert = OperationAlert(
+                title: "アーカイブを整理できませんでした",
+                message: "期限切れのアーカイブを削除できませんでした。次に開いたときにやり直します。"
+            )
+        }
+
         let didAdvanceRenewal = subscriptions.reduce(false) { changed, subscription in
             subscription.advanceRenewalDateIfNeeded() || changed
         }
