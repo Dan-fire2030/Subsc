@@ -621,3 +621,19 @@ Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:di
 
 見出しと本文を組（`OperationAlert`）で持たせ、場面ごとに出し分けるようにした。
 **使い回す文字列が増えたら、固定している側が嘘になっていないか疑う。**
+
+### 2026-08-11：宣言だけあって裏付けの無い capability は、審査の的になる
+`Info.plist` が `UIBackgroundModes: remote-notification` を宣言していたが、
+`Subsc.entitlements` に **`aps-environment` が無い**。プッシュを受け取る資格が無いので、
+**この宣言は一度も働いていなかった**。NSPersistentCloudKitContainer の同期は
+起動・前面復帰の時点で走っており、宣言の有無で挙動は変わらない。
+
+- **裏取りは3箇所を突き合わせる。** `Info.plist` / `*.entitlements` / pbxproj の
+  `INFOPLIST_KEY_*`。Xcodeは `GENERATE_INFOPLIST_FILE = YES` でビルド設定側からも
+  キーを注ぎ込めるため、ファイルだけ見ても宣言の出どころは分からない
+- 直す方向は2つあり、**外す方を選んだ**。`aps-environment` を足す（＝プッシュで同期を
+  受け取る）にはApp IDの更新が要り、提出直前に触る範囲が広がるため
+- 外しても失うものは無い。**元から届いていなかったのだから、退行しようがない**
+
+**「宣言してあるから動いているはず」と読まない。** 資格（entitlement）と宣言（Info.plist）は
+別物で、片方だけあっても機能しない。使っていない宣言は、Appleに「なぜ要るのか」と聞かれる材料。

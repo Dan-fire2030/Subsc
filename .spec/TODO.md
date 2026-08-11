@@ -108,10 +108,11 @@ SPEC：`.spec/SPEC.md`（2026-08-10 確定）／見た目：`.output/design-syst
 
 ### D. コード品質（急がない）
 
-- [ ] `ReportCard.swift` が776行（規約の400行目安を超過。分割候補）
-- [ ] `aps-environment` が無いのに `Info.plist` が `UIBackgroundModes: remote-notification` を
-      宣言している。**CloudKit同期がプッシュで届かず、使っていない宣言は審査で指摘されうる**。
-      capability追加はApp IDの更新を伴うため、提出直前に触るかは要判断
+- [x] ~~`ReportCard.swift` が776行~~ → **実態としては前サイクルで分割済み**（現在126行）。
+      2026-08-11 に実測して確認。`Subsc/` 配下に400行超のファイルは無い（最大396行）
+- [x] **`UIBackgroundModes: remote-notification` の宣言を外した**（2026-08-11）。
+      `aps-environment` が無く元から働いていなかったため、退行なし。
+      プッシュで同期を受け取りたくなったら App ID に Push Notifications を足すところからやり直す
 - [ ] `.verify-*` に古いビルド出力が945MB（gitignore済みで実害はない）
 
 ---
