@@ -149,5 +149,6 @@ harutoさんが実機で確認済み。詳細は `.spec/archive/SPEC-2026-08-11-
 
 ### C. コード品質（急がない）
 
-- [ ] **`ios/Subsc/.verify-*` と `.audit-*` に古いビルド出力が合計1.4GB**（gitignore済みで実害はない）。
-      **リポジトリ直下ではなく `ios/Subsc/` 配下にある**
+- [x] **`ios/Subsc/.verify-*` と `.audit-*` の古いビルド出力（12件・約1.4GB）を削除**（2026-08-12）。
+      7/26〜7/28の `xcodebuild` 出力で、gitignore済み・追跡ファイル0件。`xcodebuild` で再生成できる。
+      `~/Library/Developer/Xcode/Archives/` のbuild16〜19には触れていない
