@@ -23,6 +23,8 @@ final class SubscUITests: XCTestCase {
         amountField.tap()
         amountField.typeText("1200")
 
+        // 通知をオフにするのは、iOSの許可ダイアログがテストを止めないようにするためです。
+        // **保存に通知の許可は要りません**（2026-08-18 / Guideline 2.1(a) の指摘で撤廃）。
         let notificationsSwitch = app.switches["通知"]
         for _ in 0..<5 where !notificationsSwitch.isHittable {
             app.swipeUp()

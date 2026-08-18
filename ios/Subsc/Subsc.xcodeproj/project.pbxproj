@@ -102,6 +102,7 @@
 		AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000490000000000000049 /* MonthlyAmountTests.swift */; };
 		AA0000480000000000000048 /* CostTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000480000000000000048 /* CostTypeTests.swift */; };
 		AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000440000000000000044 /* NotificationPermissionTests.swift */; };
+		AA0001810000000000000181 /* SubscriptionNotificationFooterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */; };
 		AA0000030000000000000003 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000030000000000000003 /* Subscription.swift */; };
 		AA0000040000000000000004 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000040000000000000004 /* NotificationService.swift */; };
 		AA0000050000000000000005 /* ReportCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000050000000000000005 /* ReportCalculator.swift */; };
@@ -123,6 +124,7 @@
 		AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */; };
 		AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */; };
 		AA0000400000000000000040 /* SubscriptionFormView+Save.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000400000000000000040 /* SubscriptionFormView+Save.swift */; };
+		AA0001820000000000000182 /* SubscriptionNotificationFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001820000000000000182 /* SubscriptionNotificationFooter.swift */; };
 		AA0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */; };
 		AA0000420000000000000042 /* NotificationTimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000420000000000000042 /* NotificationTimingView.swift */; };
 		AA0000090000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000090000000000000009 /* SettingsView.swift */; };
@@ -284,6 +286,7 @@
 		BB0000490000000000000049 /* MonthlyAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyAmountTests.swift; sourceTree = "<group>"; };
 		BB0000480000000000000048 /* CostTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeTests.swift; sourceTree = "<group>"; };
 		BB0000440000000000000044 /* NotificationPermissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionTests.swift; sourceTree = "<group>"; };
+		BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionNotificationFooterTests.swift; sourceTree = "<group>"; };
 		BB0000030000000000000003 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		BB0000040000000000000004 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BB0000050000000000000005 /* ReportCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculator.swift; sourceTree = "<group>"; };
@@ -305,6 +308,7 @@
 		BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+CategoryColor.swift"; sourceTree = "<group>"; };
 		BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+Draft.swift"; sourceTree = "<group>"; };
 		BB0000400000000000000040 /* SubscriptionFormView+Save.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+Save.swift"; sourceTree = "<group>"; };
+		BB0001820000000000000182 /* SubscriptionNotificationFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionNotificationFooter.swift; sourceTree = "<group>"; };
 		BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionFormView+ExchangeRate.swift"; sourceTree = "<group>"; };
 		BB0000420000000000000042 /* NotificationTimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationTimingView.swift"; sourceTree = "<group>"; };
 		BB0000090000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -582,6 +586,7 @@
 				BB0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift */,
 				BB0000390000000000000039 /* SubscriptionFormView+Draft.swift */,
 				BB0000400000000000000040 /* SubscriptionFormView+Save.swift */,
+				BB0001820000000000000182 /* SubscriptionNotificationFooter.swift */,
 				BB0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift */,
 				BB0000420000000000000042 /* NotificationTimingView.swift */,
 				BB0000250000000000000025 /* CategoryCatalog.swift */,
@@ -639,6 +644,7 @@
 				BB0000490000000000000049 /* MonthlyAmountTests.swift */,
 				BB0000480000000000000048 /* CostTypeTests.swift */,
 				BB0000440000000000000044 /* NotificationPermissionTests.swift */,
+				BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */,
 				BB0000940000000000000094 /* LoanNotificationTests.swift */,
 				BB0000920000000000000092 /* LoanPaymentStoreTests.swift */,
 				BB0000900000000000000090 /* LoanModelTests.swift */,
@@ -919,6 +925,7 @@
 				AA0000380000000000000038 /* SubscriptionFormView+CategoryColor.swift in Sources */,
 				AA0000390000000000000039 /* SubscriptionFormView+Draft.swift in Sources */,
 				AA0000400000000000000040 /* SubscriptionFormView+Save.swift in Sources */,
+				AA0001820000000000000182 /* SubscriptionNotificationFooter.swift in Sources */,
 				AA0000410000000000000041 /* SubscriptionFormView+ExchangeRate.swift in Sources */,
 				AA0000420000000000000042 /* NotificationTimingView.swift in Sources */,
 				AA0000090000000000000009 /* SettingsView.swift in Sources */,
@@ -979,6 +986,7 @@
 				AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */,
 				AA0000480000000000000048 /* CostTypeTests.swift in Sources */,
 				AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */,
+				AA0001810000000000000181 /* SubscriptionNotificationFooterTests.swift in Sources */,
 				AA0000940000000000000094 /* LoanNotificationTests.swift in Sources */,
 				AA0000920000000000000092 /* LoanPaymentStoreTests.swift in Sources */,
 				AA0000900000000000000090 /* LoanModelTests.swift in Sources */,

@@ -30,10 +30,14 @@ extension SubscriptionFormView {
 
         isSaving = true
         defer { isSaving = false }
-        if notificationsEnabled,
-           !(await NotificationService.requestAuthorization()) {
-            showValidation("通知が許可されていません。設定アプリで許可するか、通知をオフにしてください。")
-            return
+        // 更新日の通知が要るため、保存前に許可を確かめます。
+        // **許可されなくても保存は続けます（2026-08-18）。** 以前はここで保存を止めており、
+        // 通知を断った利用者は費目を1件も登録できませんでした。
+        // **審査でも指摘されています**（Guideline 2.1(a) Performance - App Completeness）。
+        // 記録そのものは通知が無くても意味があります。届かないことは通知セクションの説明で伝えます。
+        if notificationsEnabled {
+            _ = await NotificationService.requestAuthorization()
+            await updateNotificationPermission()
         }
 
         let target = subscription ?? Subscription(

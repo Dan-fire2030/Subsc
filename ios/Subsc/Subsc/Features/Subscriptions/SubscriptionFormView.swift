@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 /// サブスクの追加・編集フォームです。
 ///
@@ -10,6 +11,7 @@ import SwiftUI
 struct SubscriptionFormView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
+    @Environment(\.scenePhase) var scenePhase
     @Query var registeredSubscriptions: [Subscription]
 
     let subscription: Subscription?
@@ -49,6 +51,9 @@ struct SubscriptionFormView: View {
     @State var newCategoryName = ""
     @State var categoryError: String?
     @State var isSaving = false
+    /// iOSの通知許可の状態です。**保存の可否には使いません。**
+    /// 通知セクションの説明で「今は届かない」ことを伝えるためだけに持っています。
+    @State var notificationPermission: NotificationPermission = .checking
     @AccessibilityFocusState var isValidationFocused: Bool
 
     let initialDraft: Draft
@@ -153,6 +158,12 @@ struct SubscriptionFormView: View {
         _leadHours = State(initialValue: initialLeadHours)
     }
 
+    /// 通知許可の状態を読み直します。
+    func updateNotificationPermission() async {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        notificationPermission = NotificationPermission(status: settings.authorizationStatus)
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -198,6 +209,12 @@ struct SubscriptionFormView: View {
             .task(id: currency) {
                 guard currency == .usd else { return }
                 await loadExchangeRate()
+            }
+            // 設定アプリで許可を変えて戻ってきた場合にも追随させるため、
+            // 表示のたびではなく前面に戻るたびに読み直します。
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
+                await updateNotificationPermission()
             }
             // 新規登録では、種別に合わせて変動費の初期値を提案します。
             // 利用者が自分でトグルを操作したあとは、提案で上書きしません。
