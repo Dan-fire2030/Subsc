@@ -1,6 +1,6 @@
 # Subsc iOS Release Runbook
 
-最終更新：2026-08-22（ビルド21のArchiveを作成。**まだアップロードしていない**）
+最終更新：2026-08-22（**バージョン1.0.1 / ビルド21をアップロード済み**。審査へは未提出）
 
 この文書はSubsc固有のリリース情報と作業状態を記録します。パスワード、APIキー、証明書の秘密鍵は記録しません。
 
@@ -20,8 +20,8 @@
 | App Store Connect App ID | `6795086857` |
 | SKU | `subsc-ios-20260727` |
 | プライマリ言語 | 日本語 |
-| 現在のバージョン | 1.0.0 |
-| 現在のビルド | 20（2026-08-18にApple側の受領に成功。**このビルドで公開中**）。21はArchiveのみで**未アップロード** |
+| 現在のバージョン | 1.0.1（1.0.0はApp Storeで公開中） |
+| 現在のビルド | 21（2026-08-22にApple側の受領に成功。バージョン1.0.1）。公開中は1.0.0のビルド20 |
 | 公開状況 | **App Storeで公開中**（<https://apps.apple.com/jp/app/id6795086857>） |
 | デベロッパ表示名 | `haruto takamori`（**変更不可**。理由は下の「デベロッパ名」を参照） |
 
@@ -259,13 +259,14 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 
 **独立レビューは2026-08-08にメインスレッドが実施しました**（Codexが使用上限だったため、harutoさんの指示による）。保存プロパティ・CloudKitスキーマの変更が無いこと、削除した機能の残骸が無いこと、`project.pbxproj` が壊れていないこと（`plutil -lint`）を確認済みです。指摘事項は `.spec/TODO.md` の「レビューで挙がった宿題」にあります。
 
-### ビルド21（Archive 2026-08-22・**未アップロード**）
+### バージョン1.0.1 / ビルド21（2026-08-22）
 
-2026-08-22にバージョン1.0.0、ビルド21のArchiveを作成しました。
-**App Store Connectへは送っていません**（harutoさんの指示でArchiveまでで停止）。
+2026-08-22に**バージョン1.0.1**、ビルド21をアップロードしました。
+Apple側の受領に成功しました（`Upload succeeded.` / `** EXPORT SUCCEEDED **`）。
 
-- Archiveの場所：`~/Library/Developer/Xcode/Archives/2026-08-22/Subsc-build21.xcarchive`
-- 確認済み：`CFBundleShortVersionString = 1.0.0` / `CFBundleVersion = 21` / `com.tonaria.subsc`
+- Archiveの場所：`~/Library/Developer/Xcode/Archives/2026-08-22/Subsc-101-build21.xcarchive`
+  （1.0.0で作った `Subsc-build21.xcarchive` は**送れなかったもの**。下の「つまずき」を参照）
+- 確認済み：`CFBundleShortVersionString = 1.0.1` / `CFBundleVersion = 21` / `com.tonaria.subsc`
 - ブランチ：`main`（`8d6dbfd` の修正 + `6a0971a` のビルド番号更新）
 - **CloudKitのスキーマ変更はありません**（ビルド20以降 `Subsc/Models` に変更なし）
 
@@ -288,12 +289,28 @@ Developmentで作成したテストレコードはProductionへコピーされ�
 - iOS 17〜25のフォールバック（iOS 26以外の端末が必要。ビルド19から継続）
 - アプリを完全終了した状態での、返済日通知の「返済した」ボタン
 
-#### アップロードする前に必要なこと
+#### つまずき：公開済みのバージョン番号では、ビルドを受け付けてもらえない
+
+最初は `MARKETING_VERSION` を 1.0.0 のままビルド番号だけ21へ上げて送り、**弾かれました**。
+
+```
+Invalid Pre-Release Train. The train version '1.0.0' is closed for new build submissions.
+This bundle is invalid. The value for key CFBundleShortVersionString [1.0.0] ...
+must contain a higher version than that of the previously approved version [1.0.0].
+```
+
+**承認・公開が済んだバージョン番号の系列（train）は閉じます。** ビルド番号を上げるだけでは
+足りず、`MARKETING_VERSION` を上げて**Archiveを作り直す**必要があります。
+**ビルド番号は系列ごとなので、21のまま使えます**（作り直したArchiveも21で受領された）。
+
+なお、**使用許諾契約の未同意ではここで弾かれていません**（認証は通り、バンドルの検証で落ちた）。
+
+#### 審査へ出す前に必要なこと
 
 - [ ] **Apple Developer Program 使用許諾契約への同意**（期限 2026年10月2日）。
       **Account Holder本人**が同意しないと、既存アプリの更新も新規提出もできない
-- [ ] 利用者へ届けるには、**1.0.1 などの新しいバージョンを作って審査へ出す**必要がある。
-      ビルドを上げるだけでは公開中の1.0は変わらない
+- [ ] App Store Connect で**バージョン1.0.1のページを作り**、ビルド21を選んで審査へ出す。
+      「このバージョンの新機能」の文言が要る
 
 ### ビルド20（2026-08-18）
 
