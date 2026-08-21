@@ -1,10 +1,19 @@
+import SwiftData
 import SwiftUI
 
 /// 費目別料金の詳細を全件表示するシートです。
 /// カード上のグラフは上位数件しか出さないため、残りをここで確認できるようにしています。
+///
+/// **行を押すとその費目・借入の編集を開きます（2026-08-20）。**
+/// グラフから内訳へ降りてきた利用者は、そこで気になったものを直したいはずで、
+/// 一覧まで戻って同じものを探し直すのは遠回りです。
 struct ReportBreakdownSheet: View {
     let entries: [ReportEntry]
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Subscription.renewalDate) private var subscriptions: [Subscription]
+    @Query(sort: \Loan.createdAt) private var loans: [Loan]
+    @State private var editingSubscription: Subscription?
+    @State private var editingLoan: Loan?
 
     private var total: Double {
         entries.reduce(0) { $0 + $1.amount }
@@ -57,10 +66,31 @@ struct ReportBreakdownSheet: View {
                         }
 
                         ForEach(entries) { entry in
-                            BreakdownRow(
+                            // アーカイブや削除で対象が消えている行は押せません。
+                            // 開く先が無いのに反応すると、押しても何も起きない行になります。
+                            if let target = ReportEntryTarget.resolve(
                                 entry: entry,
-                                total: total
-                            )
+                                subscriptions: subscriptions,
+                                loans: loans
+                            ) {
+                                Button {
+                                    open(target)
+                                } label: {
+                                    BreakdownRow(
+                                        entry: entry,
+                                        total: total,
+                                        isEditable: true
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityHint("編集を開きます")
+                            } else {
+                                BreakdownRow(
+                                    entry: entry,
+                                    total: total,
+                                    isEditable: false
+                                )
+                            }
                         }
                     }
                     .padding(16)
@@ -77,6 +107,19 @@ struct ReportBreakdownSheet: View {
                         .foregroundStyle(BlackCatPalette.text)
                 }
             }
+            .sheet(item: $editingSubscription) { subscription in
+                SubscriptionFormView(subscription: subscription)
+            }
+            .sheet(item: $editingLoan) { loan in
+                LoanFormView(loan: loan)
+            }
+        }
+    }
+
+    private func open(_ target: ReportEntryTarget) {
+        switch target {
+        case .subscription(let subscription): editingSubscription = subscription
+        case .loan(let loan): editingLoan = loan
         }
     }
 }
@@ -84,6 +127,8 @@ struct ReportBreakdownSheet: View {
 private struct BreakdownRow: View {
     let entry: ReportEntry
     let total: Double
+    /// 押して編集を開けるかどうか。開けるときだけ、押せることが分かる印を出します。
+    let isEditable: Bool
 
     private var ratio: Double {
         guard total > 0 else { return 0 }
@@ -144,6 +189,13 @@ private struct BreakdownRow: View {
             .font(.subheadline.weight(.bold))
             .foregroundStyle(BlackCatPalette.text)
             .monospacedDigit()
+
+            if isEditable {
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .accessibilityHidden(true)
+            }
         }
         .padding(13)
         .background(

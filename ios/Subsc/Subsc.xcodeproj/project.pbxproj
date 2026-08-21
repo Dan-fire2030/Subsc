@@ -102,10 +102,12 @@
 		AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000490000000000000049 /* MonthlyAmountTests.swift */; };
 		AA0000480000000000000048 /* CostTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000480000000000000048 /* CostTypeTests.swift */; };
 		AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000440000000000000044 /* NotificationPermissionTests.swift */; };
+		AA0001830000000000000183 /* ReportEntryTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001830000000000000183 /* ReportEntryTargetTests.swift */; };
 		AA0001810000000000000181 /* SubscriptionNotificationFooterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */; };
 		AA0000030000000000000003 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000030000000000000003 /* Subscription.swift */; };
 		AA0000040000000000000004 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000040000000000000004 /* NotificationService.swift */; };
 		AA0000050000000000000005 /* ReportCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000050000000000000005 /* ReportCalculator.swift */; };
+		AA0001840000000000000184 /* ReportEntryTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001840000000000000184 /* ReportEntryTarget.swift */; };
 		AA0000060000000000000006 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000060000000000000006 /* DashboardView.swift */; };
 		AA0000070000000000000007 /* ReportCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000070000000000000007 /* ReportCard.swift */; };
 		AA0000280000000000000028 /* ReportGlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000280000000000000028 /* ReportGlassStyle.swift */; };
@@ -286,10 +288,12 @@
 		BB0000490000000000000049 /* MonthlyAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyAmountTests.swift; sourceTree = "<group>"; };
 		BB0000480000000000000048 /* CostTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostTypeTests.swift; sourceTree = "<group>"; };
 		BB0000440000000000000044 /* NotificationPermissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionTests.swift; sourceTree = "<group>"; };
+		BB0001830000000000000183 /* ReportEntryTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportEntryTargetTests.swift; sourceTree = "<group>"; };
 		BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionNotificationFooterTests.swift; sourceTree = "<group>"; };
 		BB0000030000000000000003 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		BB0000040000000000000004 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BB0000050000000000000005 /* ReportCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCalculator.swift; sourceTree = "<group>"; };
+		BB0001840000000000000184 /* ReportEntryTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportEntryTarget.swift; sourceTree = "<group>"; };
 		BB0000060000000000000006 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		BB0000070000000000000007 /* ReportCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCard.swift; sourceTree = "<group>"; };
 		BB0000280000000000000028 /* ReportGlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportGlassStyle.swift; sourceTree = "<group>"; };
@@ -541,6 +545,7 @@
 				BB0001800000000000000180 /* DashboardFilterChips.swift */,
 				BB0001700000000000000170 /* DashboardSortOrder.swift */,
 				BB0000050000000000000005 /* ReportCalculator.swift */,
+				BB0001840000000000000184 /* ReportEntryTarget.swift */,
 				BB00011290000000000000129 /* UpcomingLargeCharge.swift */,
 				BB00011330000000000000133 /* CatMood.swift */,
 				BB00011370000000000000137 /* CatMoodContext.swift */,
@@ -644,6 +649,7 @@
 				BB0000490000000000000049 /* MonthlyAmountTests.swift */,
 				BB0000480000000000000048 /* CostTypeTests.swift */,
 				BB0000440000000000000044 /* NotificationPermissionTests.swift */,
+				BB0001830000000000000183 /* ReportEntryTargetTests.swift */,
 				BB0001810000000000000181 /* SubscriptionNotificationFooterTests.swift */,
 				BB0000940000000000000094 /* LoanNotificationTests.swift */,
 				BB0000920000000000000092 /* LoanPaymentStoreTests.swift */,
@@ -900,6 +906,7 @@
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
 				AA0000040000000000000004 /* NotificationService.swift in Sources */,
 				AA0000050000000000000005 /* ReportCalculator.swift in Sources */,
+				AA0001840000000000000184 /* ReportEntryTarget.swift in Sources */,
 				AA0000660000000000000066 /* CostTypeBreakdown.swift in Sources */,
 				AA0000670000000000000067 /* BubbleLayout.swift in Sources */,
 				AA0000710000000000000071 /* ReportChartPalette.swift in Sources */,
@@ -986,6 +993,7 @@
 				AA0000490000000000000049 /* MonthlyAmountTests.swift in Sources */,
 				AA0000480000000000000048 /* CostTypeTests.swift in Sources */,
 				AA0000440000000000000044 /* NotificationPermissionTests.swift in Sources */,
+				AA0001830000000000000183 /* ReportEntryTargetTests.swift in Sources */,
 				AA0001810000000000000181 /* SubscriptionNotificationFooterTests.swift in Sources */,
 				AA0000940000000000000094 /* LoanNotificationTests.swift in Sources */,
 				AA0000920000000000000092 /* LoanPaymentStoreTests.swift in Sources */,

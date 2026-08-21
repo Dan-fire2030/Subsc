@@ -148,7 +148,8 @@ enum ReportCalculator {
 
         return ReportEntry(
             // 費目と `clientID` が衝突しても別項目として扱えるよう、接頭辞を付けます。
-            id: "loan-\(loan.clientID)",
+            // 接頭辞の定義は `ReportEntry.loanIDPrefix`（`ReportEntryTarget.swift`）にあります。
+            id: "\(ReportEntry.loanIDPrefix)\(loan.clientID)",
             name: loan.name,
             amount: matching.reduce(0) { $0 + $1.effectiveAmount },
             colorHex: CostType.loan.colorHex,

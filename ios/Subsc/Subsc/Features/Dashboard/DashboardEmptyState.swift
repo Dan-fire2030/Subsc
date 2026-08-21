@@ -37,12 +37,15 @@ struct DashboardEmptyState: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            // **アイコンを付けません（2026-08-20）。**
+            // `Label` の「＋」は `.glassProminent` だとボタンの地の色とほぼ同じ色で描かれ、
+            // **見えないまま場所だけ取っていました**。アイコンと文字の組が中央に揃うため、
+            // 文字だけが右へ寄って見えます。文字だけにして、真ん中に置きます。
             Button(action: addSubscription) {
-                Label(
+                Text(
                     dynamicTypeSize.isAccessibilitySize
                         ? "費目を追加"
-                        : "最初の費目を追加",
-                    systemImage: "plus"
+                        : "最初の費目を追加"
                 )
                     .font(.headline)
                     .multilineTextAlignment(.center)
