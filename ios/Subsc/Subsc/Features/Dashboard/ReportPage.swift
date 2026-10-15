@@ -60,11 +60,11 @@ struct ReportPage: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(periodLabel)
                     .font(.subheadline)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
 
                 Text(report.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    .foregroundStyle(BlackCatPalette.text)
+                    .foregroundStyle(SubscPalette.text)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
@@ -72,7 +72,7 @@ struct ReportPage: View {
 
                 Text(entriesDescription)
                     .font(.caption)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
             }
 
@@ -109,7 +109,7 @@ struct ReportPage: View {
                         )
                         .multilineTextAlignment(.center)
                     }
-                    .foregroundStyle(BlackCatPalette.text)
+                    .foregroundStyle(SubscPalette.text)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("この期間の利用コストはありません")

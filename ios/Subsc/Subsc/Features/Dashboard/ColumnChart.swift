@@ -123,7 +123,7 @@ struct ColumnChart: View {
             // 以前は黒を重ね、スクロールできるときだけ濃くしていましたが、白磁の地（ライト）では
             // どちらの濃さも地に埋もれて差が読めませんでした。**スクロールできることは
             // 端のフェード（下の `mask`）が示す**ので、下地は濃さを変えません。
-            .background(BlackCatPalette.chartTrack, in: .rect(cornerRadius: Layout.cornerRadius))
+            .background(SubscPalette.chartTrack, in: .rect(cornerRadius: Layout.cornerRadius))
             .mask {
                 if canScroll {
                     LinearGradient(
@@ -173,7 +173,7 @@ private struct ColumnItemView: View {
             // 白で固定すると、白磁の地（ライト）では金額も費目名も読めなくなります。
             Text(item.amount, format: .currency(code: "JPY").precision(.fractionLength(0)))
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(BlackCatPalette.text)
+                .foregroundStyle(SubscPalette.text)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(Layout.minimumAmountScale)
@@ -186,7 +186,7 @@ private struct ColumnItemView: View {
 
             Text(item.name)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .foregroundStyle(SubscPalette.textMuted)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }

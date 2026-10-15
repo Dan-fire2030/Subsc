@@ -30,7 +30,7 @@ struct UpcomingTimeline: View {
             // 縦線は行の背後に1本だけ通します。行ごとに引くと、
             // 行間で途切れて「点線」に見えてしまいます。
             Capsule()
-                .fill(BlackCatPalette.chartTrack)
+                .fill(SubscPalette.chartTrack)
                 .frame(width: 2)
                 .padding(.vertical, 14)
                 .padding(.leading, 4)
@@ -53,26 +53,26 @@ struct UpcomingTimelineRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Circle()
-                .fill(isFirst ? BlackCatPalette.accent : BlackCatPalette.chartTrack)
+                .fill(isFirst ? SubscPalette.accent : SubscPalette.chartTrack)
                 .frame(width: dotSize, height: dotSize)
                 .frame(width: 10)
                 .accessibilityHidden(true)
 
             Text(relativeLabel)
                 .font(.caption)
-                .foregroundStyle(isFirst ? BlackCatPalette.accent : BlackCatPalette.textMuted)
+                .foregroundStyle(isFirst ? SubscPalette.accent : SubscPalette.textMuted)
                 .fontWeight(isFirst ? .bold : .regular)
                 .frame(width: dynamicTypeSize.isAccessibilitySize ? nil : 62, alignment: .leading)
 
             Text(item.name)
-                .font(BlackCatType.body)
+                .font(SubscTypography.body)
                 .lineLimit(1)
 
             Spacer(minLength: 8)
 
             if let amount = item.nextDueAmount {
                 Text(amount, format: .currency(code: "JPY").precision(.fractionLength(0)))
-                    .font(BlackCatType.rowAmount)
+                    .font(SubscTypography.rowAmount)
                     .monospacedDigit()
             }
         }

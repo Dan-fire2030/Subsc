@@ -39,7 +39,7 @@ struct SubscriptionDetailView: View {
                             Text("・")
                             Text(subscription.category)
                         }
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                     }
                 }
                 .padding(.vertical, 6)
@@ -66,15 +66,15 @@ struct SubscriptionDetailView: View {
                         // 無料になったのではなく、更新月ではないだけなので、そう書きます。
                         if isYearlyWithoutChargeThisMonth {
                             Text("今月は請求なし")
-                                .foregroundStyle(BlackCatPalette.textMuted)
+                                .foregroundStyle(SubscPalette.textMuted)
                         }
                         if thisMonth.source == .estimated {
                             Text("見込み")
                                 .font(.caption2.weight(.semibold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(BlackCatPalette.accent.opacity(0.18), in: Capsule())
-                                .foregroundStyle(BlackCatPalette.accent)
+                                .background(SubscPalette.accent.opacity(0.18), in: Capsule())
+                                .foregroundStyle(SubscPalette.accent)
                         }
                         if !isYearlyWithoutChargeThisMonth {
                             Text(

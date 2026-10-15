@@ -52,7 +52,7 @@ struct TutorialView: View {
         .transaction { transaction in
             if reduceMotion { transaction.animation = nil }
         }
-        .background(BlackCatPalette.background)
+        .background(SubscPalette.background)
         .overlay(alignment: .top) { skipButton }
         .overlay(alignment: .bottom) { pageControls }
         .interactiveDismissDisabled()
@@ -62,18 +62,18 @@ struct TutorialView: View {
         HStack {
             Spacer()
             Button("スキップ", action: onSkip)
-                .font(BlackCatType.label)
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .font(SubscTypography.label)
+                .foregroundStyle(SubscPalette.textMuted)
                 // 見た目が小さくても、触れる大きさは指のサイズを守ります。
                 .frame(minWidth: 44, minHeight: 44)
-                .padding(.trailing, BlackCatSpacing.s)
+                .padding(.trailing, SubscSpacing.s)
         }
         // 帯を文字の高さぴったりにすると、スクロールした見出しがすぐ下に迫って
         // 窮屈に見えます。**少し厚みを持たせて間を作ります。**
-        .padding(.bottom, BlackCatSpacing.m)
+        .padding(.bottom, SubscSpacing.m)
         .frame(maxWidth: .infinity)
         // 下を透かすと、スクロールした本文がこの行に重なって読めなくなります。
-        .background(BlackCatPalette.background)
+        .background(SubscPalette.background)
     }
 
     private var pageControls: some View {
@@ -82,25 +82,25 @@ struct TutorialView: View {
             primaryButton
         }
         .frame(maxWidth: .infinity)
-        .background(BlackCatPalette.background)
+        .background(SubscPalette.background)
     }
 
     /// 現在位置です。**点だけで示します。** 「4分の2」と数字で出すと、
     /// 残りの枚数のほうが気になって内容が読まれません。
     private var pageIndicator: some View {
-        HStack(spacing: BlackCatSpacing.s) {
+        HStack(spacing: SubscSpacing.s) {
             ForEach(pages) { page in
                 Capsule()
                     .fill(
                         page.id == selection
-                            ? BlackCatPalette.accent
-                            : BlackCatPalette.chartTrack
+                            ? SubscPalette.accent
+                            : SubscPalette.chartTrack
                     )
                     .frame(width: page.id == selection ? 20 : 8, height: 8)
             }
         }
-        .padding(.top, BlackCatSpacing.m)
-        .padding(.bottom, BlackCatSpacing.l)
+        .padding(.top, SubscSpacing.m)
+        .padding(.bottom, SubscSpacing.l)
         .accessibilityElement()
         .accessibilityLabel("\(pages.count)ページ中\(selection + 1)ページ目")
     }
@@ -116,13 +116,13 @@ struct TutorialView: View {
             }
         } label: {
             Text(isLastPage ? "はじめる" : "次へ")
-                .font(BlackCatType.body)
+                .font(SubscTypography.body)
                 .frame(maxWidth: .infinity, minHeight: 50)
         }
         .buttonStyle(.borderedProminent)
-        .tint(BlackCatPalette.accent)
-        .padding(.horizontal, BlackCatSpacing.xl)
-        .padding(.bottom, BlackCatSpacing.xl)
+        .tint(SubscPalette.accent)
+        .padding(.horizontal, SubscSpacing.xl)
+        .padding(.bottom, SubscSpacing.xl)
     }
 }
 
@@ -146,19 +146,19 @@ private struct TutorialPageView: View {
         // `minHeight` へ戻すと、レイアウトが循環しうる）。
         // 素直に上から積み、収まらないぶんはスクロールで読ませます。
         ScrollView {
-            VStack(spacing: BlackCatSpacing.xl) {
+            VStack(spacing: SubscSpacing.xl) {
                 // **大きさは絵ごとに決めます。** 状態を並べる図は正方形に収まらないため、
                 // ここで一律に枠をはめると潰れます。
                 artwork
 
-                VStack(spacing: BlackCatSpacing.m) {
+                VStack(spacing: SubscSpacing.m) {
                     Text(page.title)
-                        .font(BlackCatType.title)
-                        .foregroundStyle(BlackCatPalette.text)
+                        .font(SubscTypography.title)
+                        .foregroundStyle(SubscPalette.text)
 
                     Text(page.body)
                         .font(.body)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                         .lineSpacing(4)
                 }
                 .multilineTextAlignment(.center)
@@ -167,8 +167,8 @@ private struct TutorialPageView: View {
                 .accessibilityElement(children: .combine)
             }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, BlackCatSpacing.xl)
-            .padding(.top, topInset + BlackCatSpacing.xxl)
+            .padding(.horizontal, SubscSpacing.xl)
+            .padding(.top, topInset + SubscSpacing.xxl)
             .padding(.bottom, bottomInset)
         }
         // 中身が収まっているときに跳ねると、スクロールできると誤解させます。
@@ -186,8 +186,8 @@ private struct TutorialPageView: View {
                 .resizable()
                 .scaledToFit()
                 .fontWeight(.light)
-                .foregroundStyle(BlackCatPalette.accent)
-                .padding(BlackCatSpacing.xl)
+                .foregroundStyle(SubscPalette.accent)
+                .padding(SubscSpacing.xl)
                 .frame(width: artworkSize, height: artworkSize)
                 .accessibilityHidden(true)
         case .catMoodGuide:
@@ -220,7 +220,7 @@ private struct CatMoodGuide: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: BlackCatSpacing.l) {
+        LazyVGrid(columns: columns, spacing: SubscSpacing.l) {
             ForEach(moods) { mood in
                 item(for: mood)
             }
@@ -230,8 +230,8 @@ private struct CatMoodGuide: View {
     /// 1匹ぶんです。1列に落ちたときは横並びにして、縦の長さを抑えます。
     private func item(for mood: CatMood) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(HStackLayout(spacing: BlackCatSpacing.m))
-            : AnyLayout(VStackLayout(spacing: BlackCatSpacing.s))
+            ? AnyLayout(HStackLayout(spacing: SubscSpacing.m))
+            : AnyLayout(VStackLayout(spacing: SubscSpacing.s))
 
         return layout {
             CatCompanionView(mood: mood)
@@ -241,8 +241,8 @@ private struct CatMoodGuide: View {
                 .accessibilityHidden(true)
 
             Text(mood.title)
-                .font(BlackCatType.label)
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .font(SubscTypography.label)
+                .foregroundStyle(SubscPalette.textMuted)
                 .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .center)
                 .fixedSize(horizontal: false, vertical: true)
 

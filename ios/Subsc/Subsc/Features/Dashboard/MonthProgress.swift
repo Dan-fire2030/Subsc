@@ -38,9 +38,9 @@ struct MonthProgressLine: View {
         VStack(spacing: 4) {
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(BlackCatPalette.chartTrack)
+                    Capsule().fill(SubscPalette.chartTrack)
                     Capsule()
-                        .fill(BlackCatPalette.textMuted.opacity(0.55))
+                        .fill(SubscPalette.textMuted.opacity(0.55))
                         .frame(width: proxy.size.width * min(max(progress, 0), 1))
                 }
             }
@@ -53,7 +53,7 @@ struct MonthProgressLine: View {
                     .monospacedDigit()
             }
             .font(.caption2)
-            .foregroundStyle(BlackCatPalette.textMuted)
+            .foregroundStyle(SubscPalette.textMuted)
         }
         .padding(.top, 12)
         .accessibilityElement(children: .combine)

@@ -17,7 +17,7 @@ final class HarmonizedColorTests: XCTestCase {
 
         for (legacy, harmonized) in expected {
             XCTAssertEqual(
-                BlackCatPalette.harmonizedHex(from: legacy),
+                SubscPalette.harmonizedHex(from: legacy),
                 harmonized,
                 "\(legacy) の寄せ先が想定と違います"
             )
@@ -28,7 +28,7 @@ final class HarmonizedColorTests: XCTestCase {
     /// 変換で微妙にずれると、選んだ色と表示が食い違います。
     func testBlackCatColorsAreLeftUntouched() {
         for color in ["#7FB3D5", "#9B8FD9", "#7FC8A9", "#E0A66B", "#D98FA6", "#C4B37F", "#8FA8C4"] {
-            XCTAssertEqual(BlackCatPalette.harmonizedHex(from: color), color)
+            XCTAssertEqual(SubscPalette.harmonizedHex(from: color), color)
         }
     }
 
@@ -37,26 +37,26 @@ final class HarmonizedColorTests: XCTestCase {
     func testNothingMapsToTheGoldAccent() {
         let goldish = ["#FFD60A", "#D9A43C", "#FFCC00", "#E8B44A"]
         for hex in goldish {
-            XCTAssertNotEqual(BlackCatPalette.harmonizedHex(from: hex), "#D9A43C")
+            XCTAssertNotEqual(SubscPalette.harmonizedHex(from: hex), "#D9A43C")
         }
     }
 
     /// 彩度の無い色（白・黒・灰）は色相で寄せられません。鈍色へ倒します。
     func testAchromaticColorsFallBackToSteel() {
         for hex in ["#FFFFFF", "#000000", "#8E8E93"] {
-            XCTAssertEqual(BlackCatPalette.harmonizedHex(from: hex), "#8FA8C4")
+            XCTAssertEqual(SubscPalette.harmonizedHex(from: hex), "#8FA8C4")
         }
     }
 
     /// 解釈できない保存値でも落ちず、鈍色で表示します。
     func testInvalidHexFallsBackToSteel() {
-        XCTAssertEqual(BlackCatPalette.harmonizedHex(from: "ぬるぬる"), "#8FA8C4")
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "ぬるぬる"), "#8FA8C4")
     }
 
     /// 色相が近い順に寄るので、赤系は撫子、青系は藍になります。
     func testHuesMapToTheNearestCategoryColor() {
-        XCTAssertEqual(BlackCatPalette.harmonizedHex(from: "#FF0000"), "#D98FA6")
-        XCTAssertEqual(BlackCatPalette.harmonizedHex(from: "#0000FF"), "#9B8FD9")
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#FF0000"), "#D98FA6")
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#0000FF"), "#9B8FD9")
     }
 }
 
@@ -73,8 +73,8 @@ final class BlackCatContrastTests: XCTestCase {
     /// ライトでは体そのものが地に対して十分暗く、面を敷く必要がありません。
     func testCatBodyReadsAgainstTheLightBackground() {
         let contrast = ratio(
-            BlackCatPalette.cat,
-            BlackCatPalette.background,
+            SubscPalette.cat,
+            SubscPalette.background,
             style: .light
         )
 
@@ -89,8 +89,8 @@ final class BlackCatContrastTests: XCTestCase {
     /// 体は墨のまま（黒猫であること）を保つため、比は面と体のあいだで測ります。
     func testHaloSeparatesTheCatInDarkMode() {
         let contrast = ratio(
-            BlackCatPalette.catHalo,
-            BlackCatPalette.cat,
+            SubscPalette.catHalo,
+            SubscPalette.cat,
             style: .dark
         )
 
@@ -105,8 +105,8 @@ final class BlackCatContrastTests: XCTestCase {
     /// 体はカード面より暗いままであることを縛ります。
     func testCatBodyStaysDarkerThanTheSurfaceInDarkMode() {
         XCTAssertLessThan(
-            luminance(BlackCatPalette.cat, style: .dark),
-            luminance(BlackCatPalette.surface, style: .dark),
+            luminance(SubscPalette.cat, style: .dark),
+            luminance(SubscPalette.surface, style: .dark),
             "ダークの猫がカード面より明るくなっています。黒猫でなくなります。"
         )
     }
@@ -114,11 +114,11 @@ final class BlackCatContrastTests: XCTestCase {
     /// 金の目は両モードで読めていること。猫の分離を直すときに巻き添えで潰さないためです。
     func testEyesReadInBothModes() {
         XCTAssertGreaterThan(
-            ratio(BlackCatPalette.catEye, BlackCatPalette.cat, style: .light),
+            ratio(SubscPalette.catEye, SubscPalette.cat, style: .light),
             minimumGraphicContrast
         )
         XCTAssertGreaterThan(
-            ratio(BlackCatPalette.catEye, BlackCatPalette.cat, style: .dark),
+            ratio(SubscPalette.catEye, SubscPalette.cat, style: .dark),
             minimumGraphicContrast
         )
     }
@@ -175,7 +175,7 @@ final class ReportBreakdownColorTests: XCTestCase {
         for hex in ["#007AFF", "#FF375F", "#AF52DE", "#7FB3D5", "#123456"] {
             XCTAssertEqual(
                 ReportChartPalette.breakdownBaseHex(for: hex),
-                BlackCatPalette.harmonizedHex(from: hex),
+                SubscPalette.harmonizedHex(from: hex),
                 "\(hex) でグラフと内訳の寄せ先が食い違っています"
             )
         }

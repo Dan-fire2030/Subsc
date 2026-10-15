@@ -62,7 +62,7 @@ enum ReportChartPalette {
     /// 保存値（`ColorHex.color(from:)`）で描いており、**同じ費目がグラフと内訳で違う色**に
     /// 見えていました。寄せ先を1つにするため、ここを唯一の出どころにします。
     static func breakdownBaseHex(for colorHex: String) -> String {
-        BlackCatPalette.harmonizedHex(from: colorHex)
+        SubscPalette.harmonizedHex(from: colorHex)
     }
 
     /// 内訳シートの見本のグラデーションです。
@@ -70,14 +70,14 @@ enum ReportChartPalette {
     /// **段の作りは変えません**（元の色 → 同じ色の55% → 面）。色の出どころだけを揃えています。
     static func breakdownSwatchColors(for colorHex: String) -> [Color] {
         let base = ColorHex.color(from: breakdownBaseHex(for: colorHex))
-        return [base, base.opacity(0.55), BlackCatPalette.surfaceElevated]
+        return [base, base.opacity(0.55), SubscPalette.surfaceElevated]
     }
 
     static func color(for item: ReportChartItem) -> Color {
         // **保存値ではなく、黒猫のパレットへ寄せた色で描きます。**
         // 旧プリセット（iOS標準色）で保存された費目がそのままだと、
         // 画面の主役であるグラフだけ配色が取り残されます。保存値は書き換えません。
-        BlackCatPalette.harmonized(from: item.colorHex).opacity(item.opacity)
+        SubscPalette.harmonized(from: item.colorHex).opacity(item.opacity)
     }
 
     static func fraction(for item: ReportChartItem, total: Double) -> Double {

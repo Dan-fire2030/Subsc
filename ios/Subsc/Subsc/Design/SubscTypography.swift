@@ -7,7 +7,7 @@ import SwiftUI
 ///
 /// **すべて相対指定（`.system(_:design:weight:)`）です。** 固定ptにすると、
 /// 文字を大きくしている利用者の画面で崩れます。
-enum BlackCatType {
+enum SubscTypography {
     /// レポートの合計です。画面でいちばん大きい数字。
     static let amount = Font.system(.largeTitle, design: .rounded, weight: .bold)
     /// 一覧の行に出る金額です。合計より一段小さく、行の中では最も強い。
@@ -26,7 +26,7 @@ enum BlackCatType {
 ///
 /// 刻みを決めておかないと、画面ごとに 10 / 11 / 13 のような値が混ざり、
 /// 直接は気づかれないまま「なんとなく雑」に見えます。
-enum BlackCatSpacing {
+enum SubscSpacing {
     static let xs: CGFloat = 4
     static let s: CGFloat = 8
     static let m: CGFloat = 12

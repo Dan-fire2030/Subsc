@@ -65,8 +65,8 @@
 		AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011470000000000000147 /* DashboardView+Rows.swift */; };
 		AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011460000000000000146 /* DashboardView+Collections.swift */; };
 		AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011440000000000000144 /* RelativeDueLabel.swift */; };
-		AA00011340000000000000134 /* BlackCatPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* BlackCatPalette.swift */; };
-		AA00011400000000000000140 /* BlackCatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* BlackCatType.swift */; };
+		AA00011340000000000000134 /* SubscPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* SubscPalette.swift */; };
+		AA00011400000000000000140 /* SubscTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* SubscTypography.swift */; };
 		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
 		AA000111580000000000000158 /* CatArtworkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111580000000000000158 /* CatArtworkData.swift */; };
 		AA000111590000000000000159 /* CatPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111590000000000000159 /* CatPathParser.swift */; };
@@ -251,8 +251,8 @@
 		BB00011470000000000000147 /* DashboardView+Rows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Rows.swift"; sourceTree = "<group>"; };
 		BB00011460000000000000146 /* DashboardView+Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Collections.swift"; sourceTree = "<group>"; };
 		BB00011440000000000000144 /* RelativeDueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabel.swift; sourceTree = "<group>"; };
-		BB00011340000000000000134 /* BlackCatPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatPalette.swift; sourceTree = "<group>"; };
-		BB00011400000000000000140 /* BlackCatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackCatType.swift; sourceTree = "<group>"; };
+		BB00011340000000000000134 /* SubscPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscPalette.swift; sourceTree = "<group>"; };
+		BB00011400000000000000140 /* SubscTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscTypography.swift; sourceTree = "<group>"; };
 		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
 		BB000111580000000000000158 /* CatArtworkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArtworkData.swift; sourceTree = "<group>"; };
 		BB000111590000000000000159 /* CatPathParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParser.swift; sourceTree = "<group>"; };
@@ -430,8 +430,8 @@
 		DD0000220000000000000022 /* Design */ = {
 			isa = PBXGroup;
 			children = (
-				BB00011340000000000000134 /* BlackCatPalette.swift */,
-				BB00011400000000000000140 /* BlackCatType.swift */,
+				BB00011340000000000000134 /* SubscPalette.swift */,
+				BB00011400000000000000140 /* SubscTypography.swift */,
 				BB00011350000000000000135 /* CatArt.swift */,
 				BB000111580000000000000158 /* CatArtworkData.swift */,
 				BB000111590000000000000159 /* CatPathParser.swift */,
@@ -896,8 +896,8 @@
 				AA00011470000000000000147 /* DashboardView+Rows.swift in Sources */,
 				AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */,
 				AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */,
-				AA00011340000000000000134 /* BlackCatPalette.swift in Sources */,
-				AA00011400000000000000140 /* BlackCatType.swift in Sources */,
+				AA00011340000000000000134 /* SubscPalette.swift in Sources */,
+				AA00011400000000000000140 /* SubscTypography.swift in Sources */,
 				AA00011350000000000000135 /* CatArt.swift in Sources */,
 				AA000111580000000000000158 /* CatArtworkData.swift in Sources */,
 				AA000111590000000000000159 /* CatPathParser.swift in Sources */,

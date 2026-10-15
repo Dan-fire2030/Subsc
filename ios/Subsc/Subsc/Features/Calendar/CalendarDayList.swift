@@ -10,19 +10,19 @@ struct CalendarDayList: View {
     let onSelectUnentered: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: BlackCatSpacing.s) {
+        VStack(alignment: .leading, spacing: SubscSpacing.s) {
             if let day {
                 Text(headline(for: day))
-                    .font(BlackCatType.label)
-                    .foregroundStyle(BlackCatPalette.textMuted)
-                    .padding(.horizontal, BlackCatSpacing.xs)
+                    .font(SubscTypography.label)
+                    .foregroundStyle(SubscPalette.textMuted)
+                    .padding(.horizontal, SubscSpacing.xs)
 
                 if day.items.isEmpty {
                     Text("この日に出ていくお金はありません。")
                         .font(.body)
-                        .foregroundStyle(BlackCatPalette.textMuted)
-                        .padding(.vertical, BlackCatSpacing.m)
-                        .padding(.horizontal, BlackCatSpacing.xs)
+                        .foregroundStyle(SubscPalette.textMuted)
+                        .padding(.vertical, SubscSpacing.m)
+                        .padding(.horizontal, SubscSpacing.xs)
                 } else {
                     ForEach(day.items) { item in
                         row(for: item)
@@ -43,17 +43,17 @@ struct CalendarDayList: View {
 
     @ViewBuilder
     private func row(for item: CalendarDayItem) -> some View {
-        let content = HStack(spacing: BlackCatSpacing.m) {
+        let content = HStack(spacing: SubscSpacing.m) {
             Capsule(style: .continuous)
-                .fill(BlackCatPalette.harmonized(from: item.colorHex))
+                .fill(SubscPalette.harmonized(from: item.colorHex))
                 .frame(width: 4, height: 28)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(item.name)
-                        .font(BlackCatType.body)
-                        .foregroundStyle(BlackCatPalette.text)
+                        .font(SubscTypography.body)
+                        .foregroundStyle(SubscPalette.text)
                     if item.isPaused {
                         badge("停止中")
                     }
@@ -62,27 +62,27 @@ struct CalendarDayList: View {
                     }
                 }
                 Text(item.subtitle)
-                    .font(BlackCatType.label)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .font(SubscTypography.label)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
 
-            Spacer(minLength: BlackCatSpacing.s)
+            Spacer(minLength: SubscSpacing.s)
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text(item.amount, format: .currency(code: "JPY").precision(.fractionLength(0)))
-                    .font(BlackCatType.rowAmount)
+                    .font(SubscTypography.rowAmount)
                     .monospacedDigit()
-                    .foregroundStyle(BlackCatPalette.text)
+                    .foregroundStyle(SubscPalette.text)
                 if item.isEstimated {
                     // **断定しません。** 実績ではなく直近からの推定です。
                     Text("見込み")
-                        .font(BlackCatType.badge)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .font(SubscTypography.badge)
+                        .foregroundStyle(SubscPalette.textMuted)
                 }
             }
         }
-        .padding(.vertical, BlackCatSpacing.xs)
-        .padding(.horizontal, BlackCatSpacing.xs)
+        .padding(.vertical, SubscSpacing.xs)
+        .padding(.horizontal, SubscSpacing.xs)
         .contentShape(Rectangle())
 
         // **未入力の行だけ押せます。** 押して何も起きない行を混ぜると、
@@ -98,10 +98,10 @@ struct CalendarDayList: View {
 
     private func badge(_ text: String) -> some View {
         Text(text)
-            .font(BlackCatType.badge)
-            .foregroundStyle(BlackCatPalette.textMuted)
+            .font(SubscTypography.badge)
+            .foregroundStyle(SubscPalette.textMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(BlackCatPalette.surfaceElevated, in: Capsule())
+            .background(SubscPalette.surfaceElevated, in: Capsule())
     }
 }

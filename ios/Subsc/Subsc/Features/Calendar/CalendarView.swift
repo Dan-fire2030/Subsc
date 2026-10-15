@@ -59,7 +59,7 @@ struct CalendarView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: BlackCatSpacing.l) {
+                VStack(spacing: SubscSpacing.l) {
                     monthHeader
 
                     CalendarMonthGrid(
@@ -75,8 +75,8 @@ struct CalendarView: View {
 
                     CalendarDayList(day: selectedDay, onSelectUnentered: presentAmountEditor)
                 }
-                .padding(.horizontal, BlackCatSpacing.l)
-                .padding(.bottom, BlackCatSpacing.xxl)
+                .padding(.horizontal, SubscSpacing.l)
+                .padding(.bottom, SubscSpacing.xxl)
             }
             .liquidGlassScreen()
             .navigationTitle("カレンダー")
@@ -110,7 +110,7 @@ struct CalendarView: View {
     // MARK: - 月の見出しと移動
 
     private var monthHeader: some View {
-        HStack(spacing: BlackCatSpacing.s) {
+        HStack(spacing: SubscSpacing.s) {
             // **見出しそのものを押せるようにします（2026-08-11）。**
             // 矢印だけだと遠い月へ行くのに何度も押す必要がありました。
             // 押せることが見た目で分かるよう、山形を添えています。
@@ -119,11 +119,11 @@ struct CalendarView: View {
             } label: {
                 HStack(spacing: 4) {
                     Text(cursor.formatted(.dateTime.year().month()))
-                        .font(BlackCatType.title)
-                        .foregroundStyle(BlackCatPalette.text)
+                        .font(SubscTypography.title)
+                        .foregroundStyle(SubscPalette.text)
                     Image(systemName: "chevron.down")
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                 }
             }
             .buttonStyle(.plain)
@@ -133,8 +133,8 @@ struct CalendarView: View {
 
             if !isShowingCurrentMonth {
                 Button("今日") { goToToday() }
-                    .font(BlackCatType.label)
-                    .foregroundStyle(BlackCatPalette.accent)
+                    .font(SubscTypography.label)
+                    .foregroundStyle(SubscPalette.accent)
                     .frame(minHeight: 44)
             }
 
@@ -152,7 +152,7 @@ struct CalendarView: View {
             .frame(width: 44, height: 44)
             .accessibilityLabel("次の月")
         }
-        .foregroundStyle(BlackCatPalette.textMuted)
+        .foregroundStyle(SubscPalette.textMuted)
     }
 
     /// 横へ払って月を送ります。**縦の動きのほうが大きいときは無視します。**

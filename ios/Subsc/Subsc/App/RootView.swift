@@ -191,14 +191,14 @@ struct AppLiquidGlassBackground: View {
     /// **金目で固定します（2026-08-06）。** もとは「カードの色」設定から取っていましたが、
     /// カードに色を持たせる設定そのものを削除したため、選ぶ余地がなくなりました。
     /// 既定値がもともと金目だったので、色を変えていない利用者の見た目は変わりません。
-    private var glow: Color { BlackCatPalette.accent }
+    private var glow: Color { SubscPalette.accent }
 
     var body: some View {
         ZStack {
             // **地は黒猫の墨（ダーク）／白磁（ライト）です。**
             // OS標準のグループ背景より一段深く沈めることで、猫のシルエットと
             // カードの面が浮きます。操作部品のLiquid Glassはこの地の上で成立します。
-            BlackCatPalette.background
+            SubscPalette.background
 
             LinearGradient(
                 colors: [
@@ -230,7 +230,7 @@ struct GlassListRowBackground: View {
     var body: some View {
         Rectangle()
             // 浮いた面です。地との差だけで段差を作り、境界線も影も持ちません。
-            .fill(BlackCatPalette.surface)
+            .fill(SubscPalette.surface)
     }
 }
 

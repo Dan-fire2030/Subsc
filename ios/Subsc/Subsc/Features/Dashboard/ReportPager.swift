@@ -167,12 +167,12 @@ struct ReportPager: View {
         } else if !hasUsedReportPaging {
             if dynamicTypeSize.isAccessibilitySize {
                 Image(systemName: "hand.draw")
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .accessibilityHidden(true)
             } else {
                 Label("左右にスワイプ", systemImage: "hand.draw")
                     .font(.caption2.weight(.medium))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .accessibilityHidden(true)
             }
         }
@@ -193,7 +193,7 @@ struct ReportPager: View {
             .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
             .contentShape(.rect)
         }
-        .foregroundStyle(BlackCatPalette.text)
+        .foregroundStyle(SubscPalette.text)
         .modifier(ReportControlButtonModifier())
         .accessibilityLabel("今\(periodUnit)へ戻る")
     }
@@ -222,7 +222,7 @@ struct ReportPager: View {
                 .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 0 : 10)
                 .contentShape(.rect)
         }
-        .foregroundStyle(BlackCatPalette.text)
+        .foregroundStyle(SubscPalette.text)
         .modifier(ReportControlButtonModifier())
         .accessibilityLabel(title)
         .disabled(!canShift(by: shift))

@@ -85,7 +85,7 @@ struct DashboardView: View {
                         // **検索中は隠します。** 状態の絞り込みは検索中に外れるため
                         // （`effectiveStateFilter`）、出したままだと効いていない選択が残ります。
                         Section {
-                            VStack(alignment: .trailing, spacing: BlackCatSpacing.s) {
+                            VStack(alignment: .trailing, spacing: SubscSpacing.s) {
                                 // **セグメントからチップ列へ変えました（2026-08-11）。**
                                 // 「アーカイブ」を足して5段になり、幅が足りず省略されたためです。
                                 DashboardFilterChips(selection: $filter)
@@ -96,7 +96,7 @@ struct DashboardView: View {
                                 // **2つを別のボタンにしています（2026-08-11）。**
                                 // 1つのメニューに同居させると、いまどちらが効いているのかが
                                 // ボタンの見た目から読めませんでした。
-                                HStack(spacing: BlackCatSpacing.s) {
+                                HStack(spacing: SubscSpacing.s) {
                                     costTypeMenu
                                     sortMenu
                                 }

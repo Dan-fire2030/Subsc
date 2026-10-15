@@ -89,7 +89,7 @@ extension LoanFormView {
                     .multilineTextAlignment(.trailing)
                     .accessibilityIdentifier("loan-rate-field")
                     Text("％")
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                 }
             }
 
@@ -127,7 +127,7 @@ extension LoanFormView {
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: 80)
                 Text("％")
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
             .accessibilityLabel(
                 "\(change.effectiveFrom.formatted(.dateTime.year().month()))からの年利"
@@ -164,7 +164,7 @@ extension LoanFormView {
                     .multilineTextAlignment(.trailing)
                     Text("円以下なら")
                         .font(.caption)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                     TextField(
                         "15,000",
                         value: slidingTierMonthlyPayment(at: index),
@@ -174,7 +174,7 @@ extension LoanFormView {
                     .multilineTextAlignment(.trailing)
                     Text("円")
                         .font(.caption)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                 }
                 .accessibilityLabel(
                     "残高\(tier.upperBalance.formatted())円以下のときの毎月の返済額"
@@ -221,7 +221,7 @@ extension LoanFormView {
             if input.bonusAmount > 0 {
                 LabeledContent("上乗せする月") {
                     Text(bonusMonthsDescription)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .foregroundStyle(SubscPalette.textMuted)
                 }
                 monthPicker
             }
@@ -318,7 +318,7 @@ extension LoanFormView {
         LabeledContent(title) {
             HStack(spacing: 6) {
                 Text("¥")
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                 TextField(
                     placeholder,
                     value: value,
@@ -337,7 +337,7 @@ extension LoanFormView {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.trailing)
                 Text("回")
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
         }
     }

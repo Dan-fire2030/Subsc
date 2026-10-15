@@ -96,18 +96,18 @@ extension DashboardView {
             Image(systemName: "chevron.down")
                 .font(.caption2.weight(.semibold))
         }
-        .font(BlackCatType.label)
-        .foregroundStyle(isActive ? BlackCatPalette.text : BlackCatPalette.textMuted)
-        .padding(.horizontal, BlackCatSpacing.m)
-        .padding(.vertical, BlackCatSpacing.s)
+        .font(SubscTypography.label)
+        .foregroundStyle(isActive ? SubscPalette.text : SubscPalette.textMuted)
+        .padding(.horizontal, SubscSpacing.m)
+        .padding(.vertical, SubscSpacing.s)
         .background(
             Capsule(style: .continuous)
-                .fill(isActive ? BlackCatPalette.accent.opacity(0.18) : BlackCatPalette.surface)
+                .fill(isActive ? SubscPalette.accent.opacity(0.18) : SubscPalette.surface)
         )
         .overlay(
             Capsule(style: .continuous)
                 .stroke(
-                    isActive ? BlackCatPalette.accent : BlackCatPalette.border,
+                    isActive ? SubscPalette.accent : SubscPalette.border,
                     lineWidth: isActive ? 1.2 : 0.7
                 )
         )

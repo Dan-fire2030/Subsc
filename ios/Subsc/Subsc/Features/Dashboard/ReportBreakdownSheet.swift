@@ -27,9 +27,9 @@ struct ReportBreakdownSheet: View {
                 // 段の作り（3色の斜めグラデーション）はそのままに、色の出どころだけを揃えています。
                 LinearGradient(
                     colors: [
-                        BlackCatPalette.accent.opacity(0.32),
-                        BlackCatPalette.background,
-                        BlackCatPalette.surfaceElevated
+                        SubscPalette.accent.opacity(0.32),
+                        SubscPalette.background,
+                        SubscPalette.surfaceElevated
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -45,13 +45,13 @@ struct ReportBreakdownSheet: View {
                         VStack(alignment: .leading, spacing: 5) {
                             Text("合計")
                                 .font(.caption)
-                                .foregroundStyle(BlackCatPalette.textMuted)
+                                .foregroundStyle(SubscPalette.textMuted)
                             Text(
                                 total,
                                 format: .currency(code: "JPY").precision(.fractionLength(0))
                             )
                             .font(.system(.title, design: .rounded, weight: .bold))
-                            .foregroundStyle(BlackCatPalette.text)
+                            .foregroundStyle(SubscPalette.text)
                             .monospacedDigit()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,7 +62,7 @@ struct ReportBreakdownSheet: View {
                         )
                         .overlay {
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(BlackCatPalette.border, lineWidth: 0.8)
+                                .stroke(SubscPalette.border, lineWidth: 0.8)
                         }
 
                         ForEach(entries) { entry in
@@ -104,7 +104,7 @@ struct ReportBreakdownSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完了") { dismiss() }
                         .fontWeight(.semibold)
-                        .foregroundStyle(BlackCatPalette.text)
+                        .foregroundStyle(SubscPalette.text)
                 }
             }
             .sheet(item: $editingSubscription) { subscription in
@@ -151,14 +151,14 @@ private struct BreakdownRow: View {
                 .frame(width: 38, height: 38)
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(BlackCatPalette.border, lineWidth: 0.7)
+                        .stroke(SubscPalette.border, lineWidth: 0.7)
                 }
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 5) {
                     Text(entry.name)
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(BlackCatPalette.text)
+                        .foregroundStyle(SubscPalette.text)
                         .lineLimit(1)
 
                     if entry.isEstimated {
@@ -167,8 +167,8 @@ private struct BreakdownRow: View {
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(BlackCatPalette.surfaceElevated, in: Capsule())
-                            .foregroundStyle(BlackCatPalette.text)
+                            .background(SubscPalette.surfaceElevated, in: Capsule())
+                            .foregroundStyle(SubscPalette.text)
                     }
                 }
 
@@ -177,7 +177,7 @@ private struct BreakdownRow: View {
                     format: .percent.precision(.fractionLength(1))
                 )
                 .font(.caption)
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .foregroundStyle(SubscPalette.textMuted)
             }
 
             Spacer(minLength: 8)
@@ -187,13 +187,13 @@ private struct BreakdownRow: View {
                 format: .currency(code: "JPY").precision(.fractionLength(0))
             )
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(BlackCatPalette.text)
+            .foregroundStyle(SubscPalette.text)
             .monospacedDigit()
 
             if isEditable {
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .accessibilityHidden(true)
             }
         }
@@ -204,7 +204,7 @@ private struct BreakdownRow: View {
         )
         .overlay {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(BlackCatPalette.border, lineWidth: 0.7)
+                .stroke(SubscPalette.border, lineWidth: 0.7)
         }
         .accessibilityElement(children: .combine)
     }

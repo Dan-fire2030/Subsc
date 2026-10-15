@@ -31,7 +31,7 @@ struct DashboardFilterChips: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: BlackCatSpacing.s) {
+                HStack(spacing: SubscSpacing.s) {
                     ForEach(SubscriptionFilter.allCases) { filter in
                         chip(filter).id(filter)
                     }
@@ -76,22 +76,22 @@ struct DashboardFilterChips: View {
             selection = filter
         } label: {
             Text(filter.rawValue)
-                .font(BlackCatType.label)
-                .foregroundStyle(isSelected ? BlackCatPalette.text : BlackCatPalette.textMuted)
-                .padding(.horizontal, BlackCatSpacing.m)
-                .padding(.vertical, BlackCatSpacing.s)
+                .font(SubscTypography.label)
+                .foregroundStyle(isSelected ? SubscPalette.text : SubscPalette.textMuted)
+                .padding(.horizontal, SubscSpacing.m)
+                .padding(.vertical, SubscSpacing.s)
                 .background(
                     Capsule(style: .continuous)
                         .fill(
                             isSelected
-                                ? BlackCatPalette.accent.opacity(0.18)
-                                : BlackCatPalette.surface
+                                ? SubscPalette.accent.opacity(0.18)
+                                : SubscPalette.surface
                         )
                 )
                 .overlay(
                     Capsule(style: .continuous)
                         .stroke(
-                            isSelected ? BlackCatPalette.accent : BlackCatPalette.border,
+                            isSelected ? SubscPalette.accent : SubscPalette.border,
                             lineWidth: isSelected ? 1.2 : 0.7
                         )
                 )

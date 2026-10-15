@@ -69,7 +69,7 @@ struct ReportChartStylePickerView: View {
 
     /// カードと同じ下地の上に描き、実際の見え方に近づけます。
     private func preview(for style: ReportChartStyle) -> some View {
-        ChartStyleThumbnail(style: style, colors: BlackCatPalette.Category.fallbackOrder)
+        ChartStyleThumbnail(style: style, colors: SubscPalette.Category.fallbackOrder)
             .frame(height: Layout.previewHeight)
             .frame(maxWidth: .infinity)
             .background {
@@ -77,7 +77,7 @@ struct ReportChartStylePickerView: View {
                 // テーマ色のグラデーションで塗っていた頃は、見本と実物の地の色が違い、
                 // 選んだあとに「思っていたのと違う」が起きていました。
                 RoundedRectangle(cornerRadius: Layout.previewCornerRadius, style: .continuous)
-                    .fill(BlackCatPalette.surfaceElevated)
+                    .fill(SubscPalette.surfaceElevated)
             }
             .clipShape(
                 RoundedRectangle(cornerRadius: Layout.previewCornerRadius, style: .continuous)
@@ -106,10 +106,10 @@ private struct ChartStyleThumbnail: View {
         /// 色は費目種別ではなくパレットから直に取ります。見本は「どんな形か」を
         /// 伝えるためのもので、特定の費目種別を表しているわけではありません。
         static let slices: [Slice] = [
-            Slice(fraction: 0.46, color: BlackCatPalette.Category.watch),
-            Slice(fraction: 0.26, color: BlackCatPalette.Category.listen),
-            Slice(fraction: 0.18, color: BlackCatPalette.Category.read),
-            Slice(fraction: 0.10, color: BlackCatPalette.Category.work)
+            Slice(fraction: 0.46, color: SubscPalette.Category.watch),
+            Slice(fraction: 0.26, color: SubscPalette.Category.listen),
+            Slice(fraction: 0.18, color: SubscPalette.Category.read),
+            Slice(fraction: 0.10, color: SubscPalette.Category.work)
         ]
 
         /// バブルだけは大きさと位置を1つずつ決めるので、その並びも一緒に持ちます。
@@ -184,7 +184,7 @@ private struct ChartStyleThumbnail: View {
                     .frame(width: 12, height: 46 * slice.fraction + 8)
             }
             Capsule(style: .continuous)
-                .fill(BlackCatPalette.chartTrack)
+                .fill(SubscPalette.chartTrack)
                 .frame(width: 12, height: 12)
         }
         .frame(maxWidth: .infinity, alignment: .center)

@@ -56,17 +56,17 @@ struct ReportCard: View {
             // **縁は持ちません（2026-08-06）。** ホームは線を引かない方針で、
             // ここだけ輪郭があると期間の切り替えが「囲われた別の部品」に見えます。
             // 下地の沈んだ面だけで、触れる範囲は十分に伝わります。
-            .background(BlackCatPalette.surfaceElevated, in: Capsule(style: .continuous))
+            .background(SubscPalette.surfaceElevated, in: Capsule(style: .continuous))
             .accessibilityLabel("レポート期間")
 
             if costTypeFilter.isNarrowed {
                 let costTypeTitle = costTypeFilter.title
                 Label(costTypeTitle, systemImage: "line.3.horizontal.decrease")
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(BlackCatPalette.surfaceElevated, in: Capsule())
+                    .background(SubscPalette.surfaceElevated, in: Capsule())
                     .accessibilityLabel("\(costTypeTitle)だけを集計しています")
             }
 

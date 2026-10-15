@@ -89,7 +89,7 @@ struct LoanScheduleRow: View {
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(BlackCatPalette.surfaceElevated, in: Capsule())
+                        .background(SubscPalette.surfaceElevated, in: Capsule())
                 }
                 Spacer()
                 Text(

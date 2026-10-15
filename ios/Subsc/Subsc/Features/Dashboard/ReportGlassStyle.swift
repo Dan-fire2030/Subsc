@@ -22,7 +22,7 @@ struct ReportCardSurfaceModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
-                BlackCatPalette.surface,
+                SubscPalette.surface,
                 in: RoundedRectangle(cornerRadius: 26, style: .continuous)
             )
     }
@@ -37,7 +37,7 @@ struct ReportInnerSurface: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(BlackCatPalette.surfaceElevated)
+            .fill(SubscPalette.surfaceElevated)
     }
 }
 
@@ -111,5 +111,5 @@ struct ReportChartShape<S: Shape>: View {
 // **`LiquidGlassCardBackground` は削除しました（2026-08-05）。**
 //
 // テーマ色のグラデーションでレポートカードを塗るための背景でしたが、
-// カードを「面」の表現（`BlackCatPalette.surface`）へ変えたことで使い道が無くなりました。
+// カードを「面」の表現（`SubscPalette.surface`）へ変えたことで使い道が無くなりました。
 // テーマ色は画面全体のうっすらとした光（`AppLiquidGlassBackground`）に残っています。

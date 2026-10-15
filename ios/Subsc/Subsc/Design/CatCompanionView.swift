@@ -20,9 +20,9 @@ struct CatCompanionView: View {
             CatArt.draw(
                 mood: mood,
                 in: &context,
-                cat: BlackCatPalette.cat,
-                eye: BlackCatPalette.catEye,
-                halo: colorScheme == .dark ? BlackCatPalette.catHalo : nil
+                cat: SubscPalette.cat,
+                eye: SubscPalette.catEye,
+                halo: colorScheme == .dark ? SubscPalette.catHalo : nil
             )
         }
         .aspectRatio(1, contentMode: .fit)
@@ -54,15 +54,15 @@ private struct CatMoodGallery: View {
                             .frame(width: 110, height: 110)
                         Text(mood.title)
                             .font(.caption2)
-                            .foregroundStyle(BlackCatPalette.textMuted)
+                            .foregroundStyle(SubscPalette.textMuted)
                             .multilineTextAlignment(.center)
                     }
                     .padding(10)
-                    .background(BlackCatPalette.surface, in: RoundedRectangle(cornerRadius: 20))
+                    .background(SubscPalette.surface, in: RoundedRectangle(cornerRadius: 20))
                 }
             }
             .padding(16)
         }
-        .background(BlackCatPalette.background)
+        .background(SubscPalette.background)
     }
 }

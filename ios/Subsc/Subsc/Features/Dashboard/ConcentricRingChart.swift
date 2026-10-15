@@ -86,7 +86,7 @@ struct ConcentricRingChart: View {
                 // 下地です。白の重ねではなく `chartTrack` を使うのは、白磁の地でも
                 // 同じ濃さで沈ませるためです（白を重ねると明るい地では輪が消えます）。
                 Circle()
-                    .stroke(BlackCatPalette.chartTrack, lineWidth: Layout.ringWidth)
+                    .stroke(SubscPalette.chartTrack, lineWidth: Layout.ringWidth)
                     .padding(inset)
 
                 // **単色のフラット塗りです（2026-08-06）。**
@@ -122,7 +122,7 @@ struct ConcentricRingChart: View {
             if items.count > visibleItems.count {
                 Text("ほか\(items.count - visibleItems.count)件")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .accessibilityLabel("ほか\(items.count - visibleItems.count)件。詳細で確認できます")
             }
         }
@@ -168,7 +168,7 @@ private struct ConcentricRingLegendItem: View {
                     .font(.caption2)
                     .monospacedDigit()
             }
-            .foregroundStyle(BlackCatPalette.text)
+            .foregroundStyle(SubscPalette.text)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.isEstimated ? "\(item.name)、見込み" : item.name)

@@ -29,29 +29,29 @@ struct SubscriptionRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(subscription.name)
-                        .font(BlackCatType.body)
+                        .font(SubscTypography.body)
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     if subscription.state == .paused {
                         Text("停止中")
-                            .font(BlackCatType.badge)
-                            .foregroundStyle(BlackCatPalette.textMuted)
+                            .font(SubscTypography.badge)
+                            .foregroundStyle(SubscPalette.textMuted)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(BlackCatPalette.surfaceElevated, in: Capsule())
+                            .background(SubscPalette.surfaceElevated, in: Capsule())
                     }
                 }
                 metadataLayout {
                     CategoryBadge(title: subscription.category, color: subscription.color)
                     Text("\(subscription.renewalDate.formatted(.dateTime.month().day()))更新")
-                        .font(BlackCatType.label)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .font(SubscTypography.label)
+                        .foregroundStyle(SubscPalette.textMuted)
                         .lineLimit(1)
                 }
 
                 if !subscription.notes.isEmpty {
                     Text(subscription.notes)
-                        .font(BlackCatType.label)
-                        .foregroundStyle(BlackCatPalette.textMuted)
+                        .font(SubscTypography.label)
+                        .foregroundStyle(SubscPalette.textMuted)
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
@@ -73,11 +73,11 @@ struct SubscriptionRow: View {
                         : subscription.monthlyYen,
                     format: .currency(code: "JPY").precision(.fractionLength(0))
                 )
-                .font(BlackCatType.rowAmount)
+                .font(SubscTypography.rowAmount)
                 .monospacedDigit()
                 Text(subscription.billingCycle == .yearly ? "年額" : "月額")
-                    .font(BlackCatType.badge)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .font(SubscTypography.badge)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
         }
         .padding(.vertical, 3)
@@ -103,8 +103,8 @@ private struct CategoryBadge: View {
                 .fill(color)
                 .frame(width: dotSize, height: dotSize)
             Text(title)
-                .font(BlackCatType.badge)
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .font(SubscTypography.badge)
+                .foregroundStyle(SubscPalette.textMuted)
                 .lineLimit(1)
         }
         .padding(.horizontal, 7)
@@ -112,6 +112,6 @@ private struct CategoryBadge: View {
         // **下地は `surfaceElevated` です（2026-08-06）。**
         // `.quaternary` はモードに関わらず灰色を重ねるため、白磁の地（ライト）では
         // 一覧に灰色の小箱が並んで見えていました。地に馴染む沈んだ面へ揃えます。
-        .background(BlackCatPalette.surfaceElevated, in: Capsule())
+        .background(SubscPalette.surfaceElevated, in: Capsule())
     }
 }

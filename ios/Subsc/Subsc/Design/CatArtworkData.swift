@@ -10,7 +10,7 @@ import SwiftUI
 /// ヒゲが顔から飛び出す／頭と胴がつながらない）。
 ///
 /// **色は持ちません。** 元のSVGの塗り分けを `CatInk` として残すだけで、実際の色は
-/// 描画時に `BlackCatPalette` から渡します。ライトとダークへの追従を保つためです。
+/// 描画時に `SubscPalette` から渡します。ライトとダークへの追従を保つためです。
 ///
 /// 座標系は `CatArt.canvasSize`（210）四方です。耳や尻尾の逃げ場を含みます。
 enum CatArtworkData {

@@ -92,12 +92,12 @@ extension DashboardView {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.name)
-                    .font(BlackCatType.body)
-                    .foregroundStyle(BlackCatPalette.text)
+                    .font(SubscTypography.body)
+                    .foregroundStyle(SubscPalette.text)
 
                 Text(remainingDescription(remaining))
-                    .font(BlackCatType.label)
-                    .foregroundStyle(isSoon ? BlackCatPalette.caution : BlackCatPalette.textMuted)
+                    .font(SubscTypography.label)
+                    .foregroundStyle(isSoon ? SubscPalette.caution : SubscPalette.textMuted)
             }
 
             Spacer(minLength: 8)

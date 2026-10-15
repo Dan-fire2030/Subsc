@@ -17,12 +17,12 @@ struct CalendarDisplayToggle: View {
                 "金額",
                 systemImage: showsAmounts ? "yensign.circle.fill" : "yensign.circle"
             )
-            .font(BlackCatType.label)
+            .font(SubscTypography.label)
             .labelStyle(.titleAndIcon)
-            .padding(.horizontal, BlackCatSpacing.m)
-            .padding(.vertical, BlackCatSpacing.xs)
+            .padding(.horizontal, SubscSpacing.m)
+            .padding(.vertical, SubscSpacing.xs)
         }
-        .foregroundStyle(showsAmounts ? BlackCatPalette.accent : BlackCatPalette.textMuted)
+        .foregroundStyle(showsAmounts ? SubscPalette.accent : SubscPalette.textMuted)
         .modifier(GlassPillModifier())
         // 見た目が小さくても、触れる大きさは指のサイズを守ります。
         .frame(minWidth: 44, minHeight: 44)
@@ -42,7 +42,7 @@ private struct GlassPillModifier: ViewModifier {
             content
                 .background(.ultraThinMaterial, in: Capsule())
                 .overlay {
-                    Capsule().stroke(BlackCatPalette.border, lineWidth: 0.75)
+                    Capsule().stroke(SubscPalette.border, lineWidth: 0.75)
                 }
         }
     }

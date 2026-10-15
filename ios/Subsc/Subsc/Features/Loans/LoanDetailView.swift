@@ -148,7 +148,7 @@ struct LoanDetailView: View {
                         Text("・")
                         Text(loan.method.title)
                     }
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                 }
             }
             .padding(.vertical, 6)
@@ -172,7 +172,7 @@ struct LoanDetailView: View {
                     .tint(accentColor)
                 Text(progressDescription)
                     .font(.caption)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
             .padding(.vertical, 2)
             .accessibilityElement(children: .combine)
@@ -187,7 +187,7 @@ struct LoanDetailView: View {
                         .monospacedDigit()
                         Text(nextDueDate, format: .dateTime.year().month().day())
                             .font(.caption)
-                            .foregroundStyle(BlackCatPalette.textMuted)
+                            .foregroundStyle(SubscPalette.textMuted)
                     }
                 }
             }

@@ -51,7 +51,7 @@ struct StackedBarChart: View {
                         if hiddenCount > 0 {
                             Text("ほか\(hiddenCount)件")
                                 .font(.caption2.weight(.semibold))
-                                .foregroundStyle(BlackCatPalette.textMuted)
+                                .foregroundStyle(SubscPalette.textMuted)
                                 .accessibilityLabel("ほか\(hiddenCount)件。詳細で確認できます")
                         }
                     }
@@ -155,7 +155,7 @@ private struct StackedBarLegendItem: View {
                 .monospacedDigit()
         }
         .font(.caption2.weight(.semibold))
-        .foregroundStyle(BlackCatPalette.text)
+        .foregroundStyle(SubscPalette.text)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.isEstimated ? "\(item.name)、見込み" : item.name)
         .accessibilityValue(accessibilityValue)

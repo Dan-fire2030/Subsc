@@ -28,7 +28,7 @@ struct CalendarMonthGrid: View {
             LazyVGrid(columns: columns, spacing: 2) {
                 ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { index, symbol in
                     Text(symbol)
-                        .font(BlackCatType.badge)
+                        .font(SubscTypography.badge)
                         .foregroundStyle(weekdayColor(at: index))
                 }
             }
@@ -53,9 +53,9 @@ struct CalendarMonthGrid: View {
     private func weekdayColor(at index: Int) -> Color {
         let weekday = (calendar.firstWeekday - 1 + index) % 7
         switch weekday {
-        case 0: return BlackCatPalette.Category.living
-        case 6: return BlackCatPalette.Category.watch
-        default: return BlackCatPalette.textMuted
+        case 0: return SubscPalette.Category.living
+        case 6: return SubscPalette.Category.watch
+        default: return SubscPalette.textMuted
         }
     }
 }
@@ -73,8 +73,8 @@ private struct CalendarDayCell: View {
     var body: some View {
         VStack(spacing: 3) {
             Text(day.date.formatted(.dateTime.day()))
-                .font(BlackCatType.label)
-                .foregroundStyle(day.isToday ? BlackCatPalette.accent : BlackCatPalette.text)
+                .font(SubscTypography.label)
+                .foregroundStyle(day.isToday ? SubscPalette.accent : SubscPalette.text)
                 .fontWeight(day.isToday ? .bold : .regular)
 
             dots
@@ -90,12 +90,12 @@ private struct CalendarDayCell: View {
         .frame(height: height)
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(isSelected ? BlackCatPalette.surface : .clear)
+                .fill(isSelected ? SubscPalette.surface : .clear)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(
-                    day.isToday ? BlackCatPalette.accent.opacity(0.55) : .clear,
+                    day.isToday ? SubscPalette.accent.opacity(0.55) : .clear,
                     lineWidth: 1.5
                 )
         }
@@ -112,14 +112,14 @@ private struct CalendarDayCell: View {
                 Circle()
                     .strokeBorder(
                         // 未入力は塗らずに輪で描き、色の意味は保ちます。
-                        item.isUnentered ? BlackCatPalette.harmonized(from: item.colorHex) : .clear,
+                        item.isUnentered ? SubscPalette.harmonized(from: item.colorHex) : .clear,
                         lineWidth: 1.5
                     )
                     .background {
                         Circle().fill(
                             item.isUnentered
                                 ? .clear
-                                : BlackCatPalette.harmonized(from: item.colorHex)
+                                : SubscPalette.harmonized(from: item.colorHex)
                         )
                     }
                     .frame(width: 5, height: 5)
@@ -127,7 +127,7 @@ private struct CalendarDayCell: View {
             if day.hiddenItemCount > 0 {
                 Text("+\(day.hiddenItemCount)")
                     .font(.system(size: 8))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
         }
         .frame(height: 6)
@@ -140,22 +140,22 @@ private struct CalendarDayCell: View {
                 Text(day.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
                     .font(.system(size: 9))
                     .monospacedDigit()
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             } else if day.items.contains(where: \.isUnentered) {
                 Text("未入力")
                     .font(.system(size: 9))
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
 
             if day.showsCountBadge {
                 Text("\(day.items.count)件")
                     .font(.system(size: 8))
                     .monospacedDigit()
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .padding(.horizontal, 4)
-                    .background(BlackCatPalette.surfaceElevated, in: Capsule())
+                    .background(SubscPalette.surfaceElevated, in: Capsule())
             }
         }
     }

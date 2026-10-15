@@ -32,7 +32,7 @@ struct DashboardEmptyState: View {
                         : "料金と更新日を登録すると、毎月の利用コストと次回更新をひと目で確認できます。"
                 )
                     .font(.body)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -61,7 +61,7 @@ struct DashboardEmptyState: View {
         .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 22 : 30)
         // カードは操作部品ではないので、ここもマットの面にします。
         .background(
-            BlackCatPalette.surface,
+            SubscPalette.surface,
             in: RoundedRectangle(cornerRadius: 26, style: .continuous)
         )
     }

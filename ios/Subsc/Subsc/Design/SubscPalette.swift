@@ -9,7 +9,7 @@ import UIKit
 /// **ここにあるのは「地・カード・文字・グラフ・猫」のための色だけです。**
 /// ボタン・ツールバー・検索といった操作部品はiOSのLiquid Glassを素のまま使い、
 /// 色を指定しません（自作すると「押せるもの」の手がかりが弱まり、OSの更新にも追従できなくなります）。
-enum BlackCatPalette {
+enum SubscPalette {
     // MARK: - 地とカード
 
     /// 画面の地です。
@@ -111,7 +111,7 @@ enum BlackCatPalette {
     }
 }
 
-extension BlackCatPalette {
+extension SubscPalette {
     /// 色相で寄せられない色の行き先です。無彩色や壊れた保存値がここへ来ます。
     static let harmonizedFallbackHex = "#8FA8C4"
 
@@ -166,7 +166,7 @@ extension BlackCatPalette {
     }
 }
 
-extension BlackCatPalette.Category {
+extension SubscPalette.Category {
     /// カテゴリ色の一覧です。**金目（アクセント）は含みません。**
     static let hexes = ["#7FB3D5", "#9B8FD9", "#7FC8A9", "#E0A66B", "#D98FA6", "#C4B37F", "#8FA8C4"]
 
@@ -175,5 +175,5 @@ extension BlackCatPalette.Category {
     /// 鈍色は借入・ローンの色で、色相が青（`#007AFF`）とほとんど同じです。
     /// 残したままにすると、青で保存された費目が借入と同じ色で並び、
     /// **一覧で費目と借入を見分けられなくなります**。鈍色は無彩色の逃げ場としてだけ使います。
-    static let hueTargets = hexes.filter { $0 != BlackCatPalette.harmonizedFallbackHex }
+    static let hueTargets = hexes.filter { $0 != SubscPalette.harmonizedFallbackHex }
 }

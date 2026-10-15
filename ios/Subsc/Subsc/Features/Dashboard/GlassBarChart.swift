@@ -39,7 +39,7 @@ struct GlassBarChart: View {
                             .font(.system(size: 9, weight: .bold))
                     }
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(BlackCatPalette.text)
+                    .foregroundStyle(SubscPalette.text)
                     .padding(.horizontal, 11)
                     .padding(.vertical, 5)
                     .modifier(CompactGlassCapsuleModifier())
@@ -81,7 +81,7 @@ private struct GlassBarRow: View {
             layout {
                 Text(entry.name)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(BlackCatPalette.text)
+                    .foregroundStyle(SubscPalette.text)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
 
                 if !dynamicTypeSize.isAccessibilitySize {
@@ -93,7 +93,7 @@ private struct GlassBarRow: View {
                     format: .currency(code: "JPY").precision(.fractionLength(0))
                 )
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(BlackCatPalette.text)
+                .foregroundStyle(SubscPalette.text)
                 .monospacedDigit()
             }
 
@@ -103,7 +103,7 @@ private struct GlassBarRow: View {
                     // 白の重ねではなく `chartTrack` を使うのは、白磁の地でも同じ濃さで
                     // 沈ませるためです（白を重ねると明るい地では下地が消えます）。
                     Capsule(style: .continuous)
-                        .fill(BlackCatPalette.chartTrack)
+                        .fill(SubscPalette.chartTrack)
 
                     // **単色のフラット塗りです（2026-08-06）。**
                     // 以前は伸びる先を白へ飛ばして向きを示していましたが、淡いカテゴリ色ほど

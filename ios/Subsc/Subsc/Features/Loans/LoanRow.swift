@@ -37,7 +37,7 @@ struct LoanRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(loan.name)
-                        .font(BlackCatType.body)
+                        .font(SubscTypography.body)
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                     if summary.isCompleted {
                         StatusBadge(title: "完済")
@@ -57,19 +57,19 @@ struct LoanRow: View {
                     } else if let nextDueDate = summary.nextDueDate {
                         Text("\(nextDueDate.formatted(.dateTime.month().day()))返済")
                             .font(.caption)
-                            .foregroundStyle(BlackCatPalette.textMuted)
+                            .foregroundStyle(SubscPalette.textMuted)
                             .lineLimit(1)
                     } else if !summary.isCompleted {
                         Text("返済予定が未設定")
                             .font(.caption)
-                            .foregroundStyle(BlackCatPalette.textMuted)
+                            .foregroundStyle(SubscPalette.textMuted)
                             .lineLimit(1)
                     }
                 }
 
                 Text("残高 \(summary.currentBalance.formatted(.currency(code: "JPY").precision(.fractionLength(0))))")
                     .font(.caption)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
                     .monospacedDigit()
                     .lineLimit(1)
             }
@@ -87,7 +87,7 @@ struct LoanRow: View {
                     .monospacedDigit()
                 Text("次回返済")
                     .font(.caption2)
-                    .foregroundStyle(BlackCatPalette.textMuted)
+                    .foregroundStyle(SubscPalette.textMuted)
             }
         }
         .padding(.vertical, 3)
@@ -104,10 +104,10 @@ private struct StatusBadge: View {
     var body: some View {
         Text(title)
             .font(.caption2.weight(.semibold))
-            .foregroundStyle(BlackCatPalette.textMuted)
+            .foregroundStyle(SubscPalette.textMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(BlackCatPalette.surfaceElevated, in: Capsule())
+            .background(SubscPalette.surfaceElevated, in: Capsule())
     }
 }
 
@@ -126,11 +126,11 @@ private struct LoanMethodBadge: View {
                 .frame(width: dotSize, height: dotSize)
             Text(title)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(BlackCatPalette.textMuted)
+                .foregroundStyle(SubscPalette.textMuted)
                 .lineLimit(1)
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(BlackCatPalette.surfaceElevated, in: Capsule())
+        .background(SubscPalette.surfaceElevated, in: Capsule())
     }
 }

@@ -27,5 +27,5 @@ struct CatCompanionRow: View {
         }
     }
     .padding()
-    .background(BlackCatPalette.background)
+    .background(SubscPalette.background)
 }
