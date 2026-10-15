@@ -3,60 +3,91 @@ import UIKit
 import XCTest
 @testable import Subsc
 
-/// 保存済みの費目色を、表示のときだけ黒猫のパレットへ寄せる変換です。
+/// 保存済みの費目色を、表示のときだけパステルの7色へ寄せる変換です。
 final class HarmonizedColorTests: XCTestCase {
-    /// 旧プリセット（iOS標準色）で保存された費目が、対応する黒猫の色で表示されます。
-    func testLegacyPresetsMapToTheirBlackCatCounterparts() {
+    /// 旧プリセット（iOS標準色）で保存された費目が、対応するパステルで表示されます。
+    ///
+    /// **色相の近さに任せず、対応表で決めています。** オレンジ（`#FF9F0A`）は色相だけなら
+    /// バターに近く、利用者が「オレンジ」と選んだものが黄色で出てしまうためです。
+    func testLegacyIOSPresetsMapToTheirPastelCounterparts() {
         let expected: [(legacy: String, harmonized: String)] = [
-            ("#007AFF", "#7FB3D5"),  // ブルー → 藍
-            ("#34C759", "#7FC8A9"),  // グリーン → 若草
-            ("#FF375F", "#D98FA6"),  // ピンク → 撫子
-            ("#AF52DE", "#9B8FD9"),  // パープル → 菫
-            ("#FF9F0A", "#E0A66B")   // オレンジ → 琥珀
+            ("#007AFF", "#9CC8FF"),  // ブルー → スカイ
+            ("#34C759", "#8FDDB8"),  // グリーン → ミント
+            ("#FF375F", "#F7A8C4"),  // ピンク → ローズ
+            ("#AF52DE", "#B9A6FF"),  // パープル → ラベンダー
+            ("#FF9F0A", "#FFB696")   // オレンジ → ピーチ
         ]
-
-        for (legacy, harmonized) in expected {
-            XCTAssertEqual(
-                SubscPalette.harmonizedHex(from: legacy),
-                harmonized,
-                "\(legacy) の寄せ先が想定と違います"
-            )
-        }
+        assertMapping(expected)
     }
 
-    /// **すでに黒猫のパレットの色は、そのままの色で表示されます。**
+    /// 黒猫のパレット（2026-08-05〜2026-10-15）で保存された色も、意図した相手へ寄ります。
+    func testLegacyBlackCatColorsMapToTheirPastelCounterparts() {
+        let expected: [(legacy: String, harmonized: String)] = [
+            ("#7FB3D5", "#9CC8FF"),  // 藍 → スカイ
+            ("#9B8FD9", "#B9A6FF"),  // 菫 → ラベンダー
+            ("#7FC8A9", "#8FDDB8"),  // 若草 → ミント
+            ("#E0A66B", "#FFB696"),  // 琥珀 → ピーチ
+            ("#D98FA6", "#F7A8C4"),  // 撫子 → ローズ
+            ("#C4B37F", "#FFD966"),  // 黄土（通信費） → バター
+            ("#8FA8C4", "#B9B4C9"),  // 鈍色（借入） → ミスト
+            ("#D9A43C", "#FFD966")   // 金目 → バター
+        ]
+        assertMapping(expected)
+    }
+
+    /// **すでにパステルの色は、そのままの色で表示されます。**
     /// 変換で微妙にずれると、選んだ色と表示が食い違います。
-    func testBlackCatColorsAreLeftUntouched() {
-        for color in ["#7FB3D5", "#9B8FD9", "#7FC8A9", "#E0A66B", "#D98FA6", "#C4B37F", "#8FA8C4"] {
+    func testPastelColorsAreLeftUntouched() {
+        for color in SubscPalette.Category.hexes {
             XCTAssertEqual(SubscPalette.harmonizedHex(from: color), color)
         }
     }
 
-    /// **金目（アクセント）へは寄せません。** 金は予告や現在地といった一点のための色で、
-    /// 費目に使うと「大事な一点」の意味が薄れます。
-    func testNothingMapsToTheGoldAccent() {
-        let goldish = ["#FFD60A", "#D9A43C", "#FFCC00", "#E8B44A"]
-        for hex in goldish {
-            XCTAssertNotEqual(SubscPalette.harmonizedHex(from: hex), "#D9A43C")
-        }
+    /// 対応表は大文字小文字や `#` の有無に左右されません。
+    func testLegacyLookupIgnoresNotation() {
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "007aff"), "#9CC8FF")
     }
 
-    /// 彩度の無い色（白・黒・灰）は色相で寄せられません。鈍色へ倒します。
-    func testAchromaticColorsFallBackToSteel() {
+    /// 彩度の無い色（白・黒・灰）は色相で寄せられません。ミストへ倒します。
+    func testAchromaticColorsFallBackToMist() {
         for hex in ["#FFFFFF", "#000000", "#8E8E93"] {
-            XCTAssertEqual(SubscPalette.harmonizedHex(from: hex), "#8FA8C4")
+            XCTAssertEqual(SubscPalette.harmonizedHex(from: hex), "#B9B4C9")
         }
     }
 
-    /// 解釈できない保存値でも落ちず、鈍色で表示します。
-    func testInvalidHexFallsBackToSteel() {
-        XCTAssertEqual(SubscPalette.harmonizedHex(from: "ぬるぬる"), "#8FA8C4")
+    /// 解釈できない保存値でも落ちず、ミストで表示します。
+    func testInvalidHexFallsBackToMist() {
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "ぬるぬる"), "#B9B4C9")
     }
 
-    /// 色相が近い順に寄るので、赤系は撫子、青系は藍になります。
-    func testHuesMapToTheNearestCategoryColor() {
-        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#FF0000"), "#D98FA6")
-        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#0000FF"), "#9B8FD9")
+    /// 対応表に無い色は、色相が近いパステルへ寄ります（ブランド色など）。
+    func testOtherHuesMapToTheNearestPastel() {
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#0000FF"), "#B9A6FF")
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#00FF00"), "#8FDDB8")
+        XCTAssertEqual(SubscPalette.harmonizedHex(from: "#FFFF00"), "#FFD966")
+    }
+
+    /// **色のある費目はミストへ寄りません。** ミストは借入の色なので、紛れると見分けられません。
+    func testChromaticColorsNeverMapToMist() {
+        for hex in ["#5A7FA8", "#E50914", "#1DB954", "#A259FF", "#00A0E9"] {
+            XCTAssertNotEqual(SubscPalette.harmonizedHex(from: hex), "#B9B4C9", "\(hex) がミストに寄りました")
+        }
+    }
+
+    private func assertMapping(
+        _ expected: [(legacy: String, harmonized: String)],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for (legacy, harmonized) in expected {
+            XCTAssertEqual(
+                SubscPalette.harmonizedHex(from: legacy),
+                harmonized,
+                "\(legacy) の寄せ先が想定と違います",
+                file: file,
+                line: line
+            )
+        }
     }
 }
 
@@ -158,10 +189,10 @@ final class BlackCatContrastTests: XCTestCase {
 /// **2026-08-11まで、内訳シートだけが保存値の色で描いていました。**
 /// 同じ費目がグラフと内訳で違う色に見え、この画面だけ配色から浮いていました。
 final class ReportBreakdownColorTests: XCTestCase {
-    /// 旧プリセットで保存された費目は、内訳シートでも黒猫の色になります。
+    /// 旧プリセットで保存された費目は、内訳シートでもパステルになります。
     func testBreakdownUsesTheHarmonizedColor() {
-        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#007AFF"), "#7FB3D5")
-        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#34C759"), "#7FC8A9")
+        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#007AFF"), "#9CC8FF")
+        XCTAssertEqual(ReportChartPalette.breakdownBaseHex(for: "#34C759"), "#8FDDB8")
     }
 
     /// **保存値をそのまま使っていないこと**を明示的に縛ります。

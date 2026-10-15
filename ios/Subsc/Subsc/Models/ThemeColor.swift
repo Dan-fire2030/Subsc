@@ -20,6 +20,25 @@ enum ThemeColor {
             brightness: Constants.quantizedMinimumButtonBrightness
         ))
     }
+
+    /// ダークモードで使うテーマ色です。**色相を保ったまま、明るく淡くします。**
+    ///
+    /// テーマ色の選択肢は白地で文字として読める濃さにしてあり（2026-10-15）、
+    /// そのままでは墨の地に沈みます。暗い地の上では「同じ色の明るい版」を出すことで、
+    /// 利用者が選んだ色の印象を保ちつつ読めるようにします。
+    static func darkButtonTint(from hex: String) -> String {
+        let canonical = ColorHex.canonical(hex)
+        let hsb = hsb(from: rgb(from: canonical))
+        let isAlreadyLight = hsb.brightness >= Constants.darkMinimumBrightness
+            && hsb.saturation <= Constants.darkMaximumSaturation
+        guard !isAlreadyLight else { return canonical }
+
+        return hexString(from: HSB(
+            hue: hsb.hue,
+            saturation: min(hsb.saturation, Constants.darkMaximumSaturation),
+            brightness: max(hsb.brightness, Constants.darkMinimumBrightness)
+        ))
+    }
 }
 
 private extension ThemeColor {
@@ -29,7 +48,10 @@ private extension ThemeColor {
         static let quantizedMinimumButtonBrightness = ceil(minimumButtonBrightness * channelMaximum)
             / channelMaximum
         static let hueCycle = 360.0
-
+        /// ダークの地（`#15131B`）で文字として読める明るさです。7色すべてで 4.5:1 を超えるよう決めました。
+        static let darkMinimumBrightness = 0.92
+        /// 彩度を残しすぎると、明るくしても蛍光色のように浮きます。パステルの淡さに揃えます。
+        static let darkMaximumSaturation = 0.45
     }
 
     struct RGB {

@@ -1,103 +1,91 @@
 import SwiftUI
 import UIKit
 
-/// 黒猫のデザイン言語で使う色です。
+/// アプリの色です（2026-10-15に黒猫の配色からパステルへ入れ替えました）。
 ///
-/// **ライトとダークの両方に応じます。** 端末の設定に従い、暗い場所では墨（ink）の地に、
-/// 明るい場所では白磁（porcelain）の地に、同じ猫が座ります。
+/// **ライトが主役で、ダークにも応じます。** 端末の設定に従い、明るい場所では白に近い地に、
+/// 暗い場所では紫がかった墨の地に、同じパステルの費目が並びます。
 ///
-/// **ここにあるのは「地・カード・文字・グラフ・猫」のための色だけです。**
+/// **パステルは面（カード・グラフ・印）に使い、文字には使いません。** 淡い色は文字にすると
+/// 白地で読めなくなるためです。文字の色は `text` / `textMuted` か、各色の濃い版を使います。
+///
 /// ボタン・ツールバー・検索といった操作部品はiOSのLiquid Glassを素のまま使い、
 /// 色を指定しません（自作すると「押せるもの」の手がかりが弱まり、OSの更新にも追従できなくなります）。
 enum SubscPalette {
     // MARK: - 地とカード
 
-    /// 画面の地です。
-    static let background = dynamic(light: "#FAF8F4", dark: "#0B0B0F")
+    /// 画面の地です。真っ白にせず、ほんの少し青みを入れてカードの白を浮かせます。
+    static let background = dynamic(light: "#F8F7FC", dark: "#15131B")
     /// カードの面です。地から**わずかに浮いた**面。
     ///
-    /// **地との差は明度3%前後にとどめます。** 境目を線ではなく明度だけで作るためで、
-    /// 差を広げると「箱が乗っている」感じが戻ってきます。
-    static let surface = dynamic(light: "#FFFFFF", dark: "#16161C")
+    /// 境目は線ではなく明度の差と淡い影で作ります。
+    static let surface = dynamic(light: "#FFFFFF", dark: "#221F2B")
     /// カードの中で**沈む**面です（帯の下地など）。
     ///
     /// 浮いた面より暗くします。入れ子を「さらに浮かせる」と階層が増えて騒がしくなるため、
     /// **内側は沈める**と決めています。
-    static let surfaceElevated = dynamic(light: "#EFEAE1", dark: "#101015")
-    /// 境界線です。
-    ///
-    /// **ホームでは使いません（2026-08-06）。** 線を引くと線そのものが情報として読まれ、
-    /// 面の明度差で作った静けさが壊れます。区切りは余白と角丸で作ります。
-    /// フォームの入力欄など、線が意味を持つ場所にだけ残しています。
-    static let border = dynamic(light: "#E4DED3", dark: "#22222B")
+    static let surfaceElevated = dynamic(light: "#F1EEF9", dark: "#1B1822")
+    /// 境界線です。フォームの入力欄など、線が意味を持つ場所にだけ使います。
+    static let border = dynamic(light: "#ECE8F6", dark: "#2E2A3A")
     /// グラフの下地です。**金額が小さい費目を消さない**ために必ず敷きます。
-    static let chartTrack = dynamic(light: "#EAE4DA", dark: "#1F1F28")
+    static let chartTrack = dynamic(light: "#F1EEF9", dark: "#2E2A3A")
 
     // MARK: - 文字
 
-    static let text = dynamic(light: "#16151A", dark: "#F5F3EF")
-    static let textMuted = dynamic(light: "#6B6672", dark: "#9A94A2")
+    static let text = dynamic(light: "#2A2733", dark: "#F3F1F8")
+    /// 補足の文字です。**沈む面（`surfaceElevated`）の上でも 4.5:1 を保つ**濃さにしています。
+    static let textMuted = dynamic(light: "#6E6879", dark: "#A39DB0")
 
-    // MARK: - 金目（アクセント）
+    // MARK: - アクセント
 
-    /// 金目です。**予告や現在地といった一点にだけ**使います。
+    /// 予告や現在地（今日・選択中）といった**一点にだけ**使う色です。
     ///
-    /// 金額そのものを金色にしません。数字の読み取りが装飾に負けるためです。
-    /// ライトでは白地でのコントラストを確保するため、一段暗い金を使います。
-    static let accent = dynamic(light: "#C8901F", dark: "#E8B44A")
+    /// 金額そのものをこの色にしません。数字の読み取りが装飾に負けるためです。
+    static let accent = dynamic(light: "#6A4FC9", dark: "#C9BAFF")
 
     // MARK: - 増減の符号
 
     /// 減って嬉しい額（試算で減る利息など）の色です。
     /// **カテゴリ色とは別に持ちます。** カテゴリ色は費目の識別子なので、
-    /// 意味を持たせて流用すると「若草の費目」と「良い結果」が同じ色になります。
-    ///
-    /// ライトでは白磁の上で読めるよう一段暗い値にします。金額に当てる色なので、
-    /// 装飾ではなく**数字が読めること**を優先します。
-    static let positive = dynamic(light: "#2E7D5B", dark: "#7FC8A9")
+    /// 意味を持たせて流用すると「ミントの費目」と「良い結果」が同じ色になります。
+    /// 金額に当てる色なので、装飾ではなく**数字が読めること**を優先します。
+    static let positive = dynamic(light: "#2E7D5B", dark: "#8FDDB8")
     /// 増えて注意したい額（試算で増える利息など）の色です。
-    ///
-    /// **金目（accent）は使いません。** 金は予告や現在地といった一点のための色で、
-    /// 警告の意味を混ぜると「金＝注意」と読まれ、猫の目や更新予告と衝突します。
-    static let caution = dynamic(light: "#B4632A", dark: "#E0A66B")
+    static let caution = dynamic(light: "#A85424", dark: "#FFB696")
 
-    // MARK: - 猫
+    // MARK: - 曜日
 
-    /// 猫の体です。地に対する影として置くので、地より必ず暗くします。
+    /// 日曜の見出しです。**費目のローズを流用しません。** パステルのままだと白地で読めません。
+    static let sunday = dynamic(light: "#B0461F", dark: "#FF9F80")
+    /// 土曜の見出しです。理由は日曜と同じです。
+    static let saturday = dynamic(light: "#2F6FB8", dark: "#8FBFFF")
+
+    // MARK: - 猫（旧来の黒猫の絵が使う色）
+
+    /// 猫の体です。**新しい猫へ置き換えるまでの間だけ残しています**（フェーズ2で入れ替え）。
     static let cat = dynamic(light: "#16151A", dark: "#05050A")
-    /// 猫の背後へ敷く淡い面です。**ダークでだけ出します。**
-    ///
-    /// 体を地より暗くする作りは、白磁の地では影として読めますが、
-    /// 墨の地では**体と地のコントラストが 1.04:1** まで落ち、猫が消えていました
-    /// （2026-08-09に実測）。体の色を明るくすると黒猫でなくなるため、
-    /// **体は墨のまま、後ろから淡く浮かせて**分離させます。
-    ///
-    /// ライトでは使いません。ライトの体は地に対して 17:1 あり、敷く理由がないためです。
-    ///
-    /// **`dynamic(light:dark:)` にしていません。** 透明な色を用意して常に描くより、
-    /// ライトでは描画そのものを省くほうが確実で、意図も読み取れます
-    /// （`CatArt.draw` へ `halo: nil` を渡します）。
+    /// 猫の背後へ敷く淡い面です。ダークでだけ出します（`CatArt.draw` へ `halo: nil` を渡すとライト）。
     static let catHalo = ColorHex.color(from: "#5E5E70")
     /// 猫の目と、猫に添える符号（汗・きらめき・「！」・案内の点）です。
     static let catEye = dynamic(light: "#C8901F", dark: "#F2C96B")
 
     // MARK: - 費目カテゴリ
 
-    /// カテゴリの色です。**黒地でも白磁の上でも沈まない明度**に揃えています。
+    /// カテゴリのパステル7色です。**両モードで同じ色**を使います。
     ///
-    /// 両モードで同じ色を使うのは、色そのものが費目の識別子だからです。
-    /// モードで色が変わると、同じ費目が別物に見えます。
+    /// 色そのものが費目の識別子なので、モードで色が変わると同じ費目が別物に見えます。
     enum Category {
-        static let watch = ColorHex.color(from: "#7FB3D5")
-        static let listen = ColorHex.color(from: "#9B8FD9")
-        static let read = ColorHex.color(from: "#7FC8A9")
-        static let work = ColorHex.color(from: "#E0A66B")
-        static let living = ColorHex.color(from: "#D98FA6")
-        static let network = ColorHex.color(from: "#C4B37F")
-        static let loan = ColorHex.color(from: "#8FA8C4")
+        static let mint = ColorHex.color(from: "#8FDDB8")
+        static let peach = ColorHex.color(from: "#FFB696")
+        static let lavender = ColorHex.color(from: "#B9A6FF")
+        static let sky = ColorHex.color(from: "#9CC8FF")
+        static let butter = ColorHex.color(from: "#FFD966")
+        static let rose = ColorHex.color(from: "#F7A8C4")
+        /// ミストです。借入の色で、無彩色や壊れた保存値の逃げ場も兼ねます。
+        static let mist = ColorHex.color(from: "#B9B4C9")
 
         /// 色を指定していない費目へ順に割り当てる並びです。
-        static let fallbackOrder: [Color] = [watch, listen, read, work, living, network, loan]
+        static let fallbackOrder: [Color] = [sky, lavender, mint, peach, rose, butter, mist]
     }
 
     /// ライトとダークで出し分ける色を作ります。
@@ -112,24 +100,46 @@ enum SubscPalette {
 }
 
 extension SubscPalette {
-    /// 色相で寄せられない色の行き先です。無彩色や壊れた保存値がここへ来ます。
-    static let harmonizedFallbackHex = "#8FA8C4"
+    /// 色相で寄せられない色の行き先（ミスト）です。無彩色や壊れた保存値がここへ来ます。
+    static let harmonizedFallbackHex = "#B9B4C9"
 
     /// これ未満の彩度は「色が無い」とみなします。灰色を無理に色相で寄せると、
     /// 端数の誤差でどのカテゴリ色にもなり得てしまい、再現性がありません。
     private static let minimumSaturation: CGFloat = 0.12
 
-    /// 保存済みの費目色を、**表示のときだけ**黒猫のパレットへ寄せます。
+    /// これまでの選択肢で保存された色の寄せ先です。**色相の近さに任せず、意味で対応させます。**
+    ///
+    /// たとえばオレンジ（`#FF9F0A`）は色相だけならバターに近く、利用者が「オレンジ」と
+    /// 選んだ費目が黄色で出てしまいます。過去に選択肢として出した色は、ここで名指しします。
+    private static let legacyCounterparts: [String: String] = [
+        // iOS標準色の旧プリセット（2026-08-05まで）
+        "#007AFF": "#9CC8FF",  // ブルー → スカイ
+        "#34C759": "#8FDDB8",  // グリーン → ミント
+        "#FF375F": "#F7A8C4",  // ピンク → ローズ
+        "#AF52DE": "#B9A6FF",  // パープル → ラベンダー
+        "#FF9F0A": "#FFB696",  // オレンジ → ピーチ
+        // 黒猫のパレット（2026-08-05〜2026-10-15）
+        "#7FB3D5": "#9CC8FF",  // 藍 → スカイ
+        "#9B8FD9": "#B9A6FF",  // 菫 → ラベンダー
+        "#7FC8A9": "#8FDDB8",  // 若草 → ミント
+        "#E0A66B": "#FFB696",  // 琥珀 → ピーチ
+        "#D98FA6": "#F7A8C4",  // 撫子 → ローズ
+        "#C4B37F": "#FFD966",  // 黄土 → バター
+        "#8FA8C4": "#B9B4C9",  // 鈍色 → ミスト
+        "#D9A43C": "#FFD966"   // 金目 → バター
+    ]
+
+    /// 保存済みの費目色を、**表示のときだけ**パステルの7色へ寄せます。
     ///
     /// **保存値は書き換えません。** 利用者が選んだ色はその人のデータであり、
     /// デザインの都合で上書きするものではないためです。表示だけ揃えることで、
     /// 配色を元に戻したくなったときもこの関数を外すだけで済みます。
     ///
-    /// **金目（アクセント）へは寄せません。** 金は予告や現在地といった一点のための色で、
-    /// 費目に配ると「大事な一点」の意味が薄れます。寄せ先はカテゴリの7色だけです。
+    /// 順番は「パステルそのもの → 過去の選択肢の対応表 → 色相の近さ → ミスト」です。
     static func harmonizedHex(from hex: String) -> String {
         let canonical = ColorHex.canonical(hex)
         if Category.hexes.contains(canonical) { return canonical }
+        if let counterpart = legacyCounterparts[canonical] { return counterpart }
 
         guard let source = hsb(of: canonical), source.saturation >= minimumSaturation else {
             return harmonizedFallbackHex
@@ -167,13 +177,12 @@ extension SubscPalette {
 }
 
 extension SubscPalette.Category {
-    /// カテゴリ色の一覧です。**金目（アクセント）は含みません。**
-    static let hexes = ["#7FB3D5", "#9B8FD9", "#7FC8A9", "#E0A66B", "#D98FA6", "#C4B37F", "#8FA8C4"]
+    /// カテゴリ色の一覧です（ミント・ピーチ・ラベンダー・スカイ・バター・ローズ・ミスト）。
+    static let hexes = ["#8FDDB8", "#FFB696", "#B9A6FF", "#9CC8FF", "#FFD966", "#F7A8C4", "#B9B4C9"]
 
-    /// 色相で寄せる先です。**鈍色（`#8FA8C4`）を外しています。**
+    /// 色相で寄せる先です。**ミスト（`#B9B4C9`）を外しています。**
     ///
-    /// 鈍色は借入・ローンの色で、色相が青（`#007AFF`）とほとんど同じです。
-    /// 残したままにすると、青で保存された費目が借入と同じ色で並び、
-    /// **一覧で費目と借入を見分けられなくなります**。鈍色は無彩色の逃げ場としてだけ使います。
+    /// ミストは借入・ローンの色です。色のある費目がミストへ寄ると、
+    /// **一覧で費目と借入を見分けられなくなります**。ミストは無彩色の逃げ場としてだけ使います。
     static let hueTargets = hexes.filter { $0 != SubscPalette.harmonizedFallbackHex }
 }

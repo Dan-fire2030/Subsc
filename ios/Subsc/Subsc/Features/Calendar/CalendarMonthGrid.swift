@@ -53,8 +53,8 @@ struct CalendarMonthGrid: View {
     private func weekdayColor(at index: Int) -> Color {
         let weekday = (calendar.firstWeekday - 1 + index) % 7
         switch weekday {
-        case 0: return SubscPalette.Category.living
-        case 6: return SubscPalette.Category.watch
+        case 0: return SubscPalette.sunday
+        case 6: return SubscPalette.saturday
         default: return SubscPalette.textMuted
         }
     }

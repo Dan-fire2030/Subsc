@@ -10,6 +10,7 @@
 		AA0001650000000000000165 /* CalendarDisplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001650000000000000165 /* CalendarDisplayStore.swift */; };
 		AA0001790000000000000179 /* ArchiveCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001790000000000000179 /* ArchiveCleaner.swift */; };
 		AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001780000000000000178 /* ArchiveExclusionTests.swift */; };
+		AA0001850000000000000185 /* SubscPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001850000000000000185 /* SubscPaletteTests.swift */; };
 		AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001770000000000000177 /* ArchivePolicyTests.swift */; };
 		AA0001760000000000000176 /* ArchivePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001760000000000000176 /* ArchivePolicy.swift */; };
 		AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001720000000000000172 /* DashboardListOrganizationTests.swift */; };
@@ -196,6 +197,7 @@
 		BB0001650000000000000165 /* CalendarDisplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDisplayStore.swift; sourceTree = "<group>"; };
 		BB0001790000000000000179 /* ArchiveCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveCleaner.swift; sourceTree = "<group>"; };
 		BB0001780000000000000178 /* ArchiveExclusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveExclusionTests.swift; sourceTree = "<group>"; };
+		BB0001850000000000000185 /* SubscPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscPaletteTests.swift; sourceTree = "<group>"; };
 		BB0001770000000000000177 /* ArchivePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicyTests.swift; sourceTree = "<group>"; };
 		BB0001760000000000000176 /* ArchivePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicy.swift; sourceTree = "<group>"; };
 		BB0001720000000000000172 /* DashboardListOrganizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListOrganizationTests.swift; sourceTree = "<group>"; };
@@ -608,6 +610,7 @@
 			children = (
 				BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */,
 				BB0001780000000000000178 /* ArchiveExclusionTests.swift */,
+				BB0001850000000000000185 /* SubscPaletteTests.swift */,
 				BB0001770000000000000177 /* ArchivePolicyTests.swift */,
 				BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */,
 				BB0001720000000000000172 /* DashboardListOrganizationTests.swift */,
@@ -952,6 +955,7 @@
 			files = (
 				AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */,
 				AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */,
+				AA0001850000000000000185 /* SubscPaletteTests.swift in Sources */,
 				AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */,
 				AA0001750000000000000175 /* CalendarMonthPickerRangeTests.swift in Sources */,
 				AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */,

@@ -1,32 +1,32 @@
-/// テーマと費目の色選択で共用できるプリセットです。
+/// テーマ色（タブ・リンクの色）の選択肢です。
 ///
 /// 保存形式の16進文字列をrawValueにすることで、UI側に色と表示名の
 /// 対応表を重複させず、将来の差し替え時に同じ定義を利用できるようにします。
 ///
-/// **2026-08-05に黒猫のパレットへ入れ替えました。** iOSの標準色（`#007AFF` など）は
-/// 彩度が高く、墨と金目の画面では浮きます。ここにあるのは
-/// `SubscPalette.Category` と同じ、**黒地でも白磁の上でも沈まない明度**に揃えた色です。
+/// **2026-10-15にパステルの配色へ入れ替えました。** テーマ色はリンクやタブの**文字**に使うため、
+/// 費目のパステルそのものではなく、**同じ色相を白地で文字として読める濃さ（4.5:1以上）にした色**です。
+/// ダークでは `ThemeColor.darkButtonTint` で同じ色相の明るい版に切り替えます。
 ///
-/// **入れ替え前の色で保存された費目は、そのままの色で表示され続けます**
+/// **入れ替え前の色を選んでいた利用者の色は、そのまま残ります**
 /// （選択画面では「カスタム」と呼ばれます）。保存値には触れません。
 enum ThemeColorPreset: String, CaseIterable {
-    case gold = "#D9A43C"
-    case indigo = "#7FB3D5"
-    case violet = "#9B8FD9"
-    case moss = "#7FC8A9"
-    case amber = "#E0A66B"
-    case blossom = "#D98FA6"
-    case steel = "#8FA8C4"
+    case lavender = "#6A4FC9"
+    case sky = "#2F6FB8"
+    case mint = "#2E7D5B"
+    case peach = "#B4532A"
+    case rose = "#B8456F"
+    case butter = "#8A6D00"
+    case mist = "#6E6879"
 
     var title: String {
         switch self {
-        case .gold: "金目"
-        case .indigo: "藍"
-        case .violet: "菫"
-        case .moss: "若草"
-        case .amber: "琥珀"
-        case .blossom: "撫子"
-        case .steel: "鈍色"
+        case .lavender: "ラベンダー"
+        case .sky: "スカイ"
+        case .mint: "ミント"
+        case .peach: "ピーチ"
+        case .rose: "ローズ"
+        case .butter: "バター"
+        case .mist: "ミスト"
         }
     }
 

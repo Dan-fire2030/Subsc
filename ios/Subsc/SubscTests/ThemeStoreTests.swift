@@ -20,7 +20,7 @@ final class ThemeStoreTests: XCTestCase {
     func testUsesTheDefaultButtonColorWhenNothingIsSaved() {
         let store = ThemeStore(defaults: defaults)
 
-        XCTAssertEqual(store.buttonHex, "#D9A43C")
+        XCTAssertEqual(store.buttonHex, "#6A4FC9")
         XCTAssertTrue(store.isDefault)
     }
 
@@ -53,8 +53,8 @@ final class ThemeStoreTests: XCTestCase {
     func testPresetAndCustomButtonColorsKeepTheirOwnNames() {
         let store = ThemeStore(defaults: defaults)
 
-        store.buttonHex = "#7FC8A9"
-        XCTAssertEqual(store.buttonColorName, "若草")
+        store.buttonHex = "#2E7D5B"
+        XCTAssertEqual(store.buttonColorName, "ミント")
 
         store.buttonHex = "#123456"
         XCTAssertEqual(store.buttonColorName, "カスタム")
@@ -92,7 +92,7 @@ final class ThemeStoreTests: XCTestCase {
     /// 大文字小文字や `#` の有無で「既定」判定が外れないことを確かめます。
     func testDefaultNameIgnoresHexFormatting() {
         let store = ThemeStore(defaults: defaults)
-        store.buttonHex = "d9a43c"
+        store.buttonHex = "6a4fc9"
 
         XCTAssertEqual(store.buttonColorName, "既定")
         XCTAssertTrue(store.isDefault, "表示名と「既定に戻す」の判定基準が食い違っています")

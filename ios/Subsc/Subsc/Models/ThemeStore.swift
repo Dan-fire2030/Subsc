@@ -1,5 +1,6 @@
 import Observation
 import SwiftUI
+import UIKit
 
 /// 利用者が選んだテーマ色を保持します。
 ///
@@ -7,12 +8,12 @@ import SwiftUI
 /// スキーマを増やさないぶん、Productionへのスキーマ反映と無関係に変更できます。
 @Observable
 final class ThemeStore {
-    /// 既定値です。**2026-08-05のリデザインで黒猫の配色へ変えました。**
+    /// 既定値です。**2026-10-15のリデザインでパステルの配色へ変えました。**
     /// 色を選んでいない利用者の見た目も変わります（それがリデザインの目的です）。
     enum Defaults {
-        /// タブバー・リンクの色です。**2026-08-05に金目へ変えました。**
-        /// 青のままだと、墨と金目の画面で操作部品だけがiOS標準の顔で残ります。
-        static let buttonHex = "#D9A43C"
+        /// タブバー・リンクの色です。**2026-10-15に金目からラベンダーへ変えました。**
+        /// 金のままだと、パステルの画面で操作部品だけが前の世界観の顔で残ります。
+        static let buttonHex = ThemeColorPreset.lavender.rawValue
         /// これまで唯一の表示だった横棒グラフに最も近い、構成比が素直に読める表示です。
         static let chartStyle = ReportChartStyle.bar
     }
@@ -63,9 +64,8 @@ final class ThemeStore {
         Self.displayName(for: buttonHex, whenDefault: Defaults.buttonHex)
     }
 
-    /// 既定値は現在の画面の色を実測したもので、プリセットのブルー（`#007AFF`）とは別の色です。
-    /// そのままプリセット名を引くと、何も変更していない利用者に「カスタム」と見えてしまうため、
-    /// 既定値だけは「既定」と呼びます。
+    /// 既定値だけは「既定」と呼びます。既定はプリセットのラベンダーと同じ色ですが、
+    /// 「何も変えていない」ことが伝わるほうが、色の名前より利用者にとって意味があるためです。
     private static func displayName(for hex: String, whenDefault defaultHex: String) -> String {
         ColorHex.canonical(hex) == ColorHex.canonical(defaultHex)
             ? "既定"
@@ -77,14 +77,26 @@ final class ThemeStore {
     /// 色を選んでいる最中に設定画面自身の色まで動くと、
     /// **何を変えているのかが分かりにくくなります**。設定画面は既定色で固定します。
     static var fixedButtonColor: Color {
-        ColorHex.color(from: ThemeColor.buttonTint(from: Defaults.buttonHex))
+        adaptiveButtonColor(from: Defaults.buttonHex)
     }
 
     // MARK: - 画面が使う色
 
-    /// タブバーやリンクの色です。暗すぎる指定だけ引き上げます。
+    /// タブバーやリンクの色です。暗すぎる指定だけ引き上げ、ダークでは同じ色相の明るい版にします。
     var buttonColor: Color {
-        ColorHex.color(from: ThemeColor.buttonTint(from: buttonHex))
+        Self.adaptiveButtonColor(from: buttonHex)
+    }
+
+    /// ライトとダークで出し分けるテーマ色です。
+    ///
+    /// テーマ色の選択肢は白地で読める濃さにしてあるため、そのままでは暗い地に沈みます
+    /// （2026-10-15）。外観が切り替わっても追従するよう、`UIColor` の動的な色で包みます。
+    private static func adaptiveButtonColor(from hex: String) -> Color {
+        let light = ThemeColor.buttonTint(from: hex)
+        let dark = ThemeColor.darkButtonTint(from: hex)
+        return Color(uiColor: UIColor { traits in
+            UIColor(ColorHex.color(from: traits.userInterfaceStyle == .dark ? dark : light))
+        })
     }
 }
 

@@ -9,15 +9,15 @@ final class ThemeColorTests: XCTestCase {
     }
 
     func testPresetRawValuesAndTitlesMatchDefinitions() {
-        // 黒猫のパレット（2026-08-05に入れ替え）。
+        // パステルの各色を、文字として読める濃さにした7色（2026-10-15に入れ替え）。
         let expected: [(rawValue: String, title: String)] = [
-            ("#D9A43C", "金目"),
-            ("#7FB3D5", "藍"),
-            ("#9B8FD9", "菫"),
-            ("#7FC8A9", "若草"),
-            ("#E0A66B", "琥珀"),
-            ("#D98FA6", "撫子"),
-            ("#8FA8C4", "鈍色")
+            ("#6A4FC9", "ラベンダー"),
+            ("#2F6FB8", "スカイ"),
+            ("#2E7D5B", "ミント"),
+            ("#B4532A", "ピーチ"),
+            ("#B8456F", "ローズ"),
+            ("#8A6D00", "バター"),
+            ("#6E6879", "ミスト")
         ]
 
         XCTAssertEqual(ThemeColorPreset.allCases.count, 7)
@@ -27,7 +27,40 @@ final class ThemeColorTests: XCTestCase {
 
     func testPresetTitleReturnsCustomForUnknownHex() {
         XCTAssertEqual(ThemeColorPreset.title(for: "#123456"), "カスタム")
-        XCTAssertEqual(ThemeColorPreset.title(for: "#d9a43c"), "金目")
+        XCTAssertEqual(ThemeColorPreset.title(for: "#6a4fc9"), "ラベンダー")
+    }
+
+    /// テーマ色はリンクやタブの文字に使います。**ライトの白地で文字として読めること。**
+    func testEveryPresetReadsAsTextOnWhite() throws {
+        for preset in ThemeColorPreset.allCases {
+            let ratio = (1.05) / (try luminance(of: preset.rawValue) + 0.05)
+            XCTAssertGreaterThanOrEqual(ratio, 4.5, "\(preset.title) は白地で \(ratio):1 しかありません")
+        }
+    }
+
+    /// **ダークでは同じ色相のまま明るくします。** 濃いラベンダーのままだと暗い地に沈みます。
+    func testDarkTintReadsOnTheDarkBackground() throws {
+        let darkBackgroundLuminance = try luminance(of: "#15131B")
+        for preset in ThemeColorPreset.allCases {
+            let tint = ThemeColor.darkButtonTint(from: preset.rawValue)
+            let ratio = (try luminance(of: tint) + 0.05) / (darkBackgroundLuminance + 0.05)
+            XCTAssertGreaterThanOrEqual(ratio, 4.5, "\(preset.title) のダーク版 \(tint) は \(ratio):1 しかありません")
+        }
+    }
+
+    func testDarkTintKeepsTheHue() throws {
+        let source = try hsb(of: "#6A4FC9")
+        let tint = try hsb(of: ThemeColor.darkButtonTint(from: "#6A4FC9"))
+        XCTAssertEqual(tint.hue, source.hue, accuracy: TestConstants.hueTolerance)
+    }
+
+    /// すでに十分明るい色は、ダークでもそのまま使います。
+    func testDarkTintLeavesBrightColorsAlone() {
+        XCTAssertEqual(ThemeColor.darkButtonTint(from: "#F0E8FF"), "#F0E8FF")
+    }
+
+    func testDarkTintSurvivesInvalidInput() {
+        XCTAssertTrue(isValidHex(ThemeColor.darkButtonTint(from: "#ZZZZZZ")))
     }
 
     func testButtonTintRaisesBrightnessBelowMinimum() throws {

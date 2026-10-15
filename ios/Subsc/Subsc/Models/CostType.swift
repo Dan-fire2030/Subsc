@@ -38,20 +38,19 @@ enum CostType: String, CaseIterable, Codable, Identifiable {
 
     /// レポートで種別を見分けるための色です。
     ///
-    /// カード背景は必ず暗い色へ補正されるため、明るく高彩度な色なら背景上で見分けられます。
-    /// また、利用中の緑・停止中のオレンジ・削除の赤という状態色と意味が衝突しない色を選んでいます。
+    /// 利用中の緑・停止中のオレンジ・削除の赤という状態色と意味が衝突しない色を選んでいます。
     var colorHex: String {
-        // **黒猫のパレット（`SubscPalette.Category`）から選びます（2026-08-05）。**
+        // **パステルの7色（`SubscPalette.Category`）から選びます（2026-10-15）。**
         // 種別は費目より上位の区別なので、費目の色と同じ体系から取り、
         // 彩度だけが飛び抜けることのないようにします。
         switch self {
-        case .subscription: "#7FB3D5"
-        case .communication: "#C4B37F"
-        case .utility: "#E0A66B"
-        case .fixed: "#D98FA6"
-        // 鈍色。借入は**費目の寄せ先から外してある唯一の色**なので、
+        case .subscription: "#9CC8FF"  // スカイ
+        case .communication: "#FFD966"  // バター
+        case .utility: "#FFB696"  // ピーチ
+        case .fixed: "#F7A8C4"  // ローズ
+        // ミスト。借入は**費目の寄せ先から外してある唯一の色**なので、
         // 一覧で費目に紛れません（`SubscPalette.Category.hueTargets`）。
-        case .loan: "#8FA8C4"
+        case .loan: "#B9B4C9"
         }
     }
 

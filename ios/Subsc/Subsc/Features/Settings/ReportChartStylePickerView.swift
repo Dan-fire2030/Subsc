@@ -106,10 +106,10 @@ private struct ChartStyleThumbnail: View {
         /// 色は費目種別ではなくパレットから直に取ります。見本は「どんな形か」を
         /// 伝えるためのもので、特定の費目種別を表しているわけではありません。
         static let slices: [Slice] = [
-            Slice(fraction: 0.46, color: SubscPalette.Category.watch),
-            Slice(fraction: 0.26, color: SubscPalette.Category.listen),
-            Slice(fraction: 0.18, color: SubscPalette.Category.read),
-            Slice(fraction: 0.10, color: SubscPalette.Category.work)
+            Slice(fraction: 0.46, color: SubscPalette.Category.sky),
+            Slice(fraction: 0.26, color: SubscPalette.Category.lavender),
+            Slice(fraction: 0.18, color: SubscPalette.Category.mint),
+            Slice(fraction: 0.10, color: SubscPalette.Category.peach)
         ]
 
         /// バブルだけは大きさと位置を1つずつ決めるので、その並びも一緒に持ちます。
