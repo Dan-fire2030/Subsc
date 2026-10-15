@@ -43,6 +43,12 @@ enum SubscPalette {
     /// 金額そのものをこの色にしません。数字の読み取りが装飾に負けるためです。
     static let accent = dynamic(light: "#6A4FC9", dark: "#C9BAFF")
 
+    /// テーマ色で塗ったボタンの上の文字です。
+    ///
+    /// **ダークでは濃い文字にします。** ダークのテーマ色は同じ色相の明るい版
+    /// （`ThemeColor.darkButtonTint`）なので、白い文字のままだと沈みます（2026-10-15）。
+    static let onTint = dynamic(light: "#FFFFFF", dark: "#1B1530")
+
     // MARK: - 増減の符号
 
     /// 減って嬉しい額（試算で減る利息など）の色です。
@@ -60,14 +66,24 @@ enum SubscPalette {
     /// 土曜の見出しです。理由は日曜と同じです。
     static let saturday = dynamic(light: "#2F6FB8", dark: "#8FBFFF")
 
-    // MARK: - 猫（旧来の黒猫の絵が使う色）
+    // MARK: - 猫
 
-    /// 猫の体です。**新しい猫へ置き換えるまでの間だけ残しています**（フェーズ2で入れ替え）。
-    static let cat = dynamic(light: "#16151A", dark: "#05050A")
-    /// 猫の背後へ敷く淡い面です。ダークでだけ出します（`CatArt.draw` へ `halo: nil` を渡すとライト）。
-    static let catHalo = ColorHex.color(from: "#5E5E70")
-    /// 猫の目と、猫に添える符号（汗・きらめき・「！」・案内の点）です。
-    static let catEye = dynamic(light: "#C8901F", dark: "#F2C96B")
+    /// 猫の体です。ラベンダーのパステルを、**白いカードの上で図形として見分けられる濃さ（3:1以上）**まで
+    /// 一段沈めています。淡いままだとカードに溶けます。ダークでは明るい版にして暗い地から浮かせます。
+    static let catBody = dynamic(light: "#9585D6", dark: "#C9BAFF")
+    /// 目・眉・口元です。体の上で表情が読める濃さにします。
+    static let catFace = dynamic(light: "#2A2733", dark: "#15131B")
+    /// 耳の内側です。飾りなので、体と見分けられればよい色にしています。
+    static let catEarInner = ColorHex.color(from: "#FFC9DA")
+    static let catNose = ColorHex.color(from: "#E07A93")
+    /// 頬です。体の上に半透明で重ねます（`CatCompanionView` 側で透明度を掛けます）。
+    /// **ピーチではなくピンク寄りにしています。** ピーチをラベンダーに重ねると茶色く濁りました（2026-10-15）。
+    static let catCheek = ColorHex.color(from: "#FF9FBA")
+    /// 猫に添える符号（「！」・きらめき・案内の点）です。**アクセントと同じ色**にして、
+    /// 「ここを見て」という一点の意味を揃えます。
+    static let catAccent = accent
+    /// 汗です。飾りで、意味は読み上げの状態名が担います。
+    static let catSweat = ColorHex.color(from: "#9CC8FF")
 
     // MARK: - 費目カテゴリ
 

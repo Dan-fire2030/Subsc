@@ -8,7 +8,7 @@ struct ReportCard: View {
     let loans: [Loan]
     /// グラフの集計単位と色を絞り込み状態に合わせるため、文字列ではなく条件自体を渡します。
     let costTypeFilter: CostTypeFilter
-    /// 相棒の黒猫です。合計金額の隣に座ります。
+    /// 相棒の猫です。合計金額の隣に座ります。
     let catMood: CatMood
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize

@@ -74,7 +74,7 @@ enum ReportChartPalette {
     }
 
     static func color(for item: ReportChartItem) -> Color {
-        // **保存値ではなく、黒猫のパレットへ寄せた色で描きます。**
+        // **保存値ではなく、パステルの7色へ寄せた色で描きます。**
         // 旧プリセット（iOS標準色）で保存された費目がそのままだと、
         // 画面の主役であるグラフだけ配色が取り残されます。保存値は書き換えません。
         SubscPalette.harmonized(from: item.colorHex).opacity(item.opacity)

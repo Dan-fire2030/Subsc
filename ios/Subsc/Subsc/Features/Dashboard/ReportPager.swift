@@ -37,7 +37,7 @@ struct ReportPager: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
-    /// 相棒の黒猫です。**どのページにも座らせます。**
+    /// 相棒の猫です。**どのページにも座らせます。**
     ///
     /// ただし渡す姿は今の期間のページだけ実際の状態で、**前後のページは平常の姿**にします。
     /// 状態は今月の支出から決まるものなので、過去のページでそのまま出すと

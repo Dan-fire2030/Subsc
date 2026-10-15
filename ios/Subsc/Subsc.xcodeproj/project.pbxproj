@@ -11,6 +11,7 @@
 		AA0001790000000000000179 /* ArchiveCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001790000000000000179 /* ArchiveCleaner.swift */; };
 		AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001780000000000000178 /* ArchiveExclusionTests.swift */; };
 		AA0001850000000000000185 /* SubscPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001850000000000000185 /* SubscPaletteTests.swift */; };
+		AA0001860000000000000186 /* PastelCatArtTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001860000000000000186 /* PastelCatArtTests.swift */; };
 		AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001770000000000000177 /* ArchivePolicyTests.swift */; };
 		AA0001760000000000000176 /* ArchivePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001760000000000000176 /* ArchivePolicy.swift */; };
 		AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001720000000000000172 /* DashboardListOrganizationTests.swift */; };
@@ -67,10 +68,8 @@
 		AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011460000000000000146 /* DashboardView+Collections.swift */; };
 		AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011440000000000000144 /* RelativeDueLabel.swift */; };
 		AA00011340000000000000134 /* SubscPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011340000000000000134 /* SubscPalette.swift */; };
+		AA0001870000000000000187 /* PastelCatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001870000000000000187 /* PastelCatArt.swift */; };
 		AA00011400000000000000140 /* SubscTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011400000000000000140 /* SubscTypography.swift */; };
-		AA00011350000000000000135 /* CatArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011350000000000000135 /* CatArt.swift */; };
-		AA000111580000000000000158 /* CatArtworkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111580000000000000158 /* CatArtworkData.swift */; };
-		AA000111590000000000000159 /* CatPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111590000000000000159 /* CatPathParser.swift */; };
 		AA00011360000000000000136 /* CatCompanionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011360000000000000136 /* CatCompanionView.swift */; };
 		AA0001730000000000000173 /* DeleteConfirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001730000000000000173 /* DeleteConfirmation.swift */; };
 		AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011310000000000000131 /* UpcomingChargeSection.swift */; };
@@ -169,7 +168,6 @@
 		AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011280000000000000128 /* ServiceCatalogTests.swift */; };
 		AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */; };
 		AA00011320000000000000132 /* CatMoodTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011320000000000000132 /* CatMoodTests.swift */; };
-		AA00011570000000000000157 /* CatPathParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011570000000000000157 /* CatPathParserTests.swift */; };
 		AA000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */; };
 		AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011450000000000000145 /* RelativeDueLabelTests.swift */; };
 		AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00011380000000000000138 /* CatMoodContextTests.swift */; };
@@ -198,6 +196,7 @@
 		BB0001790000000000000179 /* ArchiveCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveCleaner.swift; sourceTree = "<group>"; };
 		BB0001780000000000000178 /* ArchiveExclusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveExclusionTests.swift; sourceTree = "<group>"; };
 		BB0001850000000000000185 /* SubscPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscPaletteTests.swift; sourceTree = "<group>"; };
+		BB0001860000000000000186 /* PastelCatArtTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastelCatArtTests.swift; sourceTree = "<group>"; };
 		BB0001770000000000000177 /* ArchivePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicyTests.swift; sourceTree = "<group>"; };
 		BB0001760000000000000176 /* ArchivePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivePolicy.swift; sourceTree = "<group>"; };
 		BB0001720000000000000172 /* DashboardListOrganizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardListOrganizationTests.swift; sourceTree = "<group>"; };
@@ -254,10 +253,8 @@
 		BB00011460000000000000146 /* DashboardView+Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView+Collections.swift"; sourceTree = "<group>"; };
 		BB00011440000000000000144 /* RelativeDueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabel.swift; sourceTree = "<group>"; };
 		BB00011340000000000000134 /* SubscPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscPalette.swift; sourceTree = "<group>"; };
+		BB0001870000000000000187 /* PastelCatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastelCatArt.swift; sourceTree = "<group>"; };
 		BB00011400000000000000140 /* SubscTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscTypography.swift; sourceTree = "<group>"; };
-		BB00011350000000000000135 /* CatArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArt.swift; sourceTree = "<group>"; };
-		BB000111580000000000000158 /* CatArtworkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatArtworkData.swift; sourceTree = "<group>"; };
-		BB000111590000000000000159 /* CatPathParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParser.swift; sourceTree = "<group>"; };
 		BB00011360000000000000136 /* CatCompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatCompanionView.swift; sourceTree = "<group>"; };
 		BB0001730000000000000173 /* DeleteConfirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteConfirmation.swift; sourceTree = "<group>"; };
 		BB00011310000000000000131 /* UpcomingChargeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingChargeSection.swift; sourceTree = "<group>"; };
@@ -361,7 +358,6 @@
 		BB00011280000000000000128 /* ServiceCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalogTests.swift; sourceTree = "<group>"; };
 		BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingLargeChargeTests.swift; sourceTree = "<group>"; };
 		BB00011320000000000000132 /* CatMoodTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodTests.swift; sourceTree = "<group>"; };
-		BB00011570000000000000157 /* CatPathParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatPathParserTests.swift; sourceTree = "<group>"; };
 		BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanSynchronizeIdempotencyTests.swift; sourceTree = "<group>"; };
 		BB00011450000000000000145 /* RelativeDueLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDueLabelTests.swift; sourceTree = "<group>"; };
 		BB00011380000000000000138 /* CatMoodContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatMoodContextTests.swift; sourceTree = "<group>"; };
@@ -433,10 +429,8 @@
 			isa = PBXGroup;
 			children = (
 				BB00011340000000000000134 /* SubscPalette.swift */,
+				BB0001870000000000000187 /* PastelCatArt.swift */,
 				BB00011400000000000000140 /* SubscTypography.swift */,
-				BB00011350000000000000135 /* CatArt.swift */,
-				BB000111580000000000000158 /* CatArtworkData.swift */,
-				BB000111590000000000000159 /* CatPathParser.swift */,
 				BB00011360000000000000136 /* CatCompanionView.swift */,
 				BB0001730000000000000173 /* DeleteConfirmation.swift */,
 			);
@@ -611,6 +605,7 @@
 				BB0001640000000000000164 /* CalendarMonthBuilderTests.swift */,
 				BB0001780000000000000178 /* ArchiveExclusionTests.swift */,
 				BB0001850000000000000185 /* SubscPaletteTests.swift */,
+				BB0001860000000000000186 /* PastelCatArtTests.swift */,
 				BB0001770000000000000177 /* ArchivePolicyTests.swift */,
 				BB0001750000000000000175 /* CalendarMonthPickerRangeTests.swift */,
 				BB0001720000000000000172 /* DashboardListOrganizationTests.swift */,
@@ -620,7 +615,6 @@
 				BB00011280000000000000128 /* ServiceCatalogTests.swift */,
 				BB00011300000000000000130 /* UpcomingLargeChargeTests.swift */,
 				BB00011320000000000000132 /* CatMoodTests.swift */,
-				BB00011570000000000000157 /* CatPathParserTests.swift */,
 				BB000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift */,
 				BB00011450000000000000145 /* RelativeDueLabelTests.swift */,
 				BB00011380000000000000138 /* CatMoodContextTests.swift */,
@@ -900,10 +894,8 @@
 				AA00011460000000000000146 /* DashboardView+Collections.swift in Sources */,
 				AA00011440000000000000144 /* RelativeDueLabel.swift in Sources */,
 				AA00011340000000000000134 /* SubscPalette.swift in Sources */,
+				AA0001870000000000000187 /* PastelCatArt.swift in Sources */,
 				AA00011400000000000000140 /* SubscTypography.swift in Sources */,
-				AA00011350000000000000135 /* CatArt.swift in Sources */,
-				AA000111580000000000000158 /* CatArtworkData.swift in Sources */,
-				AA000111590000000000000159 /* CatPathParser.swift in Sources */,
 				AA00011360000000000000136 /* CatCompanionView.swift in Sources */,
 				AA0001730000000000000173 /* DeleteConfirmation.swift in Sources */,
 				AA00011310000000000000131 /* UpcomingChargeSection.swift in Sources */,
@@ -956,6 +948,7 @@
 				AA0001640000000000000164 /* CalendarMonthBuilderTests.swift in Sources */,
 				AA0001780000000000000178 /* ArchiveExclusionTests.swift in Sources */,
 				AA0001850000000000000185 /* SubscPaletteTests.swift in Sources */,
+				AA0001860000000000000186 /* PastelCatArtTests.swift in Sources */,
 				AA0001770000000000000177 /* ArchivePolicyTests.swift in Sources */,
 				AA0001750000000000000175 /* CalendarMonthPickerRangeTests.swift in Sources */,
 				AA0001720000000000000172 /* DashboardListOrganizationTests.swift in Sources */,
@@ -965,7 +958,6 @@
 				AA00011280000000000000128 /* ServiceCatalogTests.swift in Sources */,
 				AA00011300000000000000130 /* UpcomingLargeChargeTests.swift in Sources */,
 				AA00011320000000000000132 /* CatMoodTests.swift in Sources */,
-				AA00011570000000000000157 /* CatPathParserTests.swift in Sources */,
 				AA000111600000000000000160 /* LoanSynchronizeIdempotencyTests.swift in Sources */,
 				AA00011450000000000000145 /* RelativeDueLabelTests.swift in Sources */,
 				AA00011380000000000000138 /* CatMoodContextTests.swift in Sources */,

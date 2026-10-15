@@ -9,7 +9,7 @@ SPEC：`.spec/SPEC.md`（2026-10-15 確定）
 
 **状態：harutoさんの承認待ち。承認を得るまで実作業に入らない。**
 
-pbxprojへの登録は手作業（**次の空き番：ファイル 186、グループ 25**）。
+pbxprojへの登録は手作業（**次の空き番：ファイル 188、グループ 25**）。
 追加前に `grep -oE "\b(AA|BB|DD)[0-9]{22}\b" project.pbxproj | sort -u` で使用済みを確かめる。
 
 ---
@@ -42,11 +42,18 @@ pbxprojへの登録は手作業（**次の空き番：ファイル 186、グル�
 
 ## フェーズ2：新しい猫（TDD）
 
-- [ ] のぞく猫を SwiftUI の図形で描く部品にする（ライト／ダーク）
-- [ ] `CatMood` の6つを表情（目・耳・小さな符号）で出し分ける
-- [ ] 読み上げ名（`accessibilityName`）は今の文言を引き継ぐ
-- [ ] 旧部品（`CatArt` / `CatArtworkData` / `CatPathParser` と `CatPathParserTests`）を削除する
-- [ ] 空の画面（`DashboardEmptyState`）の「案内」も新しい猫へ
+- [x] のぞく猫を SwiftUI の図形で描く部品にする（ライト／ダーク）
+- [x] `CatMood` の6つを表情（目・耳・小さな符号）で出し分ける
+- [x] 読み上げ名（`accessibilityName`）は今の文言を引き継ぐ
+- [x] 旧部品（`CatArt` / `CatArtworkData` / `CatPathParser` と `CatPathParserTests`）を削除する
+- [x] 空の画面（`DashboardEmptyState`）の「案内」も新しい猫へ
+
+### フェーズ2で決めたこと（2026-10-15）
+- 入口は `CatCompanionView(mood:)` のまま。形は `PastelCatArt`（100×100の設計空間）、気分と表情の対応は `CatExpression`
+- 表情：いつもどおり＝点の目／心配＝困り眉・耳を伏せる・汗／満足＝笑い目・きらめき／見張り＝見開いた目／催促＝「！」／案内＝横目・点
+- 猫の色：体 `#9585D6`（ダーク `#C9BAFF`）、顔 `#2A2733`（ダーク `#15131B`）、頬はピンク寄り `#FF9FBA` を60%で重ねる
+- テーマ色で塗るボタンの文字は `SubscPalette.onTint`（ダークは濃い文字）。フェーズ1のダーク版テーマ色で白文字が沈んでいたのを直した
+- **`CatCompanionRow` はどこからも使われていない**（プレビューだけ）。フェーズ3でホームを作り直すときに消す
 
 ## フェーズ3：ホームとレポートを分ける
 

@@ -24,7 +24,7 @@ extension TutorialPage {
     /// 猫の状態を並べるページが増え、絵の描き方がページごとに違うためです。
     /// 種類を型で持てば、ビュー側の分岐が網羅されているかをコンパイラが見ます。
     enum Artwork: Equatable {
-        /// 相棒の黒猫を1匹だけ座らせます。
+        /// 相棒の猫を1匹だけ座らせます。
         case cat(CatMood)
         /// SF Symbols を1つ置きます。ビットマップは持ちません。
         case symbol(String)

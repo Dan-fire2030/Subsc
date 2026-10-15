@@ -222,7 +222,7 @@ final class Subscription {
         )
     }
 
-    /// 画面に出す色です。**保存値をそのまま返さず、黒猫のパレットへ寄せます。**
+    /// 画面に出す色です。**保存値をそのまま返さず、パステルの7色へ寄せます。**
     /// 保存値（`colorHex`）は利用者が選んだデータなので書き換えません。
     var color: Color { SubscPalette.harmonized(from: colorHex) }
 

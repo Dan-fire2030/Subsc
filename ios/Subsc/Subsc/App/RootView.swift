@@ -299,14 +299,20 @@ private struct LiquidGlassScreenModifier: ViewModifier {
     }
 }
 
+/// テーマ色で塗るボタンです。
+///
+/// **文字色は `onTint` で出し分けます。** ダークのテーマ色は明るい版なので、
+/// 既定の白い文字では読めません（2026-10-15）。
 private struct ProminentGlassButtonModifier: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
+                .foregroundStyle(SubscPalette.onTint)
                 .buttonStyle(.glassProminent)
         } else {
             content
+                .foregroundStyle(SubscPalette.onTint)
                 .buttonStyle(.borderedProminent)
         }
     }

@@ -8,7 +8,7 @@ struct ReportPage: View {
     let reduceMotion: Bool
     let costTypeFilter: CostTypeFilter
     let period: ReportPeriod
-    /// 相棒の黒猫です。**どのページにも座ります。**
+    /// 相棒の猫です。**どのページにも座ります。**
     /// 前後のページには平常の姿が渡ります（状態は今月の支出から決まるため）。
     let catMood: CatMood
     /// 今の期間のページかどうかです。

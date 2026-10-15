@@ -59,6 +59,19 @@ final class SubscPaletteContrastTests: XCTestCase {
         }
     }
 
+    /// テーマ色で塗ったボタンの上の文字が、**どのテーマ色でも両モードで読めること。**
+    ///
+    /// ダークではテーマ色を明るい版にするため、白い文字のままだと沈みます（2026-10-15に発見）。
+    /// 文字色は `onTint` で出し分けます。
+    func testTextOnTintReadsForEveryPresetInBothModes() {
+        for preset in ThemeColorPreset.allCases {
+            let light = ColorHex.color(from: ThemeColor.buttonTint(from: preset.rawValue))
+            let dark = ColorHex.color(from: ThemeColor.darkButtonTint(from: preset.rawValue))
+            assertContrast(SubscPalette.onTint, on: light, style: .light, atLeast: minimumTextContrast)
+            assertContrast(SubscPalette.onTint, on: dark, style: .dark, atLeast: minimumTextContrast)
+        }
+    }
+
     // MARK: - 補助
 
     private func assertContrast(

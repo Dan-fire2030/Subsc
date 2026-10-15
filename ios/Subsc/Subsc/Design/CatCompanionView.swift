@@ -1,33 +1,50 @@
 import SwiftUI
 
-/// 相棒の黒猫です。状態に応じて姿勢ごと変わります。
+/// 相棒の猫です。気分に応じて表情（目・耳・小さな符号）が変わります。
+///
+/// **2026-10-15に黒猫からパステルの猫へ替えました。** 姿勢は1つに保ち、顔つきだけで
+/// 気分を伝えます。形は `PastelCatArt`、気分と表情の対応は `CatExpression` が持ちます。
 ///
 /// **文字は持ちません。** 金額を扱う画面でキャラクターが喋ると、事実と演出の区別が
 /// つかなくなるためです。読み上げにだけ状態の説明を渡します。
 struct CatCompanionView: View {
     let mood: CatMood
-    /// **ダークでだけ背後に淡い面を敷くため**に見ています。
-    /// 墨の地では体と地のコントラストが 1.04:1 しかなく、猫が消えていました。
-    /// ライトでは体が地に対して 17:1 あるので敷きません。
-    @Environment(\.colorScheme) private var colorScheme
+
+    /// 頬は体の上に半透明で重ね、色を足しすぎないようにします。
+    private static let cheekOpacity = 0.6
 
     var body: some View {
         Canvas { context, size in
-            // 設計空間（210）を、与えられた大きさへ収めます。
-            // 耳や尻尾の逃げ場は設計空間の中に含まれているため、余白は足しません。
-            let scale = min(size.width, size.height) / CatArt.canvasSize
-            context.scaleBy(x: scale, y: scale)
-            CatArt.draw(
-                mood: mood,
-                in: &context,
-                cat: SubscPalette.cat,
-                eye: SubscPalette.catEye,
-                halo: colorScheme == .dark ? SubscPalette.catHalo : nil
+            // 設計空間（100）を、与えられた大きさへ収めます。
+            let scale = min(size.width, size.height) / PastelCatArt.canvasSize
+            let offset = CGPoint(
+                x: (size.width - PastelCatArt.canvasSize * scale) / 2,
+                y: (size.height - PastelCatArt.canvasSize * scale) / 2
             )
+            context.translateBy(x: offset.x, y: offset.y)
+            context.scaleBy(x: scale, y: scale)
+
+            for shape in PastelCatArt.shapes(for: CatExpression(mood: mood)) {
+                var layer = context
+                if shape.ink == .cheek { layer.opacity = Self.cheekOpacity }
+                layer.fill(shape.path, with: .color(Self.color(for: shape.ink)))
+            }
         }
         .aspectRatio(1, contentMode: .fit)
         .accessibilityElement()
         .accessibilityLabel(mood.title)
+    }
+
+    private static func color(for ink: PastelCatInk) -> Color {
+        switch ink {
+        case .body: SubscPalette.catBody
+        case .earInner: SubscPalette.catEarInner
+        case .face: SubscPalette.catFace
+        case .nose: SubscPalette.catNose
+        case .cheek: SubscPalette.catCheek
+        case .accent: SubscPalette.catAccent
+        case .sweat: SubscPalette.catSweat
+        }
     }
 }
 

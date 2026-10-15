@@ -690,3 +690,14 @@ Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:di
 - テーマ色をライト用の濃さにすると、今度はダークの地で沈む。`ThemeColor.darkButtonTint`（明度0.92以上・彩度0.45以下）で
   同じ色相の明るい版を作り、`UIColor` の動的な色で包んで出し分ける
 - コントラストは `SubscPaletteContrastTests` で両モードとも数値で縛っている
+
+### 2026-10-15：テーマ色を明るくしたら、その上の白い文字が沈んだ
+- ダークでテーマ色を明るい版にした結果、`.glassProminent` のボタンが「明るいラベンダーの上に白い文字」になって読めなくなった
+- **色を変えたら、その色の上に載るもの（文字・アイコン）も一緒に測る。** テーマ色7色×両モードの文字のコントラストを
+  `SubscPaletteContrastTests.testTextOnTintReadsForEveryPresetInBothModes` で縛った
+- シミュレーターの外観は `xcrun simctl ui '<端末名>' appearance dark|light` で切り替えられる。撮るのは起動アニメーションが終わってから（直後は真っ白や淡い画面が写る）
+
+### 2026-10-15：表情の差し替えは、並べて見比べるまで分からない
+- 6つの表情は対応表（`CatExpression`）をテストで縛ったが、**見分けがつくかは並べて見ないと判断できない**
+- 空の画面だけを一時的に「6表情の一覧」に差し替えてビルドし、ライトとダークで撮ってから元に戻した（コミットには含めない）
+- この確認で、前足が頭から離れて浮く・ピーチの頬がラベンダーに重なって茶色く濁る、の2点が見つかった
