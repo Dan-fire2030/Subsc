@@ -33,8 +33,9 @@ enum SubscPalette {
     // MARK: - 文字
 
     static let text = dynamic(light: "#2A2733", dark: "#F3F1F8")
-    /// 補足の文字です。**沈む面（`surfaceElevated`）の上でも 4.5:1 を保つ**濃さにしています。
-    static let textMuted = dynamic(light: "#6E6879", dark: "#A39DB0")
+    /// 補足の文字です。**沈む面（`surfaceElevated`）や、費目の色のカード（`PastelTint`）の上でも
+    /// 4.5:1 を保つ**濃さにしています。ラベンダーやスカイのカードで割らないよう、ライトは一段濃くしました。
+    static let textMuted = dynamic(light: "#625C6D", dark: "#A39DB0")
 
     // MARK: - アクセント
 

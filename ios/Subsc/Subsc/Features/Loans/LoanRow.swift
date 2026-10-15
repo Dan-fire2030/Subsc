@@ -27,12 +27,9 @@ struct LoanRow: View {
             : AnyLayout(HStackLayout(spacing: 12))
 
         layout {
-            // **費目の行と同じ細い色の印にします（2026-08-06）。**
-            // 借入だけ塗り面のタイルが残ると、同じ一覧の中でこの行だけが浮きます。
-            Capsule(style: .continuous)
-                .fill(accentColor)
-                .frame(width: 5, height: 34)
-                .accessibilityHidden(true)
+            // **費目の行と同じ色の丸にします（2026-10-15）。**
+            // 同じ一覧に混ざるので、先頭の形が違うとこの行だけが浮きます。
+            PastelRowIcon(systemImage: CostType.loan.systemImage, colorHex: CostType.loan.colorHex)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
@@ -83,7 +80,7 @@ struct LoanRow: View {
                 spacing: 2
             ) {
                 Text(summary.nextAmount, format: .currency(code: "JPY").precision(.fractionLength(0)))
-                    .font(.subheadline.weight(.semibold))
+                    .font(SubscTypography.rowAmount)
                     .monospacedDigit()
                 Text("次回返済")
                     .font(.caption2)
@@ -107,7 +104,7 @@ private struct StatusBadge: View {
             .foregroundStyle(SubscPalette.textMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(SubscPalette.surfaceElevated, in: Capsule())
+            .background(SubscPalette.surface.opacity(0.65), in: Capsule())
     }
 }
 
@@ -131,6 +128,6 @@ private struct LoanMethodBadge: View {
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(SubscPalette.surfaceElevated, in: Capsule())
+        .background(SubscPalette.surface.opacity(0.65), in: Capsule())
     }
 }

@@ -76,10 +76,15 @@ extension DashboardView {
         )
     }
 
-    /// この先の月に来る、年払いのまとまった支払いです。
-    /// **種別の絞り込みに従います。** レポートと違う母集団を出すと、金額が合わなく見えます。
-    var upcomingCharges: [UpcomingChargeNotice] {
-        UpcomingLargeCharge.notices(subscriptions: subscriptionsInSelectedTypes)
+    /// ホームの合計カードに出す今月の集計です。
+    /// **種別の絞り込みに従います。** レポート画面と同じ母集団にし、開いたときに額が食い違わないようにします。
+    var monthlyReport: PaymentReport {
+        ReportCalculator.report(
+            subscriptions: subscriptionsInSelectedTypes,
+            loans: loansInSelectedTypes,
+            period: .month,
+            cursor: .now
+        )
     }
 
     /// 為替レートの更新は表示上の種別絞り込みと無関係なため、全費目の米ドル契約を監視します。

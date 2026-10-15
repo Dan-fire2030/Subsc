@@ -701,3 +701,13 @@ Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:di
 - 6つの表情は対応表（`CatExpression`）をテストで縛ったが、**見分けがつくかは並べて見ないと判断できない**
 - 空の画面だけを一時的に「6表情の一覧」に差し替えてビルドし、ライトとダークで撮ってから元に戻した（コミットには含めない）
 - この確認で、前足が頭から離れて浮く・ピーチの頬がラベンダーに重なって茶色く濁る、の2点が見つかった
+
+### 2026-10-15：一覧の行の中の NavigationLink は「›」を足す
+- ホームの合計カードを `NavigationLink` にしたら、**`List` が行の右端に開示の矢印を足し**、2枚のカードのあいだに「›」が浮いた
+- カードは `Button` にして、移動は画面側の `.navigationDestination(isPresented:)` に持たせると矢印が付かない
+- ジェネリックなビュー（`HomeSummaryCards<Destination: View>`）の中には `static let` を置けない（"static stored properties not supported in generic types"）。寸法の `enum` はファイルの外側へ出す
+
+### 2026-10-15：画面から試すときは `-ui-testing` で起動し、iCloudへ書かない
+- このシミュレーターは harutoさんの Apple Account にサインインしている。通常起動で費目を登録すると、iCloud（開発環境）へ同期され得る
+- `xcrun simctl launch '<端末名>' com.tonaria.subsc -ui-testing` で起動するとメモリ上だけの保存になる（`StorageMode.inMemory`）
+- ただし **OSの「Apple Accountの確認」ダイアログ**がときどき割り込み、タップが吸われる。パスワードは入れず「今はしない」で閉じる。日本語キーボードで英字を打つと変換中のまま重複するので、名前は「よく使うサービスから選ぶ」で入れると早い

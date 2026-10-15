@@ -72,7 +72,7 @@ extension DashboardView {
         ) {
             confirmDeletion()
         }
-        .glassListRow()
+        .pastelCardRow(colorHex: subscription.colorHex)
     }
 
     /// アーカイブ欄の1行です。
@@ -188,6 +188,6 @@ extension DashboardView {
                 Label("編集", systemImage: "pencil")
             }
         }
-        .glassListRow()
+        .pastelCardRow(colorHex: CostType.loan.colorHex)
     }
 }

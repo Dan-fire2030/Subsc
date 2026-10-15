@@ -29,6 +29,8 @@ struct DashboardView: View {
     /// アーカイブ直後に出す知らせです。確認を出さない代わりに、戻す手段をその場に置きます。
     @State var lastArchived: ArchivedNotice?
     @State var isConfirmingDeleteAll = false
+    /// 合計カードからレポートを開いているか。移動はこの画面の `navigationDestination` が持ちます。
+    @State var isShowingReport = false
     @State var pendingArchiveDeletion: DashboardListItem?
 
     var body: some View {
@@ -58,28 +60,20 @@ struct DashboardView: View {
                     // 探し当てるたびに手でスクロールする必要がありました。
                     // 上を消せば、結果はそのまま検索欄の下に出ます。
                     if !searching {
+                        // **レポートは別画面へ移しました（2026-10-15）。** ホームの先頭には
+                        // 今月の合計と次の支払いだけを並べ、合計カードからレポートを開きます。
+                        // 「この先の大きな支払い」「これから出ていく」もレポート側にあります。
                         Section {
-                            ReportCard(
-                                subscriptions: subscriptionsInSelectedTypes,
-                                loans: loansInSelectedTypes,
-                                costTypeFilter: costTypeFilter,
+                            HomeSummaryCards(
+                                report: monthlyReport,
+                                nextItem: upcoming.first,
                                 catMood: catMood
-                            )
-                                .listRowInsets(EdgeInsets())
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                        }
-
-                        UpcomingChargeSection(notices: upcomingCharges)
-
-                        if !upcoming.isEmpty {
-                            // 費目の更新も借入の返済も「次に出ていくお金」なので、見出しをまとめています。
-                            Section("これから出ていく") {
-                                UpcomingTimeline(items: upcoming)
-                                    .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 2, trailing: 20))
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
+                            ) {
+                                isShowingReport = true
                             }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
 
                         // **検索中は隠します。** 状態の絞り込みは検索中に外れるため
@@ -177,6 +171,13 @@ struct DashboardView: View {
             }
             .listStyle(.insetGrouped)
             .liquidGlassScreen()
+            .navigationDestination(isPresented: $isShowingReport) {
+                ReportScreen(
+                    subscriptions: subscriptions,
+                    loans: loans,
+                    costTypeFilter: $costTypeFilter
+                )
+            }
             .navigationTitle(AppInfo.displayName)
             .navigationBarTitleDisplayMode(.inline)
             .searchable(

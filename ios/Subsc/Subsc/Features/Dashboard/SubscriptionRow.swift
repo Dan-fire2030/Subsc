@@ -18,13 +18,9 @@ struct SubscriptionRow: View {
             : AnyLayout(HStackLayout(spacing: 12))
 
         layout {
-            // **頭文字を敷いた44ptの色タイルをやめ、細い色の印にしました（2026-08-05）。**
-            // 頭文字は費目名のすぐ隣にある情報の繰り返しで、面積のわりに何も足しません。
-            // 色だけを細く残すと、行の左端が揃って一覧が静かになります。
-            Capsule(style: .continuous)
-                .fill(subscription.color)
-                .frame(width: 5, height: 34)
-                .accessibilityHidden(true)
+            // **行がパステルのカードになったので、色の丸へ戻しました（2026-10-15）。**
+            // 細い印だけでは、色の面の上で色が埋もれます。
+            PastelRowIcon(systemImage: subscription.costType.systemImage, colorHex: subscription.colorHex)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
@@ -37,7 +33,7 @@ struct SubscriptionRow: View {
                             .foregroundStyle(SubscPalette.textMuted)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(SubscPalette.surfaceElevated, in: Capsule())
+                            .background(SubscPalette.surface.opacity(0.65), in: Capsule())
                     }
                 }
                 metadataLayout {
@@ -109,9 +105,9 @@ private struct CategoryBadge: View {
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        // **下地は `surfaceElevated` です（2026-08-06）。**
-        // `.quaternary` はモードに関わらず灰色を重ねるため、白磁の地（ライト）では
-        // 一覧に灰色の小箱が並んで見えていました。地に馴染む沈んだ面へ揃えます。
-        .background(SubscPalette.surfaceElevated, in: Capsule())
+        // **下地はカードの面を半透明に重ねます（2026-10-15）。**
+        // 行が費目の色のカードになったので、沈んだ面（`surfaceElevated`）を置くと
+        // 色の上に灰色の小箱が乗って見えます。面の色を透かして馴染ませます。
+        .background(SubscPalette.surface.opacity(0.65), in: Capsule())
     }
 }
