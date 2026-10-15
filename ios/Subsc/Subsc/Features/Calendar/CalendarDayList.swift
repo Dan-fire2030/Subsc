@@ -12,10 +12,18 @@ struct CalendarDayList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SubscSpacing.s) {
             if let day {
-                Text(headline(for: day))
-                    .font(SubscTypography.label)
-                    .foregroundStyle(SubscPalette.textMuted)
-                    .padding(.horizontal, SubscSpacing.xs)
+                // **見出しに肉球を添えます（2026-10-15）。** 猫は飾りとしてさりげなく出す方針です。
+                Label {
+                    Text(headline(for: day))
+                } icon: {
+                    PawPrint()
+                        .fill(SubscPalette.catBody)
+                        .frame(width: 14, height: 14)
+                        .accessibilityHidden(true)
+                }
+                .font(SubscTypography.label)
+                .foregroundStyle(SubscPalette.textMuted)
+                .padding(.horizontal, SubscSpacing.xs)
 
                 if day.items.isEmpty {
                     Text("この日に出ていくお金はありません。")
@@ -44,10 +52,7 @@ struct CalendarDayList: View {
     @ViewBuilder
     private func row(for item: CalendarDayItem) -> some View {
         let content = HStack(spacing: SubscSpacing.m) {
-            Capsule(style: .continuous)
-                .fill(SubscPalette.harmonized(from: item.colorHex))
-                .frame(width: 4, height: 28)
-                .accessibilityHidden(true)
+            PastelRowIcon(systemImage: item.costType.systemImage, colorHex: item.colorHex)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -81,8 +86,14 @@ struct CalendarDayList: View {
                 }
             }
         }
-        .padding(.vertical, SubscSpacing.xs)
-        .padding(.horizontal, SubscSpacing.xs)
+        // **ホームの一覧と同じ、費目の色のカードにします（2026-10-15）。**
+        .padding(.vertical, SubscSpacing.m)
+        .padding(.leading, SubscSpacing.m)
+        .padding(.trailing, SubscSpacing.l)
+        .background(
+            PastelTint.card(for: item.colorHex),
+            in: RoundedRectangle(cornerRadius: SubscSpacing.Corner.row, style: .continuous)
+        )
         .contentShape(Rectangle())
 
         // **未入力の行だけ押せます。** 押して何も起きない行を混ぜると、
@@ -102,6 +113,23 @@ struct CalendarDayList: View {
             .foregroundStyle(SubscPalette.textMuted)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(SubscPalette.surfaceElevated, in: Capsule())
+            .background(SubscPalette.surface.opacity(0.65), in: Capsule())
+    }
+}
+
+/// 肉球です。真ん中の大きな玉と、上に並ぶ4つの小さな玉でできています。
+private struct PawPrint: Shape {
+    func path(in rect: CGRect) -> Path {
+        let unit = min(rect.width, rect.height) / 24
+        func circle(_ x: CGFloat, _ y: CGFloat, _ r: CGFloat) -> CGRect {
+            CGRect(x: rect.minX + (x - r) * unit, y: rect.minY + (y - r) * unit, width: r * 2 * unit, height: r * 2 * unit)
+        }
+        var path = Path()
+        path.addEllipse(in: CGRect(x: rect.minX + 7 * unit, y: rect.minY + 11.8 * unit, width: 10 * unit, height: 8.4 * unit))
+        path.addEllipse(in: circle(5.5, 10.5, 2.2))
+        path.addEllipse(in: circle(9.5, 6.5, 2.2))
+        path.addEllipse(in: circle(14.5, 6.5, 2.2))
+        path.addEllipse(in: circle(18.5, 10.5, 2.2))
+        return path
     }
 }

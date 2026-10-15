@@ -65,14 +65,6 @@ enum ReportChartPalette {
         SubscPalette.harmonizedHex(from: colorHex)
     }
 
-    /// 内訳シートの見本のグラデーションです。
-    ///
-    /// **段の作りは変えません**（元の色 → 同じ色の55% → 面）。色の出どころだけを揃えています。
-    static func breakdownSwatchColors(for colorHex: String) -> [Color] {
-        let base = ColorHex.color(from: breakdownBaseHex(for: colorHex))
-        return [base, base.opacity(0.55), SubscPalette.surfaceElevated]
-    }
-
     static func color(for item: ReportChartItem) -> Color {
         // **保存値ではなく、パステルの7色へ寄せた色で描きます。**
         // 旧プリセット（iOS標準色）で保存された費目がそのままだと、

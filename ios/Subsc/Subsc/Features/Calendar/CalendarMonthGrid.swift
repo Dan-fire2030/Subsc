@@ -13,7 +13,7 @@ struct CalendarMonthGrid: View {
     let onSelect: (Date) -> Void
 
     private var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
+        Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
     }
 
     /// 曜日の見出しです。**端末の設定した週の始まりに合わせて回します。**
@@ -33,10 +33,11 @@ struct CalendarMonthGrid: View {
                 }
             }
 
-            LazyVGrid(columns: columns, spacing: 2) {
+            LazyVGrid(columns: columns, spacing: 4) {
                 ForEach(days) { day in
                     CalendarDayCell(
                         day: day,
+                        dayNumber: calendar.component(.day, from: day.date),
                         isSelected: day.date == selectedDate,
                         showsAmounts: showsAmounts
                     )
@@ -45,6 +46,10 @@ struct CalendarMonthGrid: View {
                 }
             }
         }
+        // **月のマスを白いカードに載せます（2026-10-15）。** 支払い日を費目の色で塗るので、
+        // 地の上に直接並べると、塗ったマスと地の境目がぼやけます。
+        .padding(SubscSpacing.s)
+        .background(SubscPalette.surface, in: RoundedRectangle(cornerRadius: SubscSpacing.Corner.card, style: .continuous))
         .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 
@@ -63,6 +68,9 @@ struct CalendarMonthGrid: View {
 /// マス1つです。
 private struct CalendarDayCell: View {
     let day: CalendarDay
+    /// マスに出す日付の数字です。**「15日」ではなく「15」だけを出します（2026-10-15）。**
+    /// 今日を丸で囲むようになり、「日」まで入れると丸からはみ出しました。曜日の見出しがあるので数字だけで足ります。
+    let dayNumber: Int
     let isSelected: Bool
     let showsAmounts: Bool
 
@@ -72,10 +80,19 @@ private struct CalendarDayCell: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(day.date.formatted(.dateTime.day()))
+            // **今日は濃い丸で囲みます（2026-10-15）。** 支払い日を色で塗るようになったので、
+            // 今日まで色の枠で示すと、どちらの印か見分けられません。形で分けます。
+            Text("\(dayNumber)")
                 .font(SubscTypography.label)
-                .foregroundStyle(day.isToday ? SubscPalette.accent : SubscPalette.text)
                 .fontWeight(day.isToday ? .bold : .regular)
+                .monospacedDigit()
+                .foregroundStyle(day.isToday ? SubscPalette.background : SubscPalette.text)
+                .frame(minWidth: 24, minHeight: 24)
+                .background {
+                    if day.isToday {
+                        Circle().fill(SubscPalette.text)
+                    }
+                }
 
             dots
 
@@ -88,22 +105,27 @@ private struct CalendarDayCell: View {
         .padding(.top, 5)
         .frame(maxWidth: .infinity)
         .frame(height: height)
+        // **支払いのある日は、その費目の色で薄く塗ります（2026-10-15）。** 複数あるときは
+        // 先頭（借入→金額の大きい順）の色です。ほかの費目は点で残ります。
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(isSelected ? SubscPalette.surface : .clear)
+                .fill(fill)
         }
+        // **選んだ日はアクセントの枠で示します。** 面の色は費目の色に使っているためです。
         .overlay {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(
-                    day.isToday ? SubscPalette.accent.opacity(0.55) : .clear,
-                    lineWidth: 1.5
-                )
+                .strokeBorder(isSelected ? SubscPalette.accent : .clear, lineWidth: 2)
         }
         // **過ぎた日は淡く落とします。** 「もう出ていった」と「これから出ていく」を分けます。
         .opacity(day.isInDisplayedMonth ? (day.isPast ? 0.48 : 1) : 0.22)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+
+    private var fill: Color {
+        guard day.isInDisplayedMonth, let first = day.items.first else { return .clear }
+        return PastelTint.card(for: first.colorHex)
     }
 
     private var dots: some View {
@@ -139,8 +161,9 @@ private struct CalendarDayCell: View {
             if day.total > 0 {
                 Text(day.total, format: .currency(code: "JPY").precision(.fractionLength(0)))
                     .font(.system(size: 9))
+                    .fontWeight(.semibold)
                     .monospacedDigit()
-                    .foregroundStyle(SubscPalette.textMuted)
+                    .foregroundStyle(SubscPalette.text)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             } else if day.items.contains(where: \.isUnentered) {
@@ -155,7 +178,7 @@ private struct CalendarDayCell: View {
                     .monospacedDigit()
                     .foregroundStyle(SubscPalette.textMuted)
                     .padding(.horizontal, 4)
-                    .background(SubscPalette.surfaceElevated, in: Capsule())
+                    .background(SubscPalette.surface.opacity(0.65), in: Capsule())
             }
         }
     }

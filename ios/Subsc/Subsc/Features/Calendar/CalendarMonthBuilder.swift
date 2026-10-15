@@ -93,6 +93,7 @@ enum CalendarMonthBuilder {
                     subtitle: subscription.category,
                     colorHex: subscription.colorHex,
                     kind: .subscription,
+                    costType: subscription.costType,
                     amount: resolved.amount,
                     isUnentered: isUnentered,
                     isEstimated: resolved.source == .estimated,
@@ -124,6 +125,7 @@ enum CalendarMonthBuilder {
                         subtitle: loan.method.title,
                         colorHex: CostType.loan.colorHex,
                         kind: .loan,
+                        costType: .loan,
                         amount: payment.effectiveAmount,
                         isUnentered: false,
                         // **返済額は予定表から確定的に決まります。** 見込みにしません。

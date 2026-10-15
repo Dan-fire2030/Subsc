@@ -118,9 +118,4 @@ final class ReportBreakdownColorTests: XCTestCase {
             )
         }
     }
-
-    /// **グラデーションの段は3つのままです。** 色をそろえるついでに作りを変えていないこと。
-    func testBreakdownKeepsItsThreeStops() {
-        XCTAssertEqual(ReportChartPalette.breakdownSwatchColors(for: "#007AFF").count, 3)
-    }
 }

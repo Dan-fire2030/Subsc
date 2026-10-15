@@ -77,3 +77,40 @@ final class PastelTintTests: XCTestCase {
         return hue
     }
 }
+
+/// 費目フォームの色の選択肢を縛るテストです（2026-10-15にiOS標準色からパステルへ替えました）。
+final class CategoryColorChoiceTests: XCTestCase {
+    /// 選択肢はパステルの6色です。**ミストは入れません**（借入の色なので、費目に使うと紛れます）。
+    func testPresetsAreTheSixPastelsWithoutMist() {
+        XCTAssertEqual(CategoryColorChoice.presets, SubscPalette.Category.hueTargets)
+        XCTAssertFalse(CategoryColorChoice.presets.contains(SubscPalette.harmonizedFallbackHex))
+    }
+
+    /// 新しく登録する費目の既定の色はスカイです。
+    func testDefaultColorIsSky() {
+        XCTAssertEqual(CategoryColorChoice.defaultHex, "#9CC8FF")
+        XCTAssertTrue(CategoryColorChoice.presets.contains(CategoryColorChoice.defaultHex))
+    }
+
+    func testPastelsHaveTheirNames() {
+        XCTAssertEqual(CategoryColorChoice.name(for: "#8FDDB8"), "ミント")
+        XCTAssertEqual(CategoryColorChoice.name(for: "#9cc8ff"), "スカイ")
+    }
+
+    /// **以前の選択肢で保存された費目は、以前の名前のまま呼びます。**
+    /// 「カスタム」と呼ぶと、自分で選んだ覚えのない色に見えてしまいます。
+    func testLegacyIOSColorsKeepTheirNames() {
+        XCTAssertEqual(CategoryColorChoice.name(for: "#007AFF"), "ブルー")
+        XCTAssertEqual(CategoryColorChoice.name(for: "#FF9F0A"), "オレンジ")
+    }
+
+    func testUnknownColorIsCustom() {
+        XCTAssertEqual(CategoryColorChoice.name(for: "#123456"), "カスタム")
+    }
+
+    /// 選択中の色が選択肢に無いときは、末尾に足して選択が消えないようにします。
+    func testOptionsIncludeTheCurrentColor() {
+        XCTAssertEqual(CategoryColorChoice.options(selected: "#123456").last, "#123456")
+        XCTAssertEqual(CategoryColorChoice.options(selected: "#8FDDB8"), CategoryColorChoice.presets)
+    }
+}

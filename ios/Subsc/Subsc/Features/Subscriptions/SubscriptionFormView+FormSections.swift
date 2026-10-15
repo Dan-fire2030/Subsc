@@ -18,6 +18,54 @@ extension SubscriptionFormView {
         )
     }
 
+    /// 入力中の内容が、ホームの一覧でどう見えるかです。**保存前に色の見え方を確かめられます。**
+    var previewSection: some View {
+        Section {
+            HStack(spacing: SubscSpacing.m) {
+                PastelRowIcon(systemImage: costType.systemImage, colorHex: colorHex)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name.isEmpty ? "費目名" : name)
+                        .font(SubscTypography.body)
+                        .foregroundStyle(name.isEmpty ? SubscPalette.textMuted : SubscPalette.text)
+                        .lineLimit(1)
+                    Text("\(billingCycle.title)・\(renewalDate.formatted(.dateTime.month().day()))更新")
+                        .font(SubscTypography.label)
+                        .foregroundStyle(SubscPalette.textMuted)
+                }
+                Spacer(minLength: SubscSpacing.s)
+                if !hasVariableAmount {
+                    Text(amount, format: .currency(code: currency.rawValue))
+                        .font(SubscTypography.rowAmount)
+                        .monospacedDigit()
+                        .foregroundStyle(SubscPalette.text)
+                }
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("プレビュー")
+            .pastelCardRow(colorHex: colorHex)
+        }
+    }
+
+    /// 色見本1つです。選ばれている色には二重の輪を付けます。
+    func colorSwatch(_ hex: String) -> some View {
+        let isSelected = ColorHex.canonical(hex) == ColorHex.canonical(colorHex)
+        return Button {
+            colorHex = ColorHex.canonical(hex)
+        } label: {
+            Circle()
+                .fill(SubscPalette.harmonized(from: hex))
+                .frame(width: 32, height: 32)
+                .padding(3)
+                .overlay {
+                    Circle().strokeBorder(isSelected ? SubscPalette.text : .clear, lineWidth: 2)
+                }
+                .frame(minWidth: 44, minHeight: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(colorName(hex))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
     var serviceSection: some View {
         Section("費目") {
             // **新規登録のときだけ出します。** 編集中に出すと、名前・色・種別を
@@ -65,18 +113,17 @@ extension SubscriptionFormView {
                     .accessibilityIdentifier("category-validation-message")
             }
 
-            Picker("カラー", selection: $colorHex) {
-                ForEach(colorOptions, id: \.self) { hex in
-                    Label {
-                        Text(colorName(hex))
-                    } icon: {
-                        Circle()
-                            .fill(ColorHex.color(from: hex))
-                            .frame(width: 14, height: 14)
+            // **色は一覧から選ぶのではなく、色見本を並べて選びます（2026-10-15）。**
+            // 色は名前より見て選ぶもので、パステルの差は名前だけでは伝わりません。
+            VStack(alignment: .leading, spacing: SubscSpacing.s) {
+                Text("カラー")
+                HStack(spacing: SubscSpacing.s) {
+                    ForEach(colorOptions, id: \.self) { hex in
+                        colorSwatch(hex)
                     }
-                    .tag(hex)
                 }
             }
+            .padding(.vertical, SubscSpacing.xs)
 
             ColorPicker(
                 "カラーを自由に選ぶ",
@@ -163,7 +210,7 @@ extension SubscriptionFormView {
                             : "\(exchangeRateDate)の参照レート"
                     )
                     .font(.caption)
-                    .foregroundStyle(exchangeRateStatus == .stale ? .orange : .secondary)
+                    .foregroundStyle(exchangeRateStatus == .stale ? SubscPalette.caution : .secondary)
                 }
             }
 

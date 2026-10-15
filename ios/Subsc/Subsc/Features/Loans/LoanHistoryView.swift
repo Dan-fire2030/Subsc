@@ -90,7 +90,7 @@ struct LoanHistoryView: View {
                     }
                     Text(payment.status.title)
                         .font(.caption)
-                        .foregroundStyle(payment.status == .missed ? .orange : .secondary)
+                        .foregroundStyle(payment.status == .missed ? SubscPalette.caution : .secondary)
                 }
                 Spacer()
                 Text(

@@ -21,23 +21,11 @@ struct ReportBreakdownSheet: View {
 
     var body: some View {
         NavigationStack {
+            // **地は他の画面と同じ平らな色にします（2026-10-15）。**
+            // 以前は斜めのグラデーションにすりガラスを重ねていましたが、パステルの画面では
+            // ここだけ別の世界観に見えます。行を費目の色のカードにして、色はそちらで出します。
             ZStack {
-                // **黒猫のパレットで敷きます（2026-08-11）。**
-                // ここは青・紫・青緑を直に書いており、**リデザインで唯一取り残されていました**。
-                // 段の作り（3色の斜めグラデーション）はそのままに、色の出どころだけを揃えています。
-                LinearGradient(
-                    colors: [
-                        SubscPalette.accent.opacity(0.32),
-                        SubscPalette.background,
-                        SubscPalette.surfaceElevated
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-
-                Rectangle()
-                    .fill(.ultraThinMaterial)
+                SubscPalette.background
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -57,13 +45,9 @@ struct ReportBreakdownSheet: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
                         .background(
-                            .ultraThinMaterial,
-                            in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            SubscPalette.surface,
+                            in: RoundedRectangle(cornerRadius: SubscSpacing.Corner.card, style: .continuous)
                         )
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(SubscPalette.border, lineWidth: 0.8)
-                        }
 
                         ForEach(entries) { entry in
                             // アーカイブや削除で対象が消えている行は押せません。
@@ -98,7 +82,6 @@ struct ReportBreakdownSheet: View {
             }
             .navigationTitle("費目別料金")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .adaptiveNavigationBar()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -137,22 +120,12 @@ private struct BreakdownRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        // **グラフ本体と同じ寄せ方を通します（2026-08-11）。**
-                        // ここだけ保存値で描いていたため、同じ費目がグラフと内訳で
-                        // 違う色に見えていました。段の作りは変えていません。
-                        colors: ReportChartPalette.breakdownSwatchColors(for: entry.colorHex),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 38, height: 38)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(SubscPalette.border, lineWidth: 0.7)
-                }
+            // **グラフ本体と同じ寄せ方を通します（2026-08-11）。** 色の出どころは
+            // `ReportChartPalette.breakdownBaseHex` で、ホームの一覧と同じ丸のアイコンにします（2026-10-15）。
+            PastelRowIcon(
+                systemImage: entry.costType.systemImage,
+                colorHex: ReportChartPalette.breakdownBaseHex(for: entry.colorHex)
+            )
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 5) {
@@ -167,7 +140,7 @@ private struct BreakdownRow: View {
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(SubscPalette.surfaceElevated, in: Capsule())
+                            .background(SubscPalette.surface.opacity(0.65), in: Capsule())
                             .foregroundStyle(SubscPalette.text)
                     }
                 }
@@ -186,7 +159,7 @@ private struct BreakdownRow: View {
                 entry.amount,
                 format: .currency(code: "JPY").precision(.fractionLength(0))
             )
-            .font(.subheadline.weight(.bold))
+            .font(SubscTypography.rowAmount)
             .foregroundStyle(SubscPalette.text)
             .monospacedDigit()
 
@@ -197,15 +170,13 @@ private struct BreakdownRow: View {
                     .accessibilityHidden(true)
             }
         }
-        .padding(13)
+        .padding(.vertical, 12)
+        .padding(.leading, 12)
+        .padding(.trailing, 16)
         .background(
-            .ultraThinMaterial,
-            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            PastelTint.card(for: ReportChartPalette.breakdownBaseHex(for: entry.colorHex)),
+            in: RoundedRectangle(cornerRadius: SubscSpacing.Corner.row, style: .continuous)
         )
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(SubscPalette.border, lineWidth: 0.7)
-        }
         .accessibilityElement(children: .combine)
     }
 }

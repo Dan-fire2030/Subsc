@@ -65,7 +65,7 @@ struct AmountHistorySection: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(.orange.opacity(0.18), in: Capsule())
+                        .background(SubscPalette.caution.opacity(0.18), in: Capsule())
                         .foregroundStyle(SubscPalette.accent)
                     Text(
                         resolved.amount,

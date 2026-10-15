@@ -19,6 +19,8 @@ struct CalendarDayItem: Identifiable, Equatable {
     let subtitle: String
     let colorHex: String
     let kind: Kind
+    /// 費用の種別です。明細の行の先頭に、種別の記号を出すために持ちます（2026-10-15）。
+    let costType: CostType
     /// その日に出ていく額です。**合計はこれを足し上げます。**
     let amount: Double
     /// 変動費で、その月の実績がまだ記録されていない状態です。

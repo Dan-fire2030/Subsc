@@ -711,3 +711,9 @@ Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:di
 - このシミュレーターは harutoさんの Apple Account にサインインしている。通常起動で費目を登録すると、iCloud（開発環境）へ同期され得る
 - `xcrun simctl launch '<端末名>' com.tonaria.subsc -ui-testing` で起動するとメモリ上だけの保存になる（`StorageMode.inMemory`）
 - ただし **OSの「Apple Accountの確認」ダイアログ**がときどき割り込み、タップが吸われる。パスワードは入れず「今はしない」で閉じる。日本語キーボードで英字を打つと変換中のまま重複するので、名前は「よく使うサービスから選ぶ」で入れると早い
+
+### 2026-10-15：ダーク固定のナビゲーションバーは、地が明るくなると題名を消す
+- 内訳シートは `.toolbarColorScheme(.dark, for: .navigationBar)` で題名を白に固定していた。黒猫の暗い地では正しかったが、
+  パステルの明るい地では白い題名が地に溶ける。**配色を明るくするときは、色を固定している修飾子（`toolbarColorScheme` /
+  `preferredColorScheme` / `.foregroundStyle(.white)`）を先に洗い出す**
+- 日付の書式 `.dateTime.day()` は日本語では「15日」になる。丸で囲むような狭い場所では `calendar.component(.day, from:)` の数字だけにする

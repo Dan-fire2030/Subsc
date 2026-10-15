@@ -58,7 +58,6 @@ struct SubscriptionFormView: View {
 
     let initialDraft: Draft
 
-    let colorPresets = ["#007AFF", "#34C759", "#FF375F", "#AF52DE", "#FF9F0A"]
     let dayOptions = [0, 1, 3, 7, 14, 30]
     let hourOptions = [1, 3, 6, 12]
 
@@ -98,7 +97,7 @@ struct SubscriptionFormView: View {
             calendar.date(byAdding: .year, value: 1, to: .now) ?? .now
         let initialWebsiteURL = subscription?.websiteURL ?? ""
         let initialNotes = subscription?.notes ?? ""
-        let initialColorHex = ColorHex.canonical(subscription?.colorHex ?? "#007AFF")
+        let initialColorHex = ColorHex.canonical(subscription?.colorHex ?? CategoryColorChoice.defaultHex)
         let initialNotificationsEnabled = subscription?.notificationsEnabled ?? true
         let initialLeadDays = Set(subscription?.leadDays ?? [1])
         let initialLeadHours = Set(subscription?.leadHours ?? [])
@@ -167,6 +166,7 @@ struct SubscriptionFormView: View {
     var body: some View {
         NavigationStack {
             Form {
+                previewSection
                 serviceSection
                 priceSection
                 renewalSection
