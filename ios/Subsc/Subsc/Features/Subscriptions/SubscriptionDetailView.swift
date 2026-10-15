@@ -22,11 +22,8 @@ struct SubscriptionDetailView: View {
         List {
             Section {
                 HStack(spacing: 14) {
-                    // 一覧と同じ細い色の印にします。頭文字は名前のすぐ隣にある繰り返しです。
-                    Capsule(style: .continuous)
-                        .fill(subscription.color)
-                        .frame(width: 6, height: 46)
-                        .accessibilityHidden(true)
+                    // 一覧と同じ色の丸にします（2026-10-15）。一覧から開いたときに同じ印が続きます。
+                    PastelRowIcon(systemImage: subscription.costType.systemImage, colorHex: subscription.colorHex)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(subscription.name)
                             .font(.title3.bold())

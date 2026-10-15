@@ -135,10 +135,8 @@ struct LoanDetailView: View {
     private var headerSection: some View {
         Section {
             HStack(spacing: 14) {
-                Capsule(style: .continuous)
-                    .fill(accentColor)
-                    .frame(width: 6, height: 46)
-                    .accessibilityHidden(true)
+                // 一覧と同じ色の丸にします（2026-10-15）。
+                PastelRowIcon(systemImage: CostType.loan.systemImage, colorHex: CostType.loan.colorHex)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(loan.name)
                         .font(.title3.bold())

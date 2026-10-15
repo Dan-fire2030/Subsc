@@ -717,3 +717,10 @@ Subsc  @objc closure #1 in LoanNotificationResponder.userNotificationCenter(_:di
   パステルの明るい地では白い題名が地に溶ける。**配色を明るくするときは、色を固定している修飾子（`toolbarColorScheme` /
   `preferredColorScheme` / `.foregroundStyle(.white)`）を先に洗い出す**
 - 日付の書式 `.dateTime.day()` は日本語では「15日」になる。丸で囲むような狭い場所では `calendar.component(.day, from:)` の数字だけにする
+
+### 2026-10-15：配色を明るくしたら、`.white` で固定した文字を全部疑う
+- バブルの円の中の名前と金額が `.foregroundStyle(.white)` で固定されており、パステルの円の上で読めなかった（バター 1.4:1）
+- 黒猫の頃は濃い色の上だったので正しかった。**明るい配色へ替えるときは `.white` / `.black` の固定を洗い出す**
+- 見本データは、起動引数で切り替える一時的なコードを `SubscApp.init` に入れて流し込み、確認後に戻した（コミットしない）。
+  グラフの表示方法は `xcrun simctl spawn '<端末名>' defaults write com.tonaria.subsc theme.chartStyle bubble` で切り替えられる
+- `@ScaledMetric` は上限が無い。飾りの印は `min(scaled, 上限)` で止めないと、最大の文字サイズで本文を押し出す

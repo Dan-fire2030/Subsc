@@ -65,6 +65,12 @@ enum ReportChartPalette {
         SubscPalette.harmonizedHex(from: colorHex)
     }
 
+    /// パステルの面の上に直接載せる文字の色です（バブルの中の名前と金額）。
+    ///
+    /// **白で固定していたのをやめました（2026-10-15）。** パステルの円では白が読めず、
+    /// バターでは 1.4:1 でした。パステルは両モードで同じ色なので、濃い1色に固定します。
+    static let labelOnPastel = ColorHex.color(from: "#2A2733")
+
     static func color(for item: ReportChartItem) -> Color {
         // **保存値ではなく、パステルの7色へ寄せた色で描きます。**
         // 旧プリセット（iOS標準色）で保存された費目がそのままだと、

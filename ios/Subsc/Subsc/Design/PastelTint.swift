@@ -95,11 +95,16 @@ struct PastelRowIcon: View {
     let systemImage: String
     let colorHex: String
 
-    @ScaledMetric(relativeTo: .body) private var size: CGFloat = 44
+    @ScaledMetric(relativeTo: .body) private var scaledSize: CGFloat = 44
+
+    /// 文字の拡大に合わせて大きくしますが、**60ptで止めます（2026-10-15）。**
+    /// 最大の文字サイズでは140pt近くまで育ち、行の文字を下へ押し出していました。
+    /// 印は飾りで、大きく読みたいのは文字のほうです。
+    private var size: CGFloat { min(scaledSize, 60) }
 
     var body: some View {
         Image(systemName: systemImage)
-            .font(.system(.body, weight: .semibold))
+            .font(.system(size: size * 0.42, weight: .semibold))
             .foregroundStyle(PastelTint.iconInk(for: colorHex))
             .frame(width: size, height: size)
             .background(PastelTint.iconBackground(for: colorHex), in: Circle())

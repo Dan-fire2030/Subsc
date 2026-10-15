@@ -114,3 +114,20 @@ final class CategoryColorChoiceTests: XCTestCase {
         XCTAssertEqual(CategoryColorChoice.options(selected: "#8FDDB8"), CategoryColorChoice.presets)
     }
 }
+
+/// パステルの面の**上に直接**載せる文字（バブルの中の名前と金額）を縛るテストです。
+///
+/// 黒猫の頃は円の中の文字を白で固定していましたが、パステルの円では白が読めません
+/// （バターで 1.4:1、2026-10-15に発見）。パステルは両モードで同じ色なので、文字も1色に固定します。
+final class LabelOnPastelTests: XCTestCase {
+    func testLabelReadsOnEveryPastel() {
+        for hex in SubscPalette.Category.hexes {
+            let ratio = PaletteMeasure.ratio(
+                ReportChartPalette.labelOnPastel,
+                ColorHex.color(from: hex),
+                style: .light
+            )
+            XCTAssertGreaterThanOrEqual(ratio, 4.5, "\(hex)：\(String(format: "%.2f", ratio)):1")
+        }
+    }
+}

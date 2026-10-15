@@ -71,7 +71,8 @@ struct BubbleNodeView: View {
                             .font(.caption2)
                             .monospacedDigit()
                     }
-                    .foregroundStyle(.white)
+                    // 円の上の文字は濃い色にします。白ではパステルの円で読めません（`labelOnPastel`）。
+                    .foregroundStyle(ReportChartPalette.labelOnPastel)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .minimumScaleFactor(Layout.minimumLabelScale)
