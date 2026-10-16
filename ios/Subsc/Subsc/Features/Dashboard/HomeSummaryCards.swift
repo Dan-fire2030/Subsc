@@ -134,10 +134,12 @@ struct HomeSummaryCards: View {
 private enum HomeSummaryLayout {
     /// のぞく猫の大きさです。**合計の数字より目立たない**大きさにします。
     static let catSize: CGFloat = 56
-    /// 猫の前足（設計空間の y≒82）がカードの上端に重なるよう、上へずらす量です。
-    static let catLift: CGFloat = 46
+    /// 猫の前足がカードの上端に重なるよう、上へずらす量です。
+    /// 粘土の猫の絵では前足の中ほどが高さの約84%にあります（2026-10-16に実測）。56pt × 0.84 ≒ 47。
+    static let catLift: CGFloat = 47
     /// 猫がはみ出すぶん、カードの上に空ける余白です。
-    static let topRoom: CGFloat = 38
+    /// 粘土の猫の「見開いた目」は耳が枠の上から約10%まで届くため、38では耳先が切れました（2026-10-16）。
+    static let topRoom: CGFloat = 46
     /// 内訳の帯に出す費目の数です。多すぎると帯が細切れになり、色の比較ができません。
     static let breakdownLimit = 5
 }

@@ -69,17 +69,10 @@ enum SubscPalette {
 
     // MARK: - 猫
 
-    /// 猫の体です。ラベンダーのパステルを、**白いカードの上で図形として見分けられる濃さ（3:1以上）**まで
-    /// 一段沈めています。淡いままだとカードに溶けます。ダークでは明るい版にして暗い地から浮かせます。
+    /// 猫のまわりの飾り（カレンダーの見出しの肉球など）の色です。猫の体のラベンダーに合わせています。
+    ///
+    /// 猫そのものは2026-10-16から粘土の猫の絵（`CatCompanionView`）になり、この色では塗りません。
     static let catBody = dynamic(light: "#9585D6", dark: "#C9BAFF")
-    /// 目・眉・口元です。体の上で表情が読める濃さにします。
-    static let catFace = dynamic(light: "#2A2733", dark: "#15131B")
-    /// 耳の内側です。飾りなので、体と見分けられればよい色にしています。
-    static let catEarInner = ColorHex.color(from: "#FFC9DA")
-    static let catNose = ColorHex.color(from: "#E07A93")
-    /// 頬です。体の上に半透明で重ねます（`CatCompanionView` 側で透明度を掛けます）。
-    /// **ピーチではなくピンク寄りにしています。** ピーチをラベンダーに重ねると茶色く濁りました（2026-10-15）。
-    static let catCheek = ColorHex.color(from: "#FF9FBA")
     /// 猫に添える符号（「！」・きらめき・案内の点）です。**アクセントと同じ色**にして、
     /// 「ここを見て」という一点の意味を揃えます。
     static let catAccent = accent

@@ -2,32 +2,33 @@ import SwiftUI
 
 /// 相棒の猫です。気分に応じて表情（目・耳・小さな符号）が変わります。
 ///
-/// **2026-10-15に黒猫からパステルの猫へ替えました。** 姿勢は1つに保ち、顔つきだけで
-/// 気分を伝えます。形は `PastelCatArt`、気分と表情の対応は `CatExpression` が持ちます。
+/// **2026-10-16に図形の猫から粘土の猫の絵へ替えました。** 目と耳の違いは絵（`CatExpression.imageName`）が持ち、
+/// 汗・きらめき・「！」・点は `PastelCatArt` の図形をコードで重ねます。
+/// 絵は1枚で両モードに使います（粘土の質感は暗い地でも明るい地でも沈まないため）。
 ///
 /// **文字は持ちません。** 金額を扱う画面でキャラクターが喋ると、事実と演出の区別が
 /// つかなくなるためです。読み上げにだけ状態の説明を渡します。
 struct CatCompanionView: View {
     let mood: CatMood
 
-    /// 頬は体の上に半透明で重ね、色を足しすぎないようにします。
-    private static let cheekOpacity = 0.6
-
     var body: some View {
-        Canvas { context, size in
-            // 設計空間（100）を、与えられた大きさへ収めます。
-            let scale = min(size.width, size.height) / PastelCatArt.canvasSize
-            let offset = CGPoint(
-                x: (size.width - PastelCatArt.canvasSize * scale) / 2,
-                y: (size.height - PastelCatArt.canvasSize * scale) / 2
-            )
-            context.translateBy(x: offset.x, y: offset.y)
-            context.scaleBy(x: scale, y: scale)
-
-            for shape in PastelCatArt.shapes(for: CatExpression(mood: mood)) {
-                var layer = context
-                if shape.ink == .cheek { layer.opacity = Self.cheekOpacity }
-                layer.fill(shape.path, with: .color(Self.color(for: shape.ink)))
+        let expression = CatExpression(mood: mood)
+        ZStack {
+            Image(expression.imageName)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+            Canvas { context, size in
+                // 設計空間（100）を、絵と同じ枠へ収めます。
+                let scale = min(size.width, size.height) / PastelCatArt.canvasSize
+                context.translateBy(
+                    x: (size.width - PastelCatArt.canvasSize * scale) / 2,
+                    y: (size.height - PastelCatArt.canvasSize * scale) / 2
+                )
+                context.scaleBy(x: scale, y: scale)
+                for shape in PastelCatArt.accentShapes(for: expression) {
+                    context.fill(shape.path, with: .color(Self.color(for: shape.ink)))
+                }
             }
         }
         .aspectRatio(1, contentMode: .fit)
@@ -37,11 +38,6 @@ struct CatCompanionView: View {
 
     private static func color(for ink: PastelCatInk) -> Color {
         switch ink {
-        case .body: SubscPalette.catBody
-        case .earInner: SubscPalette.catEarInner
-        case .face: SubscPalette.catFace
-        case .nose: SubscPalette.catNose
-        case .cheek: SubscPalette.catCheek
         case .accent: SubscPalette.catAccent
         case .sweat: SubscPalette.catSweat
         }
